@@ -1,13 +1,13 @@
 
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   LayoutDashboard, 
   Package, 
   ShoppingCart, 
   Users, 
   Settings,
-  Folder
+  Folder,
+  BarChart
 } from "lucide-react";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import ProductsManager from "@/components/admin/ProductsManager";
@@ -15,6 +15,7 @@ import CategoriesManager from "@/components/admin/CategoriesManager";
 import OrdersManager from "@/components/admin/OrdersManager";
 import CustomersManager from "@/components/admin/CustomersManager";
 import SettingsManager from "@/components/admin/SettingsManager";
+import RelatoriosManager from "@/components/admin/RelatoriosManager";
 import { 
   SidebarProvider, 
   Sidebar, 
@@ -55,7 +56,7 @@ export default function Admin() {
                     isActive={activeTab === "products"}
                   >
                     <Package />
-                    <span>Products</span>
+                    <span>Produtos</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
@@ -64,7 +65,7 @@ export default function Admin() {
                     isActive={activeTab === "categories"}
                   >
                     <Folder />
-                    <span>Categories</span>
+                    <span>Categorias</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
@@ -73,7 +74,7 @@ export default function Admin() {
                     isActive={activeTab === "orders"}
                   >
                     <ShoppingCart />
-                    <span>Orders</span>
+                    <span>Pedidos</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
@@ -82,7 +83,16 @@ export default function Admin() {
                     isActive={activeTab === "customers"}
                   >
                     <Users />
-                    <span>Customers</span>
+                    <span>Clientes</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    onClick={() => setActiveTab("relatorios")} 
+                    isActive={activeTab === "relatorios"}
+                  >
+                    <BarChart />
+                    <span>Relatórios</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
@@ -91,7 +101,7 @@ export default function Admin() {
                     isActive={activeTab === "settings"}
                   >
                     <Settings />
-                    <span>Settings</span>
+                    <span>Configurações</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -106,6 +116,7 @@ export default function Admin() {
                 {activeTab === "categories" && <CategoriesManager />}
                 {activeTab === "orders" && <OrdersManager />}
                 {activeTab === "customers" && <CustomersManager />}
+                {activeTab === "relatorios" && <RelatoriosManager />}
                 {activeTab === "settings" && <SettingsManager />}
               </div>
             </div>

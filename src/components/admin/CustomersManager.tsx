@@ -18,8 +18,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Search, Eye } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 
-// Mock data
+// Dados fictícios
 const mockCustomers = [
   { id: "1", name: "João Silva", email: "joao.silva@example.com", phone: "(11) 98765-4321", orders: 5, totalSpent: 1299.50, joined: "2023-05-15" },
   { id: "2", name: "Maria Oliveira", email: "maria.oliveira@example.com", phone: "(21) 98765-4321", orders: 3, totalSpent: 789.90, joined: "2023-06-20" },
@@ -42,14 +44,14 @@ export default function CustomersManager() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Customers</h1>
-        <p className="text-gray-500">Manage your customer base</p>
+        <h1 className="text-2xl font-bold">Clientes</h1>
+        <p className="text-gray-500">Gerencie sua base de clientes</p>
       </div>
       
       <div className="flex items-center w-full max-w-sm space-x-2 mb-6">
         <Input 
           type="search" 
-          placeholder="Search customers..." 
+          placeholder="Buscar clientes..." 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full"
@@ -59,23 +61,23 @@ export default function CustomersManager() {
         </Button>
       </div>
       
-      <div className="rounded-md border">
+      <div className="rounded-md border bg-white">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
+              <TableHead>Nome</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Orders</TableHead>
-              <TableHead>Total Spent</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Telefone</TableHead>
+              <TableHead>Pedidos</TableHead>
+              <TableHead>Total Gasto</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredCustomers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-6">
-                  No customers found
+                  Nenhum cliente encontrado
                 </TableCell>
               </TableRow>
             ) : (
@@ -99,42 +101,61 @@ export default function CustomersManager() {
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-md">
                         <DialogHeader>
-                          <DialogTitle>Customer Profile</DialogTitle>
+                          <DialogTitle>Perfil do Cliente</DialogTitle>
                         </DialogHeader>
                         <div className="py-4">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <p className="text-sm font-medium">Name</p>
-                              <p className="text-sm">{customer.name}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">Email</p>
-                              <p className="text-sm">{customer.email}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">Phone</p>
-                              <p className="text-sm">{customer.phone}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">Joined</p>
-                              <p className="text-sm">{new Date(customer.joined).toLocaleDateString()}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">Orders</p>
-                              <p className="text-sm">{customer.orders}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">Total Spent</p>
-                              <p className="text-sm">R$ {customer.totalSpent.toFixed(2)}</p>
-                            </div>
-                          </div>
-                          
-                          <div className="mt-6">
-                            <h3 className="text-sm font-medium mb-2">Recent Orders</h3>
-                            <p className="text-sm text-gray-500 text-center py-4">
-                              Recent orders would be displayed here
-                            </p>
-                          </div>
+                          <Tabs defaultValue="info">
+                            <TabsList className="mb-4">
+                              <TabsTrigger value="info">Informações</TabsTrigger>
+                              <TabsTrigger value="orders">Pedidos</TabsTrigger>
+                              <TabsTrigger value="notes">Anotações</TabsTrigger>
+                            </TabsList>
+                            
+                            <TabsContent value="info">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <p className="text-sm font-medium">Nome</p>
+                                  <p className="text-sm">{customer.name}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">Email</p>
+                                  <p className="text-sm">{customer.email}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">Telefone</p>
+                                  <p className="text-sm">{customer.phone}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">Cadastro</p>
+                                  <p className="text-sm">{new Date(customer.joined).toLocaleDateString()}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">Pedidos</p>
+                                  <p className="text-sm">{customer.orders}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">Total Gasto</p>
+                                  <p className="text-sm">R$ {customer.totalSpent.toFixed(2)}</p>
+                                </div>
+                              </div>
+                            </TabsContent>
+                            
+                            <TabsContent value="orders">
+                              <p className="text-sm text-gray-500 text-center py-4">
+                                O histórico de pedidos será exibido aqui
+                              </p>
+                            </TabsContent>
+                            
+                            <TabsContent value="notes">
+                              <div className="space-y-4">
+                                <p className="text-sm text-gray-500">
+                                  Nenhuma anotação para este cliente.
+                                </p>
+                                <Input placeholder="Adicionar uma anotação..." />
+                                <Button variant="outline">Salvar Anotação</Button>
+                              </div>
+                            </TabsContent>
+                          </Tabs>
                         </div>
                       </DialogContent>
                     </Dialog>

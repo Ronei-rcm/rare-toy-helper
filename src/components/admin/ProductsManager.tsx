@@ -13,15 +13,16 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Plus, Search, Edit, Trash } from "lucide-react";
+import { Plus, Search, Edit, Trash, Filter } from "lucide-react";
+import { toast } from "sonner";
 
-// Mock data
+// Dados fictícios
 const mockProducts: ToyItem[] = [
-  { id: "1", name: "Vintage Teddy Bear", price: 89.90, imageUrl: "/placeholder.svg", category: "Stuffed Animals", rarity: "Rare", condition: "Good" },
-  { id: "2", name: "Collectible Action Figure", price: 129.99, imageUrl: "/placeholder.svg", category: "Action Figures", rarity: "Ultra Rare", condition: "Excellent" },
-  { id: "3", name: "Classic Board Game", price: 59.90, imageUrl: "/placeholder.svg", category: "Board Games", rarity: "Common", condition: "Very Good" },
-  { id: "4", name: "Retro Game Console", price: 299.90, imageUrl: "/placeholder.svg", category: "Video Games", rarity: "Rare", condition: "Fair" },
-  { id: "5", name: "Model Train Set", price: 189.50, imageUrl: "/placeholder.svg", category: "Models", rarity: "Uncommon", condition: "Good" },
+  { id: "1", name: "Urso de Pelúcia Vintage", price: 89.90, imageUrl: "/placeholder.svg", category: "Bichinhos de Pelúcia", rarity: "Raro", condition: "Bom" },
+  { id: "2", name: "Action Figure Colecionável", price: 129.99, imageUrl: "/placeholder.svg", category: "Action Figures", rarity: "Ultra Raro", condition: "Excelente" },
+  { id: "3", name: "Jogo de Tabuleiro Clássico", price: 59.90, imageUrl: "/placeholder.svg", category: "Jogos de Tabuleiro", rarity: "Comum", condition: "Muito Bom" },
+  { id: "4", name: "Console de Videogame Retrô", price: 299.90, imageUrl: "/placeholder.svg", category: "Videogames", rarity: "Raro", condition: "Regular" },
+  { id: "5", name: "Kit de Trem de Modelo", price: 189.50, imageUrl: "/placeholder.svg", category: "Modelos", rarity: "Incomum", condition: "Bom" },
 ];
 
 export default function ProductsManager() {
@@ -60,34 +61,38 @@ export default function ProductsManager() {
         imageUrl: "/placeholder.svg"
       });
       setIsAddDialogOpen(false);
+      toast.success("Produto adicionado com sucesso!");
+    } else {
+      toast.error("Preencha pelo menos o nome e o preço do produto!");
     }
   };
 
   const handleDeleteProduct = (id: string) => {
     setProducts(products.filter(product => product.id !== id));
+    toast.success("Produto removido com sucesso!");
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Products</h1>
-          <p className="text-gray-500">Manage your product inventory</p>
+          <h1 className="text-2xl font-bold">Produtos</h1>
+          <p className="text-gray-500">Gerencie seu inventário de produtos</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Add Product
+              Adicionar Produto
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Product</DialogTitle>
+              <DialogTitle>Adicionar Novo Produto</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">Name</Label>
+                <Label htmlFor="name" className="text-right">Nome</Label>
                 <Input
                   id="name"
                   value={newProduct.name}
@@ -96,7 +101,7 @@ export default function ProductsManager() {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="price" className="text-right">Price</Label>
+                <Label htmlFor="price" className="text-right">Preço</Label>
                 <Input
                   id="price"
                   type="number"
@@ -106,7 +111,7 @@ export default function ProductsManager() {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="category" className="text-right">Category</Label>
+                <Label htmlFor="category" className="text-right">Categoria</Label>
                 <Input
                   id="category"
                   value={newProduct.category}
@@ -115,7 +120,7 @@ export default function ProductsManager() {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="rarity" className="text-right">Rarity</Label>
+                <Label htmlFor="rarity" className="text-right">Raridade</Label>
                 <Input
                   id="rarity"
                   value={newProduct.rarity}
@@ -124,7 +129,7 @@ export default function ProductsManager() {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="condition" className="text-right">Condition</Label>
+                <Label htmlFor="condition" className="text-right">Condição</Label>
                 <Input
                   id="condition"
                   value={newProduct.condition}
@@ -134,43 +139,50 @@ export default function ProductsManager() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleAddProduct}>Save</Button>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancelar</Button>
+              <Button onClick={handleAddProduct}>Salvar</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
       
-      <div className="flex items-center w-full max-w-sm space-x-2 mb-6">
-        <Input 
-          type="search" 
-          placeholder="Search products..." 
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full"
-        />
-        <Button type="submit" size="icon" variant="ghost">
-          <Search className="h-4 w-4" />
+      <div className="flex justify-between items-center">
+        <div className="flex items-center w-full max-w-sm space-x-2">
+          <Input 
+            type="search" 
+            placeholder="Buscar produtos..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full"
+          />
+          <Button type="submit" size="icon" variant="ghost">
+            <Search className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <Button variant="outline" size="sm">
+          <Filter className="h-4 w-4 mr-2" />
+          Filtros
         </Button>
       </div>
       
-      <div className="rounded-md border">
+      <div className="rounded-md border bg-white">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Rarity</TableHead>
-              <TableHead>Condition</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Nome</TableHead>
+              <TableHead>Categoria</TableHead>
+              <TableHead>Raridade</TableHead>
+              <TableHead>Condição</TableHead>
+              <TableHead>Preço</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredProducts.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-6">
-                  No products found
+                  Nenhum produto encontrado
                 </TableCell>
               </TableRow>
             ) : (

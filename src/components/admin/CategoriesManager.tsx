@@ -13,14 +13,15 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Plus, Edit, Trash } from "lucide-react";
+import { toast } from "sonner";
 
-// Mock data
+// Dados fictícios
 const mockCategories = [
-  { id: "1", name: "Action Figures", description: "Collectible action figures", productCount: 48 },
-  { id: "2", name: "Stuffed Animals", description: "Plush and stuffed toys", productCount: 32 },
-  { id: "3", name: "Board Games", description: "Classic and collectible board games", productCount: 25 },
-  { id: "4", name: "Video Games", description: "Retro and vintage video games", productCount: 56 },
-  { id: "5", name: "Models", description: "Model kits and collectibles", productCount: 18 },
+  { id: "1", name: "Action Figures", description: "Figuras de ação colecionáveis", productCount: 48 },
+  { id: "2", name: "Bichinhos de Pelúcia", description: "Pelúcias e brinquedos de pelúcia", productCount: 32 },
+  { id: "3", name: "Jogos de Tabuleiro", description: "Jogos de tabuleiro clássicos e colecionáveis", productCount: 25 },
+  { id: "4", name: "Videogames", description: "Videogames retrô e vintage", productCount: 56 },
+  { id: "5", name: "Modelos", description: "Kits de modelos e colecionáveis", productCount: 18 },
 ];
 
 export default function CategoriesManager() {
@@ -45,34 +46,38 @@ export default function CategoriesManager() {
         description: ""
       });
       setIsAddDialogOpen(false);
+      toast.success("Categoria adicionada com sucesso!");
+    } else {
+      toast.error("O nome da categoria é obrigatório!");
     }
   };
 
   const handleDeleteCategory = (id: string) => {
     setCategories(categories.filter(category => category.id !== id));
+    toast.success("Categoria removida com sucesso!");
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Categories</h1>
-          <p className="text-gray-500">Manage your product categories</p>
+          <h1 className="text-2xl font-bold">Categorias</h1>
+          <p className="text-gray-500">Gerencie suas categorias de produtos</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Add Category
+              Adicionar Categoria
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Category</DialogTitle>
+              <DialogTitle>Adicionar Nova Categoria</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">Name</Label>
+                <Label htmlFor="name" className="text-right">Nome</Label>
                 <Input
                   id="name"
                   value={newCategory.name}
@@ -81,7 +86,7 @@ export default function CategoriesManager() {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="description" className="text-right">Description</Label>
+                <Label htmlFor="description" className="text-right">Descrição</Label>
                 <Input
                   id="description"
                   value={newCategory.description}
@@ -91,21 +96,21 @@ export default function CategoriesManager() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleAddCategory}>Save</Button>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancelar</Button>
+              <Button onClick={handleAddCategory}>Salvar</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
       
-      <div className="rounded-md border">
+      <div className="rounded-md border bg-white">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Products</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Nome</TableHead>
+              <TableHead>Descrição</TableHead>
+              <TableHead>Produtos</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

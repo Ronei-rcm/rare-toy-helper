@@ -1,17 +1,36 @@
 
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, ShoppingCart, Menu, X } from 'lucide-react';
+import { Search, ShoppingCart, Menu, X, User, LogIn } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from '@/hooks/use-mobile';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
+
+  // Verifica se o usuário está logado
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, [location.pathname]);
 
   // Check if the navbar should be transparent or solid
   useEffect(() => {
@@ -31,10 +50,26 @@ const NavBar = () => {
 
   const navItems = [
     { name: "Home", path: "/" },
-    { name: "Collection", path: "/collection" },
-    { name: "Categories", path: "/categories" },
-    { name: "About", path: "/about" },
+    { name: "Coleção", path: "/collection" },
+    { name: "Categorias", path: "/categories" },
+    { name: "Sobre", path: "/about" },
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("isLoggedIn");
+    setUser(null);
+    toast.success("Logout realizado com sucesso!");
+    navigate("/");
+  };
+
+  const goToUserArea = () => {
+    if (user?.role === "admin") {
+      navigate("/admin");
+    } else {
+      navigate("/cliente");
+    }
+  };
 
   return (
     <motion.header
@@ -76,19 +111,52 @@ const NavBar = () => {
             <div className="relative">
               <Input
                 type="text"
-                placeholder="Search rare toys..."
+                placeholder="Buscar brinquedos raros..."
                 className="w-60 pl-10 pr-4 py-2 rounded-full bg-secondary/50 border-0 focus:bg-white transition-colors duration-200"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             </div>
           )}
           
-          <Button variant="ghost" size="icon" className="relative">
-            <ShoppingCart className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              0
-            </span>
+          <Button variant="ghost" size="icon" className="relative" asChild>
+            <Link to="/carrinho">
+              <ShoppingCart className="h-5 w-5" />
+              <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                0
+              </span>
+            </Link>
           </Button>
+          
+          {/* Login / User Menu */}
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full h-9 w-9 border">
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={goToUserArea}>
+                  {user.role === "admin" ? "Painel de Administração" : "Minha Área"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/carrinho")}>
+                  Meu Carrinho
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-red-500 cursor-pointer">
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/login">
+                <LogIn className="h-5 w-5" />
+              </Link>
+            </Button>
+          )}
           
           {isMobile && (
             <Button 
@@ -118,7 +186,7 @@ const NavBar = () => {
             <div className="relative mb-4">
               <Input
                 type="text"
-                placeholder="Search rare toys..."
+                placeholder="Buscar brinquedos raros..."
                 className="w-full pl-10 pr-4 py-2 rounded-full bg-secondary/50 border-0 focus:bg-white transition-colors duration-200"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -138,6 +206,38 @@ const NavBar = () => {
                   {item.name}
                 </Link>
               ))}
+              
+              {!user ? (
+                <div className="flex space-x-2 mt-2">
+                  <Button asChild className="flex-1">
+                    <Link to="/login">Login</Link>
+                  </Button>
+                  <Button asChild variant="outline" className="flex-1">
+                    <Link to="/register">Cadastrar</Link>
+                  </Button>
+                </div>
+              ) : (
+                <div className="border-t mt-2 pt-4">
+                  <div className="mb-2 px-4">
+                    <p className="font-medium">{user.name}</p>
+                    <p className="text-sm text-gray-500">{user.email}</p>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-start px-4 text-left"
+                    onClick={goToUserArea}
+                  >
+                    {user.role === "admin" ? "Painel de Administração" : "Minha Área"}
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-start px-4 text-red-500 hover:text-red-700 text-left"
+                    onClick={handleLogout}
+                  >
+                    Sair
+                  </Button>
+                </div>
+              )}
             </nav>
           </div>
         </motion.div>

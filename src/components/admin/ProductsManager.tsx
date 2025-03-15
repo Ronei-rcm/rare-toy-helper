@@ -18,12 +18,20 @@ import { toast } from "sonner";
 
 // Dados fictícios
 const mockProducts: ToyItem[] = [
-  { id: "1", name: "Urso de Pelúcia Vintage", price: 89.90, imageUrl: "/placeholder.svg", category: "Bichinhos de Pelúcia", rarity: "Raro", condition: "Bom" },
-  { id: "2", name: "Action Figure Colecionável", price: 129.99, imageUrl: "/placeholder.svg", category: "Action Figures", rarity: "Ultra Raro", condition: "Excelente" },
-  { id: "3", name: "Jogo de Tabuleiro Clássico", price: 59.90, imageUrl: "/placeholder.svg", category: "Jogos de Tabuleiro", rarity: "Comum", condition: "Muito Bom" },
-  { id: "4", name: "Console de Videogame Retrô", price: 299.90, imageUrl: "/placeholder.svg", category: "Videogames", rarity: "Raro", condition: "Regular" },
-  { id: "5", name: "Kit de Trem de Modelo", price: 189.50, imageUrl: "/placeholder.svg", category: "Modelos", rarity: "Incomum", condition: "Bom" },
+  { id: "1", name: "Urso de Pelúcia Vintage", price: 89.90, image: "/placeholder.svg", category: "Bichinhos de Pelúcia", condition: "good", isRare: true },
+  { id: "2", name: "Action Figure Colecionável", price: 129.99, image: "/placeholder.svg", category: "Action Figures", condition: "excellent", isRare: true },
+  { id: "3", name: "Jogo de Tabuleiro Clássico", price: 59.90, image: "/placeholder.svg", category: "Jogos de Tabuleiro", condition: "good", isRare: false },
+  { id: "4", name: "Console de Videogame Retrô", price: 299.90, image: "/placeholder.svg", category: "Videogames", condition: "fair", isRare: true },
+  { id: "5", name: "Kit de Trem de Modelo", price: 189.50, image: "/placeholder.svg", category: "Modelos", condition: "good", isRare: false },
 ];
+
+// Mapeamento de condições em português para inglês
+const conditionMap = {
+  "Perfeito": "mint",
+  "Excelente": "excellent",
+  "Bom": "good",
+  "Regular": "fair"
+} as const;
 
 export default function ProductsManager() {
   const [products, setProducts] = useState<ToyItem[]>(mockProducts);
@@ -33,9 +41,9 @@ export default function ProductsManager() {
     name: "",
     price: 0,
     category: "",
-    rarity: "",
-    condition: "",
-    imageUrl: "/placeholder.svg"
+    condition: "good",
+    image: "/placeholder.svg",
+    isRare: false
   });
 
   const filteredProducts = products.filter(product => 
@@ -48,7 +56,7 @@ export default function ProductsManager() {
       const product = {
         ...newProduct,
         id: String(Date.now()),
-        imageUrl: newProduct.imageUrl || "/placeholder.svg",
+        image: newProduct.image || "/placeholder.svg",
       } as ToyItem;
       
       setProducts([...products, product]);
@@ -56,9 +64,9 @@ export default function ProductsManager() {
         name: "",
         price: 0,
         category: "",
-        rarity: "",
-        condition: "",
-        imageUrl: "/placeholder.svg"
+        condition: "good",
+        image: "/placeholder.svg",
+        isRare: false
       });
       setIsAddDialogOpen(false);
       toast.success("Produto adicionado com sucesso!");
@@ -120,22 +128,31 @@ export default function ProductsManager() {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="rarity" className="text-right">Raridade</Label>
-                <Input
-                  id="rarity"
-                  value={newProduct.rarity}
-                  onChange={(e) => setNewProduct({...newProduct, rarity: e.target.value})}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="condition" className="text-right">Condição</Label>
-                <Input
+                <select
                   id="condition"
                   value={newProduct.condition}
-                  onChange={(e) => setNewProduct({...newProduct, condition: e.target.value})}
-                  className="col-span-3"
-                />
+                  onChange={(e) => setNewProduct({...newProduct, condition: e.target.value as "mint" | "excellent" | "good" | "fair"})}
+                  className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                >
+                  <option value="mint">Perfeito</option>
+                  <option value="excellent">Excelente</option>
+                  <option value="good">Bom</option>
+                  <option value="fair">Regular</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="isRare" className="text-right">Raridade</Label>
+                <div className="col-span-3 flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isRare"
+                    checked={newProduct.isRare}
+                    onChange={(e) => setNewProduct({...newProduct, isRare: e.target.checked})}
+                    className="mr-2 h-4 w-4"
+                  />
+                  <label htmlFor="isRare">Produto raro</label>
+                </div>
               </div>
             </div>
             <DialogFooter>
@@ -190,8 +207,12 @@ export default function ProductsManager() {
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.category}</TableCell>
-                  <TableCell>{product.rarity}</TableCell>
-                  <TableCell>{product.condition}</TableCell>
+                  <TableCell>{product.isRare ? "Raro" : "Comum"}</TableCell>
+                  <TableCell>
+                    {product.condition === "mint" ? "Perfeito" : 
+                     product.condition === "excellent" ? "Excelente" : 
+                     product.condition === "good" ? "Bom" : "Regular"}
+                  </TableCell>
                   <TableCell>R$ {product.price.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon">

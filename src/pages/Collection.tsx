@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
-import ToyCard from '@/components/ToyCard';
+import ToyCard, { ToyItem } from '@/components/ToyCard';
 import { Slider } from "@/components/ui/slider"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -12,118 +12,85 @@ import { Button } from "@/components/ui/button"
 import { Filter, Search, SlidersHorizontal, X } from 'lucide-react';
 
 // Lista simulada de produtos
-const products = [
+const products: ToyItem[] = [
   {
     id: "1",
     name: "Transformers G1 Optimus Prime",
     price: 1299.90,
-    discountPrice: 1099.90,
+    originalPrice: 1499.90,
     image: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    rating: 4.9,
-    reviews: 56,
     category: "action-figures",
-    condition: "Bom",
-    year: 1984,
-    inStock: true,
-    featured: true
+    condition: "good",
+    year: "1984",
+    isRare: true
   },
   {
     id: "2",
     name: "Star Wars Millennium Falcon",
     price: 899.90,
-    discountPrice: null,
     image: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    rating: 4.7,
-    reviews: 28,
     category: "model-vehicles",
-    condition: "Excelente",
-    year: 1995,
-    inStock: true,
-    featured: true
+    condition: "excellent",
+    year: "1995"
   },
   {
     id: "3",
     name: "Barbie Vintage Colecionável",
     price: 599.90,
-    discountPrice: 499.90,
+    originalPrice: 699.90,
     image: "https://images.unsplash.com/photo-1613682998402-a12e5e13cba5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    rating: 4.8,
-    reviews: 42,
     category: "vintage-dolls",
-    condition: "Muito Bom",
-    year: 1975,
-    inStock: true,
-    featured: true
+    condition: "mint",
+    year: "1975",
+    isRare: true
   },
   {
     id: "4",
     name: "Game Boy Classic Nintendo",
     price: 799.90,
-    discountPrice: null,
     image: "https://images.unsplash.com/photo-1531525645387-7f14be1bdbbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    rating: 4.6,
-    reviews: 33,
     category: "electronic-toys",
-    condition: "Funcional",
-    year: 1989,
-    inStock: false,
-    featured: true
+    condition: "fair",
+    year: "1989"
   },
   {
     id: "5",
     name: "Robô de Lata Vintage",
     price: 1499.90,
-    discountPrice: null,
     image: "https://images.unsplash.com/photo-1521714161819-15534968fc5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    rating: 5.0,
-    reviews: 12,
     category: "mechanical-toys",
-    condition: "Ótimo",
-    year: 1965,
-    inStock: true,
-    featured: true
+    condition: "good",
+    year: "1965",
+    isRare: true
   },
   {
     id: "6",
     name: "LEGO Espaço Vintage",
     price: 899.90,
-    discountPrice: 849.90,
+    originalPrice: 999.90,
     image: "https://images.unsplash.com/photo-1578652520385-c05f6f3b5de3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    rating: 4.7,
-    reviews: 26,
     category: "building-toys",
-    condition: "Completo",
-    year: 1985,
-    inStock: true,
-    featured: false
+    condition: "excellent",
+    year: "1985"
   },
   {
     id: "7",
     name: "Casa de Bonecas Vitoriana",
     price: 2499.90,
-    discountPrice: null,
     image: "https://images.unsplash.com/photo-1617096199249-88fa7859a80f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    rating: 4.9,
-    reviews: 8,
     category: "plush-toys",
-    condition: "Restaurado",
-    year: 1925,
-    inStock: true,
-    featured: false
+    condition: "excellent",
+    year: "1925"
   },
   {
     id: "8",
     name: "Monopólio Edição Vintage",
     price: 399.90,
-    discountPrice: 349.90,
+    originalPrice: 499.90,
     image: "https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    rating: 4.5,
-    reviews: 21,
     category: "board-games",
-    condition: "Bom",
-    year: 1956,
-    inStock: true,
-    featured: false
+    condition: "good",
+    year: "1956"
   }
 ];
 
@@ -141,7 +108,13 @@ const categories = [
 ];
 
 // Lista de condições para o filtro
-const conditions = ["Excelente", "Muito Bom", "Bom", "Ótimo", "Funcional", "Restaurado", "Completo"];
+const conditions = ["mint", "excellent", "good", "fair"];
+const conditionNames: Record<string, string> = {
+  "mint": "Perfeito",
+  "excellent": "Excelente", 
+  "good": "Bom", 
+  "fair": "Regular"
+};
 
 const Collection = () => {
   const [filteredProducts, setFilteredProducts] = useState(products);
@@ -182,35 +155,27 @@ const Collection = () => {
     
     // Filtro por preço
     filtered = filtered.filter(product => {
-      const price = product.discountPrice || product.price;
+      const price = product.price;
       return price >= priceRange[0] && price <= priceRange[1];
     });
-    
-    // Filtro por estoque
-    if (inStockOnly) {
-      filtered = filtered.filter(product => product.inStock);
-    }
     
     // Ordenação
     switch (sortBy) {
       case "price-asc":
-        filtered.sort((a, b) => (a.discountPrice || a.price) - (b.discountPrice || b.price));
+        filtered.sort((a, b) => a.price - b.price);
         break;
       case "price-desc":
-        filtered.sort((a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price));
+        filtered.sort((a, b) => b.price - a.price);
         break;
       case "newest":
-        filtered.sort((a, b) => b.year - a.year);
+        filtered.sort((a, b) => (b.year && a.year) ? parseInt(b.year) - parseInt(a.year) : 0);
         break;
       case "oldest":
-        filtered.sort((a, b) => a.year - b.year);
-        break;
-      case "rating":
-        filtered.sort((a, b) => b.rating - a.rating);
+        filtered.sort((a, b) => (a.year && b.year) ? parseInt(a.year) - parseInt(b.year) : 0);
         break;
       case "featured":
       default:
-        filtered.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+        filtered.sort((a, b) => (b.isRare ? 1 : 0) - (a.isRare ? 1 : 0));
     }
     
     setFilteredProducts(filtered);
@@ -272,7 +237,6 @@ const Collection = () => {
                     <SelectItem value="price-desc">Preço: Maior para Menor</SelectItem>
                     <SelectItem value="newest">Mais Recentes</SelectItem>
                     <SelectItem value="oldest">Mais Antigos</SelectItem>
-                    <SelectItem value="rating">Melhor Avaliados</SelectItem>
                   </SelectContent>
                 </Select>
                 
@@ -345,26 +309,10 @@ const Collection = () => {
                             htmlFor={`condition-${condition}`}
                             className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                           >
-                            {condition}
+                            {conditionNames[condition]}
                           </label>
                         </div>
                       ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <div className="flex items-center">
-                      <Checkbox 
-                        id="in-stock" 
-                        checked={inStockOnly}
-                        onCheckedChange={(checked) => setInStockOnly(!!checked)}
-                      />
-                      <label
-                        htmlFor="in-stock"
-                        className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Apenas em estoque
-                      </label>
                     </div>
                   </div>
                 </div>
@@ -437,26 +385,10 @@ const Collection = () => {
                               htmlFor={`mobile-condition-${condition}`}
                               className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
-                              {condition}
+                              {conditionNames[condition]}
                             </label>
                           </div>
                         ))}
-                      </div>
-                    </div>
-                    
-                    <div className="mb-6">
-                      <div className="flex items-center">
-                        <Checkbox 
-                          id="mobile-in-stock" 
-                          checked={inStockOnly}
-                          onCheckedChange={(checked) => setInStockOnly(!!checked)}
-                        />
-                        <label
-                          htmlFor="mobile-in-stock"
-                          className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          Apenas em estoque
-                        </label>
                       </div>
                     </div>
                     
@@ -487,14 +419,8 @@ const Collection = () => {
                         transition={{ duration: 0.4, delay: index * 0.05 }}
                       >
                         <ToyCard
-                          id={product.id}
-                          name={product.name}
-                          price={product.price}
-                          discountPrice={product.discountPrice}
-                          image={product.image}
-                          rating={product.rating}
-                          reviews={product.reviews}
-                          inStock={product.inStock}
+                          toy={product}
+                          priority={index < 4}
                         />
                       </motion.div>
                     ))}

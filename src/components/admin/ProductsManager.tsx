@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ToyItem } from "@/components/ToyCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Plus, Search, Edit, Trash, Filter } from "lucide-react";
+import { Plus, Search, Edit, Trash, Filter, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
 // Dados fictícios
@@ -37,6 +37,9 @@ export default function ProductsManager() {
   const [products, setProducts] = useState<ToyItem[]>(mockProducts);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [newProduct, setNewProduct] = useState<Partial<ToyItem>>({
     name: "",
     price: 0,
@@ -50,6 +53,39 @@ export default function ProductsManager() {
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Verificar o tipo de arquivo
+      if (!file.type.match('image.*')) {
+        toast.error("Por favor, selecione apenas arquivos de imagem.");
+        return;
+      }
+
+      // Verificar o tamanho do arquivo (limite de 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("A imagem deve ter menos de 5MB.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setSelectedImage(result);
+        setNewProduct({...newProduct, image: result});
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setNewProduct({...newProduct, image: "/placeholder.svg"});
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const handleAddProduct = () => {
     if (newProduct.name && newProduct.price) {
@@ -68,6 +104,7 @@ export default function ProductsManager() {
         image: "/placeholder.svg",
         isRare: false
       });
+      setSelectedImage(null);
       setIsAddDialogOpen(false);
       toast.success("Produto adicionado com sucesso!");
     } else {
@@ -94,11 +131,50 @@ export default function ProductsManager() {
               Adicionar Produto
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Adicionar Novo Produto</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="product-image">Imagem do Produto</Label>
+                <div className="flex flex-col items-center gap-4">
+                  {selectedImage ? (
+                    <div className="relative w-full h-48">
+                      <img 
+                        src={selectedImage} 
+                        alt="Preview" 
+                        className="w-full h-full object-contain border rounded-md"
+                      />
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2 h-8 w-8"
+                        onClick={handleRemoveImage}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div 
+                      className="border-2 border-dashed border-gray-300 rounded-md w-full h-48 flex flex-col items-center justify-center cursor-pointer hover:border-primary"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="h-10 w-10 text-gray-400" />
+                      <p className="mt-2 text-sm text-gray-500">Clique para fazer upload</p>
+                      <p className="text-xs text-gray-400">PNG, JPG ou WEBP (max. 5MB)</p>
+                    </div>
+                  )}
+                  <Input
+                    id="product-image"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    ref={fileInputRef}
+                    onChange={handleImageUpload}
+                  />
+                </div>
+              </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">Nome</Label>
                 <Input
@@ -187,6 +263,7 @@ export default function ProductsManager() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Imagem</TableHead>
               <TableHead>Nome</TableHead>
               <TableHead>Categoria</TableHead>
               <TableHead>Raridade</TableHead>
@@ -198,13 +275,20 @@ export default function ProductsManager() {
           <TableBody>
             {filteredProducts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-6">
+                <TableCell colSpan={7} className="text-center py-6">
                   Nenhum produto encontrado
                 </TableCell>
               </TableRow>
             ) : (
               filteredProducts.map((product) => (
                 <TableRow key={product.id}>
+                  <TableCell>
+                    <img 
+                      src={product.image} 
+                      alt={product.name} 
+                      className="w-12 h-12 object-cover rounded-md"
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.category}</TableCell>
                   <TableCell>{product.isRare ? "Raro" : "Comum"}</TableCell>

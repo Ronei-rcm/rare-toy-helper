@@ -38,3 +38,25 @@ export interface UserProfile {
     zipCode: string;
   };
 }
+
+export interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+}
+
+export interface Coupon {
+  code: string;
+  discount: number;
+  type: "percentage" | "fixed";
+  isValid: boolean;
+}
+
+export interface ShippingOption {
+  id: string;
+  name: string;
+  price: number;
+  estimatedDays: string;
+}

@@ -14,9 +14,11 @@ import OrderDetailsDialog from "@/components/client/orders/OrderDetailsDialog";
 import WishlistSection from "@/components/client/wishlist/WishlistSection";
 import UserProfileSection from "@/components/client/profile/UserProfileSection";
 import SettingsSection from "@/components/client/settings/SettingsSection";
+import CartSection from "@/components/client/cart/CartSection";
+import CheckoutDialog from "@/components/client/cart/CheckoutDialog";
 
 // Tipos
-import { Order, WishlistItem, UserProfile } from "@/types/client";
+import { Order, WishlistItem, UserProfile, CartItem } from "@/types/client";
 
 // Mock de pedidos
 const mockOrders: Order[] = [
@@ -60,13 +62,21 @@ const mockWishlist = [
   { id: "w3", name: "Carro Miniatura Década de 60", price: 159.90, image: "https://images.unsplash.com/photo-1581235720704-06d3acfcb36f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" }
 ];
 
+// Mock do carrinho
+const mockCartItems: CartItem[] = [
+  { id: "c1", name: "Hot Wheels Edição Especial 50 Anos", price: 89.90, quantity: 2, image: "https://images.unsplash.com/photo-1594787318286-3d835c1d207f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" },
+  { id: "c2", name: "Boneco Articulado Marvel - Homem de Ferro", price: 199.90, quantity: 1, image: "https://images.unsplash.com/photo-1608278047522-58806a6ac8b6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" }
+];
+
 export default function ClientArea() {
   const navigate = useNavigate();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [orders, setOrders] = useState<Order[]>(mockOrders);
   const [wishlist, setWishlist] = useState<WishlistItem[]>(mockWishlist);
+  const [cartItems, setCartItems] = useState<CartItem[]>(mockCartItems);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile>({
     name: "",
     email: "",
@@ -81,6 +91,9 @@ export default function ClientArea() {
       zipCode: ""
     }
   });
+
+  // Calcular o total do carrinho
+  const cartTotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
 
   useEffect(() => {
     // Verifica se o usuário está logado
@@ -135,8 +148,58 @@ export default function ClientArea() {
   };
 
   const handleAddToCart = (item: WishlistItem) => {
-    // Simulação de adicionar ao carrinho
+    // Verifica se o item já está no carrinho
+    const existingItem = cartItems.find(cartItem => cartItem.id === item.id);
+    
+    if (existingItem) {
+      // Se já existe, aumenta a quantidade
+      handleUpdateCartItemQuantity(item.id, existingItem.quantity + 1);
+    } else {
+      // Se não existe, adiciona ao carrinho
+      setCartItems([
+        ...cartItems,
+        { ...item, quantity: 1 }
+      ]);
+    }
+    
     toast.success(`${item.name} adicionado ao carrinho`);
+  };
+
+  const handleRemoveFromCart = (id: string) => {
+    setCartItems(cartItems.filter(item => item.id !== id));
+    toast.success("Item removido do carrinho");
+  };
+
+  const handleUpdateCartItemQuantity = (id: string, quantity: number) => {
+    setCartItems(cartItems.map(item => 
+      item.id === id ? { ...item, quantity } : item
+    ));
+  };
+
+  const handleCheckout = () => {
+    setIsCheckoutOpen(true);
+  };
+
+  const handleCheckoutComplete = () => {
+    // Simular criação de um novo pedido
+    const newOrder: Order = {
+      id: Math.floor(10000 + Math.random() * 90000).toString(),
+      date: new Date().toISOString().split('T')[0],
+      items: cartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price
+      })),
+      total: cartTotal,
+      status: "pendente"
+    };
+    
+    // Adicionar o novo pedido à lista
+    setOrders([newOrder, ...orders]);
+    
+    // Limpar o carrinho
+    setCartItems([]);
   };
 
   const handleOrderDetails = (order: Order) => {
@@ -166,9 +229,10 @@ export default function ClientArea() {
             {/* Main content */}
             <div className="flex-1">
               <Tabs defaultValue="pedidos">
-                <TabsList className="grid grid-cols-4 mb-8">
+                <TabsList className="grid grid-cols-5 mb-8">
                   <TabsTrigger value="pedidos">Meus Pedidos</TabsTrigger>
                   <TabsTrigger value="desejos">Lista de Desejos</TabsTrigger>
+                  <TabsTrigger value="carrinho">Meu Carrinho</TabsTrigger>
                   <TabsTrigger value="perfil">Meu Perfil</TabsTrigger>
                   <TabsTrigger value="config">Configurações</TabsTrigger>
                 </TabsList>
@@ -187,6 +251,16 @@ export default function ClientArea() {
                     wishlist={wishlist}
                     onRemoveFromWishlist={handleRemoveFromWishlist}
                     onAddToCart={handleAddToCart}
+                  />
+                </TabsContent>
+                
+                {/* Carrinho Tab */}
+                <TabsContent value="carrinho">
+                  <CartSection
+                    cartItems={cartItems}
+                    onRemoveItem={handleRemoveFromCart}
+                    onUpdateQuantity={handleUpdateCartItemQuantity}
+                    onCheckout={handleCheckout}
                   />
                 </TabsContent>
                 
@@ -215,6 +289,14 @@ export default function ClientArea() {
         isOpen={isOrderDetailsOpen}
         onOpenChange={setIsOrderDetailsOpen}
         order={selectedOrder}
+      />
+      
+      {/* Modal de checkout */}
+      <CheckoutDialog
+        isOpen={isCheckoutOpen}
+        onOpenChange={setIsCheckoutOpen}
+        total={cartTotal}
+        onCheckoutComplete={handleCheckoutComplete}
       />
     </div>
   );

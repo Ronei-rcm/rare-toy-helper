@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { ShoppingBag, Heart, User, Settings, LogOut } from "lucide-react";
+import { ShoppingBag, Heart, User, Settings, LogOut, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
@@ -28,6 +28,12 @@ export default function ClientSidebar({ userName, onLogout }: ClientSidebarProps
             <Link to="#lista-desejos">
               <Heart className="mr-2 h-4 w-4" />
               Lista de Desejos
+            </Link>
+          </Button>
+          <Button variant="ghost" className="w-full justify-start" asChild>
+            <Link to="#meu-carrinho">
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              Meu Carrinho
             </Link>
           </Button>
           <Button variant="ghost" className="w-full justify-start" asChild>

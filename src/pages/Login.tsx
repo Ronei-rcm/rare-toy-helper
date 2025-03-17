@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Mail, Lock, ArrowRight } from "lucide-react";
+import { Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,7 @@ const formSchema = z.object({
 export default function Login() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
   // Inicializa o formulário com o schema de validação
   const form = useForm<z.infer<typeof formSchema>>({
@@ -45,6 +46,7 @@ export default function Login() {
   // Handler do envio de formulário
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
+    setLoginError("");
     
     // Simulando um login (aqui você integraria com sua API)
     setTimeout(() => {
@@ -56,9 +58,25 @@ export default function Login() {
           email: values.email,
           role: "admin"
         }));
+        localStorage.setItem("isLoggedIn", "true");
         setIsSubmitting(false);
         toast.success("Login realizado com sucesso!");
         navigate("/admin");
+        return;
+      }
+      
+      // Verifica se é o usuário cliente demo
+      if (values.email === "cliente@muhlstore.com" && values.password === "cliente123") {
+        localStorage.setItem("user", JSON.stringify({
+          id: "cliente1",
+          name: "Cliente Demo",
+          email: values.email,
+          role: "client"
+        }));
+        localStorage.setItem("isLoggedIn", "true");
+        setIsSubmitting(false);
+        toast.success("Login realizado com sucesso!");
+        navigate("/cliente");
         return;
       }
       
@@ -78,7 +96,7 @@ export default function Login() {
       
       // Se não encontrar o usuário
       setIsSubmitting(false);
-      toast.error("Email ou senha incorretos.");
+      setLoginError("Email ou senha incorretos.");
     }, 1500);
   }
 
@@ -104,6 +122,13 @@ export default function Login() {
             <h1 className="text-2xl font-bold">Entre na sua conta</h1>
             <p className="text-gray-500 mt-1">Bem-vindo de volta à MUHLSTORE</p>
           </div>
+
+          {loginError && (
+            <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4 flex items-center">
+              <AlertCircle className="h-4 w-4 mr-2" />
+              {loginError}
+            </div>
+          )}
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

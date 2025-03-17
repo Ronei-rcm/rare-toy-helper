@@ -11,7 +11,8 @@ import {
   Package,
   Clock,
   Check,
-  X
+  X,
+  AlertCircle
 } from "lucide-react";
 
 import NavBar from "@/components/NavBar";
@@ -22,6 +23,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from "@/components/ui/dialog";
 
 type OrderStatus = "pendente" | "processando" | "enviado" | "entregue" | "cancelado";
 
@@ -81,6 +90,11 @@ export default function ClientArea() {
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [orders, setOrders] = useState<Order[]>(mockOrders);
   const [wishlist, setWishlist] = useState(mockWishlist);
+  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -133,12 +147,56 @@ export default function ClientArea() {
   };
 
   const handleSaveProfile = () => {
-    toast.success("Perfil atualizado com sucesso!");
+    // Atualiza o localStorage com os novos dados do perfil
+    if (user) {
+      const updatedUser = { ...user, name: profile.name, email: profile.email };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      toast.success("Perfil atualizado com sucesso!");
+    }
+  };
+
+  const handleChangeEmail = () => {
+    // Validação de email
+    if (!newEmail) {
+      setEmailError("O email não pode estar vazio");
+      return;
+    }
+    
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+      setEmailError("Digite um email válido");
+      return;
+    }
+    
+    // Atualiza o email no perfil
+    setProfile({ ...profile, email: newEmail });
+    
+    // Se o usuário estiver logado, atualiza também o objeto user
+    if (user) {
+      const updatedUser = { ...user, email: newEmail };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+    }
+    
+    setIsEmailDialogOpen(false);
+    setNewEmail("");
+    setEmailError("");
+    toast.success("Email atualizado com sucesso!");
   };
 
   const handleRemoveFromWishlist = (id: string) => {
     setWishlist(wishlist.filter(item => item.id !== id));
     toast.success("Item removido da lista de desejos");
+  };
+
+  const handleAddToCart = (item: any) => {
+    // Simulação de adicionar ao carrinho
+    toast.success(`${item.name} adicionado ao carrinho`);
+  };
+
+  const handleOrderDetails = (order: Order) => {
+    setSelectedOrder(order);
+    setIsOrderDetailsOpen(true);
   };
 
   const getStatusBadgeColor = (status: OrderStatus) => {
@@ -257,7 +315,12 @@ export default function ClientArea() {
                                 </div>
                                 <div className="text-right mt-2 md:mt-0">
                                   <p className="font-medium">R$ {order.total.toFixed(2)}</p>
-                                  <Button variant="outline" size="sm" className="mt-2">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="mt-2"
+                                    onClick={() => handleOrderDetails(order)}
+                                  >
                                     Detalhes
                                   </Button>
                                 </div>
@@ -345,7 +408,13 @@ export default function ClientArea() {
                                   </div>
                                   <p className="text-primary font-medium mt-1">R$ {item.price.toFixed(2)}</p>
                                   <div className="mt-auto pt-2">
-                                    <Button size="sm" className="w-full">Adicionar ao Carrinho</Button>
+                                    <Button 
+                                      size="sm" 
+                                      className="w-full"
+                                      onClick={() => handleAddToCart(item)}
+                                    >
+                                      Adicionar ao Carrinho
+                                    </Button>
                                   </div>
                                 </div>
                               </div>
@@ -386,10 +455,20 @@ export default function ClientArea() {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                   Email
                                 </label>
-                                <Input 
-                                  value={profile.email} 
-                                  onChange={(e) => setProfile({...profile, email: e.target.value})} 
-                                />
+                                <div className="flex gap-2">
+                                  <Input 
+                                    value={profile.email} 
+                                    readOnly
+                                    className="bg-gray-50 flex-grow"
+                                  />
+                                  <Button 
+                                    variant="outline" 
+                                    type="button" 
+                                    onClick={() => setIsEmailDialogOpen(true)}
+                                  >
+                                    Alterar
+                                  </Button>
+                                </div>
                               </div>
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -634,6 +713,107 @@ export default function ClientArea() {
       </main>
       
       <Footer />
+
+      {/* Dialog para alterar email */}
+      <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Alterar Email</DialogTitle>
+            <DialogDescription>
+              Digite seu novo endereço de email abaixo
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium leading-none" htmlFor="new-email">
+                Novo Email
+              </label>
+              <Input
+                id="new-email"
+                placeholder="seu@email.com"
+                type="email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+              />
+              {emailError && (
+                <p className="text-sm text-red-500 flex items-center mt-1">
+                  <AlertCircle className="h-3 w-3 mr-1" />
+                  {emailError}
+                </p>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setIsEmailDialogOpen(false);
+              setNewEmail("");
+              setEmailError("");
+            }}>
+              Cancelar
+            </Button>
+            <Button onClick={handleChangeEmail}>Confirmar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para detalhes do pedido */}
+      <Dialog open={isOrderDetailsOpen} onOpenChange={setIsOrderDetailsOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Pedido #{selectedOrder?.id}</DialogTitle>
+            <DialogDescription>
+              Detalhes completos do seu pedido
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedOrder && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <span className="text-sm font-medium">Status:</span>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(selectedOrder.status)}`}>
+                  {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
+                </span>
+              </div>
+              
+              <div className="border-b pb-2">
+                <span className="text-sm font-medium">Data do pedido:</span>
+                <p className="text-sm">{new Date(selectedOrder.date).toLocaleDateString('pt-BR')}</p>
+              </div>
+              
+              <div>
+                <span className="text-sm font-medium">Itens:</span>
+                <ul className="mt-2 space-y-2">
+                  {selectedOrder.items.map((item) => (
+                    <li key={item.id} className="text-sm flex justify-between">
+                      <span>{item.name} (x{item.quantity})</span>
+                      <span>R$ {(item.price * item.quantity).toFixed(2)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="border-t pt-2 flex justify-between">
+                <span className="font-medium">Total:</span>
+                <span className="font-bold">R$ {selectedOrder.total.toFixed(2)}</span>
+              </div>
+              
+              {selectedOrder.trackingCode && (
+                <div className="bg-blue-50 p-3 rounded-md">
+                  <p className="text-sm font-medium text-blue-700">Código de rastreio:</p>
+                  <p className="text-sm">{selectedOrder.trackingCode}</p>
+                  <Button variant="link" className="text-blue-700 p-0 h-auto text-sm mt-1">
+                    Rastrear meu pedido
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button onClick={() => setIsOrderDetailsOpen(false)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

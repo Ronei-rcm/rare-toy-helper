@@ -1,47 +1,22 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { 
-  User, 
-  ShoppingBag, 
-  Heart, 
-  Settings, 
-  LogOut,
-  Package,
-  Clock,
-  Check,
-  X,
-  AlertCircle
-} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter
-} from "@/components/ui/dialog";
 
-type OrderStatus = "pendente" | "processando" | "enviado" | "entregue" | "cancelado";
+// Componentes refatorados
+import ClientSidebar from "@/components/client/ClientSidebar";
+import OrdersList from "@/components/client/orders/OrdersList";
+import OrderDetailsDialog from "@/components/client/orders/OrderDetailsDialog";
+import WishlistSection from "@/components/client/wishlist/WishlistSection";
+import UserProfileSection from "@/components/client/profile/UserProfileSection";
+import SettingsSection from "@/components/client/settings/SettingsSection";
 
-interface Order {
-  id: string;
-  date: string;
-  items: { id: string; name: string; quantity: number; price: number }[];
-  total: number;
-  status: OrderStatus;
-  trackingCode?: string;
-}
+// Tipos
+import { Order, WishlistItem, UserProfile } from "@/types/client";
 
 // Mock de pedidos
 const mockOrders: Order[] = [
@@ -89,13 +64,10 @@ export default function ClientArea() {
   const navigate = useNavigate();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [orders, setOrders] = useState<Order[]>(mockOrders);
-  const [wishlist, setWishlist] = useState(mockWishlist);
-  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
-  const [newEmail, setNewEmail] = useState("");
-  const [emailError, setEmailError] = useState("");
+  const [wishlist, setWishlist] = useState<WishlistItem[]>(mockWishlist);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
-  const [profile, setProfile] = useState({
+  const [profile, setProfile] = useState<UserProfile>({
     name: "",
     email: "",
     phone: "",
@@ -146,42 +118,15 @@ export default function ClientArea() {
     navigate("/");
   };
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = (updatedProfile: UserProfile) => {
     // Atualiza o localStorage com os novos dados do perfil
     if (user) {
-      const updatedUser = { ...user, name: profile.name, email: profile.email };
+      const updatedUser = { ...user, name: updatedProfile.name, email: updatedProfile.email };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);
+      setProfile(updatedProfile);
       toast.success("Perfil atualizado com sucesso!");
     }
-  };
-
-  const handleChangeEmail = () => {
-    // Validação de email
-    if (!newEmail) {
-      setEmailError("O email não pode estar vazio");
-      return;
-    }
-    
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
-      setEmailError("Digite um email válido");
-      return;
-    }
-    
-    // Atualiza o email no perfil
-    setProfile({ ...profile, email: newEmail });
-    
-    // Se o usuário estiver logado, atualiza também o objeto user
-    if (user) {
-      const updatedUser = { ...user, email: newEmail };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      setUser(updatedUser);
-    }
-    
-    setIsEmailDialogOpen(false);
-    setNewEmail("");
-    setEmailError("");
-    toast.success("Email atualizado com sucesso!");
   };
 
   const handleRemoveFromWishlist = (id: string) => {
@@ -189,7 +134,7 @@ export default function ClientArea() {
     toast.success("Item removido da lista de desejos");
   };
 
-  const handleAddToCart = (item: any) => {
+  const handleAddToCart = (item: WishlistItem) => {
     // Simulação de adicionar ao carrinho
     toast.success(`${item.name} adicionado ao carrinho`);
   };
@@ -197,16 +142,6 @@ export default function ClientArea() {
   const handleOrderDetails = (order: Order) => {
     setSelectedOrder(order);
     setIsOrderDetailsOpen(true);
-  };
-
-  const getStatusBadgeColor = (status: OrderStatus) => {
-    switch (status) {
-      case "pendente": return "bg-yellow-100 text-yellow-800";
-      case "processando": return "bg-blue-100 text-blue-800";
-      case "enviado": return "bg-purple-100 text-purple-800";
-      case "entregue": return "bg-green-100 text-green-800";
-      case "cancelado": return "bg-red-100 text-red-800";
-    }
   };
 
   if (!user) {
@@ -222,48 +157,10 @@ export default function ClientArea() {
           <div className="flex flex-col md:flex-row gap-6">
             {/* Sidebar */}
             <div className="md:w-64 shrink-0">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle>Minha Conta</CardTitle>
-                  <CardDescription>Bem-vindo(a), {user.name}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <nav className="space-y-1">
-                    <Button variant="ghost" className="w-full justify-start" asChild>
-                      <Link to="#meus-pedidos">
-                        <ShoppingBag className="mr-2 h-4 w-4" />
-                        Meus Pedidos
-                      </Link>
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start" asChild>
-                      <Link to="#lista-desejos">
-                        <Heart className="mr-2 h-4 w-4" />
-                        Lista de Desejos
-                      </Link>
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start" asChild>
-                      <Link to="#meu-perfil">
-                        <User className="mr-2 h-4 w-4" />
-                        Meu Perfil
-                      </Link>
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start" asChild>
-                      <Link to="#configuracoes">
-                        <Settings className="mr-2 h-4 w-4" />
-                        Configurações
-                      </Link>
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={handleLogout}
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sair
-                    </Button>
-                  </nav>
-                </CardContent>
-              </Card>
+              <ClientSidebar 
+                userName={user.name} 
+                onLogout={handleLogout} 
+              />
             </div>
             
             {/* Main content */}
@@ -278,433 +175,32 @@ export default function ClientArea() {
                 
                 {/* Pedidos Tab */}
                 <TabsContent value="pedidos">
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <div className="bg-white rounded-lg shadow-sm border">
-                      <div className="px-6 py-4 border-b">
-                        <h2 className="text-lg font-semibold">Meus Pedidos</h2>
-                      </div>
-                      
-                      <div className="divide-y">
-                        {orders.length === 0 ? (
-                          <div className="p-8 text-center">
-                            <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium mb-2">Nenhum pedido encontrado</h3>
-                            <p className="text-gray-500 mb-4">Você ainda não fez nenhum pedido em nossa loja.</p>
-                            <Button asChild>
-                              <Link to="/collection">Explorar Produtos</Link>
-                            </Button>
-                          </div>
-                        ) : (
-                          orders.map((order) => (
-                            <div key={order.id} className="p-6">
-                              <div className="flex flex-col md:flex-row justify-between mb-4">
-                                <div>
-                                  <div className="flex items-center gap-3">
-                                    <h3 className="font-semibold">Pedido #{order.id}</h3>
-                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(order.status)}`}>
-                                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                                    </span>
-                                  </div>
-                                  <p className="text-sm text-gray-500">
-                                    Realizado em {new Date(order.date).toLocaleDateString('pt-BR')}
-                                  </p>
-                                </div>
-                                <div className="text-right mt-2 md:mt-0">
-                                  <p className="font-medium">R$ {order.total.toFixed(2)}</p>
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm" 
-                                    className="mt-2"
-                                    onClick={() => handleOrderDetails(order)}
-                                  >
-                                    Detalhes
-                                  </Button>
-                                </div>
-                              </div>
-                              
-                              <div className="mt-4 space-y-3">
-                                {order.items.map((item) => (
-                                  <div key={item.id} className="flex justify-between items-center border-b pb-3">
-                                    <div>
-                                      <p className="font-medium">{item.name}</p>
-                                      <p className="text-sm text-gray-500">Qtd: {item.quantity}</p>
-                                    </div>
-                                    <p className="font-medium">R$ {(item.price * item.quantity).toFixed(2)}</p>
-                                  </div>
-                                ))}
-                              </div>
-                              
-                              {order.trackingCode && (
-                                <div className="mt-4 p-3 bg-blue-50 rounded-md flex items-start">
-                                  <Clock className="h-5 w-5 text-blue-500 mt-0.5 mr-2 flex-shrink-0" />
-                                  <div>
-                                    <p className="font-medium text-blue-700">Rastreio da entrega</p>
-                                    <p className="text-sm">Código: {order.trackingCode}</p>
-                                  </div>
-                                </div>
-                              )}
-                              
-                              {order.status === "entregue" && (
-                                <div className="mt-4 text-right">
-                                  <Button variant="outline" size="sm">
-                                    Avaliar Produtos
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
+                  <OrdersList 
+                    orders={orders}
+                    onViewDetails={handleOrderDetails}
+                  />
                 </TabsContent>
                 
                 {/* Lista de Desejos Tab */}
                 <TabsContent value="desejos">
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <div className="bg-white rounded-lg shadow-sm border">
-                      <div className="px-6 py-4 border-b">
-                        <h2 className="text-lg font-semibold">Lista de Desejos</h2>
-                      </div>
-                      
-                      <div className="p-6">
-                        {wishlist.length === 0 ? (
-                          <div className="text-center py-8">
-                            <Heart className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium mb-2">Sua lista de desejos está vazia</h3>
-                            <p className="text-gray-500 mb-4">Adicione itens à sua lista de desejos enquanto navega pela loja.</p>
-                            <Button asChild>
-                              <Link to="/collection">Explorar Produtos</Link>
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {wishlist.map((item) => (
-                              <div key={item.id} className="flex border rounded-md overflow-hidden">
-                                <div className="w-24 h-24 flex-shrink-0">
-                                  <img 
-                                    src={item.image} 
-                                    alt={item.name} 
-                                    className="w-full h-full object-cover"
-                                  />
-                                </div>
-                                <div className="flex-1 p-4 flex flex-col">
-                                  <div className="flex justify-between">
-                                    <h3 className="font-medium">{item.name}</h3>
-                                    <button 
-                                      onClick={() => handleRemoveFromWishlist(item.id)}
-                                      className="text-gray-400 hover:text-red-500"
-                                    >
-                                      <X className="h-4 w-4" />
-                                    </button>
-                                  </div>
-                                  <p className="text-primary font-medium mt-1">R$ {item.price.toFixed(2)}</p>
-                                  <div className="mt-auto pt-2">
-                                    <Button 
-                                      size="sm" 
-                                      className="w-full"
-                                      onClick={() => handleAddToCart(item)}
-                                    >
-                                      Adicionar ao Carrinho
-                                    </Button>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
+                  <WishlistSection
+                    wishlist={wishlist}
+                    onRemoveFromWishlist={handleRemoveFromWishlist}
+                    onAddToCart={handleAddToCart}
+                  />
                 </TabsContent>
                 
                 {/* Perfil Tab */}
                 <TabsContent value="perfil">
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <div className="bg-white rounded-lg shadow-sm border">
-                      <div className="px-6 py-4 border-b">
-                        <h2 className="text-lg font-semibold">Meu Perfil</h2>
-                      </div>
-                      <div className="p-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div>
-                            <h3 className="text-lg font-medium mb-4">Informações Pessoais</h3>
-                            <div className="space-y-4">
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Nome Completo
-                                </label>
-                                <Input 
-                                  value={profile.name} 
-                                  onChange={(e) => setProfile({...profile, name: e.target.value})} 
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Email
-                                </label>
-                                <div className="flex gap-2">
-                                  <Input 
-                                    value={profile.email} 
-                                    readOnly
-                                    className="bg-gray-50 flex-grow"
-                                  />
-                                  <Button 
-                                    variant="outline" 
-                                    type="button" 
-                                    onClick={() => setIsEmailDialogOpen(true)}
-                                  >
-                                    Alterar
-                                  </Button>
-                                </div>
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Telefone
-                                </label>
-                                <Input 
-                                  value={profile.phone} 
-                                  onChange={(e) => setProfile({...profile, phone: e.target.value})} 
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <h3 className="text-lg font-medium mb-4">Endereço</h3>
-                            <div className="space-y-4">
-                              <div className="grid grid-cols-3 gap-4">
-                                <div className="col-span-2">
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Logradouro
-                                  </label>
-                                  <Input 
-                                    value={profile.address.street} 
-                                    onChange={(e) => setProfile({
-                                      ...profile, 
-                                      address: {...profile.address, street: e.target.value}
-                                    })} 
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Número
-                                  </label>
-                                  <Input 
-                                    value={profile.address.number} 
-                                    onChange={(e) => setProfile({
-                                      ...profile, 
-                                      address: {...profile.address, number: e.target.value}
-                                    })} 
-                                  />
-                                </div>
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Complemento
-                                </label>
-                                <Input 
-                                  value={profile.address.complement} 
-                                  onChange={(e) => setProfile({
-                                    ...profile, 
-                                    address: {...profile.address, complement: e.target.value}
-                                  })} 
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Bairro
-                                </label>
-                                <Input 
-                                  value={profile.address.neighborhood} 
-                                  onChange={(e) => setProfile({
-                                    ...profile, 
-                                    address: {...profile.address, neighborhood: e.target.value}
-                                  })} 
-                                />
-                              </div>
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Cidade
-                                  </label>
-                                  <Input 
-                                    value={profile.address.city} 
-                                    onChange={(e) => setProfile({
-                                      ...profile, 
-                                      address: {...profile.address, city: e.target.value}
-                                    })} 
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Estado
-                                  </label>
-                                  <Input 
-                                    value={profile.address.state} 
-                                    onChange={(e) => setProfile({
-                                      ...profile, 
-                                      address: {...profile.address, state: e.target.value}
-                                    })} 
-                                  />
-                                </div>
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  CEP
-                                </label>
-                                <Input 
-                                  value={profile.address.zipCode} 
-                                  onChange={(e) => setProfile({
-                                    ...profile, 
-                                    address: {...profile.address, zipCode: e.target.value}
-                                  })} 
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="mt-6 flex justify-end">
-                          <Button onClick={handleSaveProfile}>
-                            <Check className="mr-2 h-4 w-4" />
-                            Salvar Alterações
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
+                  <UserProfileSection
+                    profile={profile}
+                    onUpdateProfile={handleSaveProfile}
+                  />
                 </TabsContent>
                 
                 {/* Configurações Tab */}
                 <TabsContent value="config">
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <div className="bg-white rounded-lg shadow-sm border">
-                      <div className="px-6 py-4 border-b">
-                        <h2 className="text-lg font-semibold">Configurações</h2>
-                      </div>
-                      <div className="p-6">
-                        <div className="space-y-6">
-                          <div>
-                            <h3 className="text-md font-medium mb-4">Preferências de Email</h3>
-                            <div className="space-y-3">
-                              <div className="flex items-center">
-                                <input 
-                                  type="checkbox" 
-                                  id="newsletter" 
-                                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                  defaultChecked
-                                />
-                                <label htmlFor="newsletter" className="ml-3 text-sm text-gray-700">
-                                  Receber newsletter com novidades e promoções
-                                </label>
-                              </div>
-                              <div className="flex items-center">
-                                <input 
-                                  type="checkbox" 
-                                  id="order-updates" 
-                                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                  defaultChecked
-                                />
-                                <label htmlFor="order-updates" className="ml-3 text-sm text-gray-700">
-                                  Receber atualizações sobre meus pedidos
-                                </label>
-                              </div>
-                              <div className="flex items-center">
-                                <input 
-                                  type="checkbox" 
-                                  id="wishlist-updates" 
-                                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                  defaultChecked
-                                />
-                                <label htmlFor="wishlist-updates" className="ml-3 text-sm text-gray-700">
-                                  Receber notificações sobre itens da lista de desejos
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <h3 className="text-md font-medium mb-4">Segurança</h3>
-                            <div className="space-y-4">
-                              <Button variant="outline">Alterar Senha</Button>
-                              <div>
-                                <div className="flex items-center mb-2">
-                                  <input 
-                                    type="checkbox" 
-                                    id="two-factor" 
-                                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                  />
-                                  <label htmlFor="two-factor" className="ml-3 text-sm text-gray-700">
-                                    Ativar autenticação de dois fatores
-                                  </label>
-                                </div>
-                                <p className="text-xs text-gray-500 ml-7">
-                                  Adicione uma camada extra de segurança à sua conta exigindo mais que apenas uma senha para fazer login.
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <h3 className="text-md font-medium mb-4">Privacidade</h3>
-                            <div className="space-y-3">
-                              <div className="flex items-center">
-                                <input 
-                                  type="checkbox" 
-                                  id="cookies" 
-                                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                  defaultChecked
-                                />
-                                <label htmlFor="cookies" className="ml-3 text-sm text-gray-700">
-                                  Aceitar cookies para melhorar a experiência de navegação
-                                </label>
-                              </div>
-                              <div className="flex items-center">
-                                <input 
-                                  type="checkbox" 
-                                  id="data-analytics" 
-                                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                  defaultChecked
-                                />
-                                <label htmlFor="data-analytics" className="ml-3 text-sm text-gray-700">
-                                  Permitir análise de dados para recomendações personalizadas
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <h3 className="text-md font-medium mb-4">Feedback</h3>
-                            <label className="block text-sm text-gray-700 mb-2">
-                              Envie-nos suas sugestões ou reporte problemas
-                            </label>
-                            <Textarea 
-                              placeholder="Digite sua mensagem aqui..."
-                              className="mb-3"
-                              rows={4}
-                            />
-                            <Button>Enviar Feedback</Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
+                  <SettingsSection />
                 </TabsContent>
               </Tabs>
             </div>
@@ -714,106 +210,12 @@ export default function ClientArea() {
       
       <Footer />
 
-      {/* Dialog para alterar email */}
-      <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Alterar Email</DialogTitle>
-            <DialogDescription>
-              Digite seu novo endereço de email abaixo
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none" htmlFor="new-email">
-                Novo Email
-              </label>
-              <Input
-                id="new-email"
-                placeholder="seu@email.com"
-                type="email"
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-              />
-              {emailError && (
-                <p className="text-sm text-red-500 flex items-center mt-1">
-                  <AlertCircle className="h-3 w-3 mr-1" />
-                  {emailError}
-                </p>
-              )}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setIsEmailDialogOpen(false);
-              setNewEmail("");
-              setEmailError("");
-            }}>
-              Cancelar
-            </Button>
-            <Button onClick={handleChangeEmail}>Confirmar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog para detalhes do pedido */}
-      <Dialog open={isOrderDetailsOpen} onOpenChange={setIsOrderDetailsOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Detalhes do Pedido #{selectedOrder?.id}</DialogTitle>
-            <DialogDescription>
-              Detalhes completos do seu pedido
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedOrder && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between border-b pb-2">
-                <span className="text-sm font-medium">Status:</span>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(selectedOrder.status)}`}>
-                  {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
-                </span>
-              </div>
-              
-              <div className="border-b pb-2">
-                <span className="text-sm font-medium">Data do pedido:</span>
-                <p className="text-sm">{new Date(selectedOrder.date).toLocaleDateString('pt-BR')}</p>
-              </div>
-              
-              <div>
-                <span className="text-sm font-medium">Itens:</span>
-                <ul className="mt-2 space-y-2">
-                  {selectedOrder.items.map((item) => (
-                    <li key={item.id} className="text-sm flex justify-between">
-                      <span>{item.name} (x{item.quantity})</span>
-                      <span>R$ {(item.price * item.quantity).toFixed(2)}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              
-              <div className="border-t pt-2 flex justify-between">
-                <span className="font-medium">Total:</span>
-                <span className="font-bold">R$ {selectedOrder.total.toFixed(2)}</span>
-              </div>
-              
-              {selectedOrder.trackingCode && (
-                <div className="bg-blue-50 p-3 rounded-md">
-                  <p className="text-sm font-medium text-blue-700">Código de rastreio:</p>
-                  <p className="text-sm">{selectedOrder.trackingCode}</p>
-                  <Button variant="link" className="text-blue-700 p-0 h-auto text-sm mt-1">
-                    Rastrear meu pedido
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button onClick={() => setIsOrderDetailsOpen(false)}>Fechar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Modal de detalhes do pedido */}
+      <OrderDetailsDialog
+        isOpen={isOrderDetailsOpen}
+        onOpenChange={setIsOrderDetailsOpen}
+        order={selectedOrder}
+      />
     </div>
   );
 }

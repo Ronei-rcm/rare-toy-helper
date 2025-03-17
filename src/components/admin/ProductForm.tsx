@@ -32,11 +32,11 @@ export function ProductForm({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
-  const defaultProductState = {
+  const defaultProductState: Partial<ToyItem> = {
     name: "",
     price: 0,
     category: "",
-    condition: "good",
+    condition: "good" as const,
     image: "/placeholder.svg",
     isRare: false
   };
@@ -100,6 +100,12 @@ export function ProductForm({
     }
   };
 
+  const handleConditionChange = (value: string) => {
+    // Ensure condition is one of the allowed values
+    const condition = value as 'mint' | 'excellent' | 'good' | 'fair';
+    setFormData({...formData, condition});
+  };
+
   const dialogTitle = editingProduct ? "Editar Produto" : "Adicionar Novo Produto";
   const buttonText = editingProduct ? "Salvar Alterações" : "Salvar";
   
@@ -160,7 +166,7 @@ export function ProductForm({
             <select
               id="condition"
               value={formData.condition}
-              onChange={(e) => setFormData({...formData, condition: e.target.value as "mint" | "excellent" | "good" | "fair"})}
+              onChange={(e) => handleConditionChange(e.target.value)}
               className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
             >
               <option value="mint">Perfeito</option>

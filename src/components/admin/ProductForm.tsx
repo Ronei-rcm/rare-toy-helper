@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ToyItem } from "@/components/ToyCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,73 +13,117 @@ import {
   DialogTitle, 
   DialogTrigger 
 } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { Plus, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 interface ProductFormProps {
   onAddProduct: (product: ToyItem) => void;
+  onUpdateProduct?: (product: ToyItem) => void;
+  editingProduct?: ToyItem | null;
+  onCancelEdit?: () => void;
 }
 
-export function ProductForm({ onAddProduct }: ProductFormProps) {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+export function ProductForm({ 
+  onAddProduct, 
+  onUpdateProduct, 
+  editingProduct, 
+  onCancelEdit 
+}: ProductFormProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
-  const [newProduct, setNewProduct] = useState<Partial<ToyItem>>({
+  const defaultProductState = {
     name: "",
     price: 0,
     category: "",
     condition: "good",
     image: "/placeholder.svg",
     isRare: false
-  });
+  };
+  
+  const [formData, setFormData] = useState<Partial<ToyItem>>(defaultProductState);
+
+  useEffect(() => {
+    if (editingProduct) {
+      setFormData(editingProduct);
+      setSelectedImage(editingProduct.image);
+      setIsDialogOpen(true);
+    }
+  }, [editingProduct]);
 
   const handleImageChange = (imageUrl: string) => {
     setSelectedImage(imageUrl);
-    setNewProduct({...newProduct, image: imageUrl});
+    setFormData({...formData, image: imageUrl});
   };
 
-  const handleAddProduct = () => {
-    if (newProduct.name && newProduct.price) {
-      const product = {
-        ...newProduct,
-        id: String(Date.now()),
-        image: newProduct.image || "/placeholder.svg",
-      } as ToyItem;
+  const handleSubmit = () => {
+    if (formData.name && formData.price) {
+      if (editingProduct && onUpdateProduct) {
+        // Modo de edição
+        const updatedProduct = {
+          ...formData,
+          id: editingProduct.id,
+          image: formData.image || "/placeholder.svg",
+        } as ToyItem;
+        
+        onUpdateProduct(updatedProduct);
+        toast.success("Produto atualizado com sucesso!");
+      } else {
+        // Modo de adição
+        const product = {
+          ...formData,
+          id: String(Date.now()),
+          image: formData.image || "/placeholder.svg",
+        } as ToyItem;
+        
+        onAddProduct(product);
+        toast.success("Produto adicionado com sucesso!");
+      }
       
-      onAddProduct(product);
-      setNewProduct({
-        name: "",
-        price: 0,
-        category: "",
-        condition: "good",
-        image: "/placeholder.svg",
-        isRare: false
-      });
-      setSelectedImage(null);
-      setIsAddDialogOpen(false);
-      toast.success("Produto adicionado com sucesso!");
+      resetForm();
+      setIsDialogOpen(false);
     } else {
       toast.error("Preencha pelo menos o nome e o preço do produto!");
     }
   };
 
+  const resetForm = () => {
+    setFormData(defaultProductState);
+    setSelectedImage(null);
+  };
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open && editingProduct && onCancelEdit) {
+      onCancelEdit();
+      resetForm();
+    }
+  };
+
+  const dialogTitle = editingProduct ? "Editar Produto" : "Adicionar Novo Produto";
+  const buttonText = editingProduct ? "Salvar Alterações" : "Salvar";
+  
   return (
-    <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+    <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
       <DialogTrigger asChild>
         <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Adicionar Produto
+          {!editingProduct && (
+            <>
+              <Plus className="mr-2 h-4 w-4" />
+              Adicionar Produto
+            </>
+          )}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Adicionar Novo Produto</DialogTitle>
+          <DialogTitle>{dialogTitle}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="product-image">Imagem do Produto</Label>
             <ImageUploader 
-              selectedImage={selectedImage || newProduct.image || "/placeholder.svg"} 
+              selectedImage={selectedImage || formData.image || "/placeholder.svg"} 
               onImageChange={handleImageChange} 
             />
           </div>
@@ -87,8 +131,8 @@ export function ProductForm({ onAddProduct }: ProductFormProps) {
             <Label htmlFor="name" className="text-right">Nome</Label>
             <Input
               id="name"
-              value={newProduct.name}
-              onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
               className="col-span-3"
             />
           </div>
@@ -97,8 +141,8 @@ export function ProductForm({ onAddProduct }: ProductFormProps) {
             <Input
               id="price"
               type="number"
-              value={newProduct.price}
-              onChange={(e) => setNewProduct({...newProduct, price: Number(e.target.value)})}
+              value={formData.price}
+              onChange={(e) => setFormData({...formData, price: Number(e.target.value)})}
               className="col-span-3"
             />
           </div>
@@ -106,8 +150,8 @@ export function ProductForm({ onAddProduct }: ProductFormProps) {
             <Label htmlFor="category" className="text-right">Categoria</Label>
             <Input
               id="category"
-              value={newProduct.category}
-              onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+              value={formData.category}
+              onChange={(e) => setFormData({...formData, category: e.target.value})}
               className="col-span-3"
             />
           </div>
@@ -115,8 +159,8 @@ export function ProductForm({ onAddProduct }: ProductFormProps) {
             <Label htmlFor="condition" className="text-right">Condição</Label>
             <select
               id="condition"
-              value={newProduct.condition}
-              onChange={(e) => setNewProduct({...newProduct, condition: e.target.value as "mint" | "excellent" | "good" | "fair"})}
+              value={formData.condition}
+              onChange={(e) => setFormData({...formData, condition: e.target.value as "mint" | "excellent" | "good" | "fair"})}
               className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
             >
               <option value="mint">Perfeito</option>
@@ -131,8 +175,8 @@ export function ProductForm({ onAddProduct }: ProductFormProps) {
               <input
                 type="checkbox"
                 id="isRare"
-                checked={newProduct.isRare}
-                onChange={(e) => setNewProduct({...newProduct, isRare: e.target.checked})}
+                checked={formData.isRare}
+                onChange={(e) => setFormData({...formData, isRare: e.target.checked})}
                 className="mr-2 h-4 w-4"
               />
               <label htmlFor="isRare">Produto raro</label>
@@ -140,8 +184,8 @@ export function ProductForm({ onAddProduct }: ProductFormProps) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancelar</Button>
-          <Button onClick={handleAddProduct}>Salvar</Button>
+          <Button variant="outline" onClick={() => handleDialogOpenChange(false)}>Cancelar</Button>
+          <Button onClick={handleSubmit}>{buttonText}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

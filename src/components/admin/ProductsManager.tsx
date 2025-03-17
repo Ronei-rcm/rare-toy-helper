@@ -18,6 +18,7 @@ const mockProducts: ToyItem[] = [
 export default function ProductsManager() {
   const [products, setProducts] = useState<ToyItem[]>(mockProducts);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingProduct, setEditingProduct] = useState<ToyItem | null>(null);
 
   const filteredProducts = products.filter(product => 
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -28,9 +29,25 @@ export default function ProductsManager() {
     setProducts([...products, product]);
   };
 
+  const handleUpdateProduct = (updatedProduct: ToyItem) => {
+    setProducts(products.map(product => 
+      product.id === updatedProduct.id ? updatedProduct : product
+    ));
+    setEditingProduct(null);
+    toast.success("Produto atualizado com sucesso!");
+  };
+
   const handleDeleteProduct = (id: string) => {
     setProducts(products.filter(product => product.id !== id));
     toast.success("Produto removido com sucesso!");
+  };
+
+  const handleEditProduct = (product: ToyItem) => {
+    setEditingProduct(product);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingProduct(null);
   };
 
   const handleSearchChange = (value: string) => {
@@ -44,12 +61,21 @@ export default function ProductsManager() {
           <h1 className="text-2xl font-bold">Produtos</h1>
           <p className="text-gray-500">Gerencie seu inventário de produtos</p>
         </div>
-        <ProductForm onAddProduct={handleAddProduct} />
+        <ProductForm 
+          onAddProduct={handleAddProduct} 
+          onUpdateProduct={handleUpdateProduct}
+          editingProduct={editingProduct}
+          onCancelEdit={handleCancelEdit}
+        />
       </div>
       
       <ProductSearch searchTerm={searchTerm} onSearchChange={handleSearchChange} />
       
-      <ProductTable products={filteredProducts} onDeleteProduct={handleDeleteProduct} />
+      <ProductTable 
+        products={filteredProducts} 
+        onDeleteProduct={handleDeleteProduct} 
+        onEditProduct={handleEditProduct}
+      />
     </div>
   );
 }

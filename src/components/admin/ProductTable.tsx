@@ -14,9 +14,10 @@ import {
 interface ProductTableProps {
   products: ToyItem[];
   onDeleteProduct: (id: string) => void;
+  onEditProduct: (product: ToyItem) => void;
 }
 
-export function ProductTable({ products, onDeleteProduct }: ProductTableProps) {
+export function ProductTable({ products, onDeleteProduct, onEditProduct }: ProductTableProps) {
   // Função para renderizar a condição em português
   const renderCondition = (condition: string) => {
     switch(condition) {
@@ -65,7 +66,11 @@ export function ProductTable({ products, onDeleteProduct }: ProductTableProps) {
                 <TableCell>{renderCondition(product.condition)}</TableCell>
                 <TableCell>R$ {product.price.toFixed(2)}</TableCell>
                 <TableCell className="text-right">
-                  <Button variant="ghost" size="icon">
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => onEditProduct(product)}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button 

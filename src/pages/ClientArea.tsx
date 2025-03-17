@@ -5,17 +5,10 @@ import { toast } from "sonner";
 
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-// Componentes refatorados
 import ClientSidebar from "@/components/client/ClientSidebar";
-import OrdersList from "@/components/client/orders/OrdersList";
-import OrderDetailsDialog from "@/components/client/orders/OrderDetailsDialog";
-import WishlistSection from "@/components/client/wishlist/WishlistSection";
-import UserProfileSection from "@/components/client/profile/UserProfileSection";
-import SettingsSection from "@/components/client/settings/SettingsSection";
-import CartSection from "@/components/client/cart/CartSection";
-import CheckoutDialog from "@/components/client/cart/CheckoutDialog";
+import ClientContent from "@/components/client/ClientContent";
+import ClientModals from "@/components/client/ClientModals";
+import { ClientProvider } from "@/contexts/ClientContext";
 
 // Tipos
 import { Order, WishlistItem, UserProfile, CartItem } from "@/types/client";
@@ -74,9 +67,6 @@ export default function ClientArea() {
   const [orders, setOrders] = useState<Order[]>(mockOrders);
   const [wishlist, setWishlist] = useState<WishlistItem[]>(mockWishlist);
   const [cartItems, setCartItems] = useState<CartItem[]>(mockCartItems);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile>({
     name: "",
     email: "",
@@ -91,9 +81,6 @@ export default function ClientArea() {
       zipCode: ""
     }
   });
-
-  // Calcular o total do carrinho
-  const cartTotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
 
   useEffect(() => {
     // Verifica se o usuário está logado
@@ -138,73 +125,15 @@ export default function ClientArea() {
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);
       setProfile(updatedProfile);
-      toast.success("Perfil atualizado com sucesso!");
     }
   };
 
-  const handleRemoveFromWishlist = (id: string) => {
-    setWishlist(wishlist.filter(item => item.id !== id));
-    toast.success("Item removido da lista de desejos");
-  };
-
-  const handleAddToCart = (item: WishlistItem) => {
-    // Verifica se o item já está no carrinho
-    const existingItem = cartItems.find(cartItem => cartItem.id === item.id);
-    
-    if (existingItem) {
-      // Se já existe, aumenta a quantidade
-      handleUpdateCartItemQuantity(item.id, existingItem.quantity + 1);
-    } else {
-      // Se não existe, adiciona ao carrinho
-      setCartItems([
-        ...cartItems,
-        { ...item, quantity: 1 }
-      ]);
-    }
-    
-    toast.success(`${item.name} adicionado ao carrinho`);
-  };
-
-  const handleRemoveFromCart = (id: string) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
-    toast.success("Item removido do carrinho");
-  };
-
-  const handleUpdateCartItemQuantity = (id: string, quantity: number) => {
-    setCartItems(cartItems.map(item => 
-      item.id === id ? { ...item, quantity } : item
-    ));
-  };
-
-  const handleCheckout = () => {
-    setIsCheckoutOpen(true);
-  };
-
-  const handleCheckoutComplete = () => {
-    // Simular criação de um novo pedido
-    const newOrder: Order = {
-      id: Math.floor(10000 + Math.random() * 90000).toString(),
-      date: new Date().toISOString().split('T')[0],
-      items: cartItems.map(item => ({
-        id: item.id,
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price
-      })),
-      total: cartTotal,
-      status: "pendente"
-    };
-    
-    // Adicionar o novo pedido à lista
-    setOrders([newOrder, ...orders]);
-    
-    // Limpar o carrinho
-    setCartItems([]);
-  };
-
-  const handleOrderDetails = (order: Order) => {
-    setSelectedOrder(order);
-    setIsOrderDetailsOpen(true);
+  // Prepare initial context data
+  const initialContextData = {
+    orders,
+    wishlist,
+    cartItems,
+    profile
   };
 
   if (!user) {
@@ -212,92 +141,32 @@ export default function ClientArea() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <NavBar />
-      
-      <main className="flex-1 pt-24">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Sidebar */}
-            <div className="md:w-64 shrink-0">
-              <ClientSidebar 
-                userName={user.name} 
-                onLogout={handleLogout} 
-              />
-            </div>
-            
-            {/* Main content */}
-            <div className="flex-1">
-              <Tabs defaultValue="pedidos">
-                <TabsList className="grid grid-cols-5 mb-8">
-                  <TabsTrigger value="pedidos">Meus Pedidos</TabsTrigger>
-                  <TabsTrigger value="desejos">Lista de Desejos</TabsTrigger>
-                  <TabsTrigger value="carrinho">Meu Carrinho</TabsTrigger>
-                  <TabsTrigger value="perfil">Meu Perfil</TabsTrigger>
-                  <TabsTrigger value="config">Configurações</TabsTrigger>
-                </TabsList>
-                
-                {/* Pedidos Tab */}
-                <TabsContent value="pedidos">
-                  <OrdersList 
-                    orders={orders}
-                    onViewDetails={handleOrderDetails}
-                  />
-                </TabsContent>
-                
-                {/* Lista de Desejos Tab */}
-                <TabsContent value="desejos">
-                  <WishlistSection
-                    wishlist={wishlist}
-                    onRemoveFromWishlist={handleRemoveFromWishlist}
-                    onAddToCart={handleAddToCart}
-                  />
-                </TabsContent>
-                
-                {/* Carrinho Tab */}
-                <TabsContent value="carrinho">
-                  <CartSection
-                    cartItems={cartItems}
-                    onRemoveItem={handleRemoveFromCart}
-                    onUpdateQuantity={handleUpdateCartItemQuantity}
-                    onCheckout={handleCheckout}
-                  />
-                </TabsContent>
-                
-                {/* Perfil Tab */}
-                <TabsContent value="perfil">
-                  <UserProfileSection
-                    profile={profile}
-                    onUpdateProfile={handleSaveProfile}
-                  />
-                </TabsContent>
-                
-                {/* Configurações Tab */}
-                <TabsContent value="config">
-                  <SettingsSection />
-                </TabsContent>
-              </Tabs>
+    <ClientProvider initialData={initialContextData}>
+      <div className="min-h-screen flex flex-col">
+        <NavBar />
+        
+        <main className="flex-1 pt-24">
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Sidebar */}
+              <div className="md:w-64 shrink-0">
+                <ClientSidebar 
+                  userName={user.name} 
+                  onLogout={handleLogout} 
+                />
+              </div>
+              
+              {/* Main content */}
+              <ClientContent onUpdateProfile={handleSaveProfile} />
             </div>
           </div>
-        </div>
-      </main>
-      
-      <Footer />
+        </main>
+        
+        <Footer />
 
-      {/* Modal de detalhes do pedido */}
-      <OrderDetailsDialog
-        isOpen={isOrderDetailsOpen}
-        onOpenChange={setIsOrderDetailsOpen}
-        order={selectedOrder}
-      />
-      
-      {/* Modal de checkout */}
-      <CheckoutDialog
-        isOpen={isCheckoutOpen}
-        onOpenChange={setIsCheckoutOpen}
-        total={cartTotal}
-        onCheckoutComplete={handleCheckoutComplete}
-      />
-    </div>
+        {/* Modals */}
+        <ClientModals />
+      </div>
+    </ClientProvider>
   );
 }

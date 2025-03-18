@@ -1,0 +1,60 @@
+/* Estilos gerais */
+body {
+    background-color: #f8f9fa;
+}
+
+/* Estilos do login */
+#loginSection .card {
+    min-width: 320px;
+    max-width: 400px;
+    width: 100%;
+}
+
+#loginSection .card-header {
+    border-radius: 0.375rem 0.375rem 0 0;
+}
+
+/* Estilos da área administrativa */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.admin-section {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+}
+
+/* Estilos das tabelas */
+.table th {
+    background-color: #f8f9fa;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Estilos dos botões de ação */
+.btn-action {
+    padding: 0.25rem 0.5rem;
+    margin: 0 0.25rem;
+}
+
+/* Estilos dos modais */
+.modal-header {
+    background-color: #f8f9fa;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .table-responsive {
+        margin-bottom: 1rem;
+    }
+    
+    .btn-action {
+        display: block;
+        width: 100%;
+        margin: 0.25rem 0;
+    }
+}

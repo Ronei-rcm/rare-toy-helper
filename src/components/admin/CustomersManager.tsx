@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -19,26 +18,43 @@ import {
 } from "@/components/ui/dialog";
 import { Search, Eye } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
+import { userService } from "@/services/userService";
+import { toast } from "sonner";
 
-// Dados fictícios
-const mockCustomers = [
-  { id: "1", name: "João Silva", email: "joao.silva@example.com", phone: "(11) 98765-4321", orders: 5, totalSpent: 1299.50, joined: "2023-05-15" },
-  { id: "2", name: "Maria Oliveira", email: "maria.oliveira@example.com", phone: "(21) 98765-4321", orders: 3, totalSpent: 789.90, joined: "2023-06-20" },
-  { id: "3", name: "Pedro Santos", email: "pedro.santos@example.com", phone: "(31) 98765-4321", orders: 8, totalSpent: 2435.75, joined: "2023-02-10" },
-  { id: "4", name: "Ana Costa", email: "ana.costa@example.com", phone: "(41) 98765-4321", orders: 2, totalSpent: 459.80, joined: "2023-09-05" },
-  { id: "5", name: "Carlos Ferreira", email: "carlos.ferreira@example.com", phone: "(51) 98765-4321", orders: 1, totalSpent: 149.50, joined: "2023-10-01" },
-];
+interface Customer {
+  id: string;
+  nome: string;
+  email: string;
+  tipo: string;
+  ativo: boolean;
+  createdAt: string;
+}
 
 export default function CustomersManager() {
-  const [customers] = useState(mockCustomers);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCustomer, setSelectedCustomer] = useState<typeof mockCustomers[0] | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadCustomers();
+  }, []);
+
+  const loadCustomers = async () => {
+    try {
+      const data = await userService.getUsers();
+      setCustomers(data);
+    } catch (error) {
+      toast.error("Erro ao carregar usuários");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredCustomers = customers.filter(customer => 
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone.includes(searchTerm)
+    customer.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -67,14 +83,20 @@ export default function CustomersManager() {
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Telefone</TableHead>
-              <TableHead>Pedidos</TableHead>
-              <TableHead>Total Gasto</TableHead>
+              <TableHead>Tipo</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Data Cadastro</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredCustomers.length === 0 ? (
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-6">
+                  Carregando...
+                </TableCell>
+              </TableRow>
+            ) : filteredCustomers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-6">
                   Nenhum cliente encontrado
@@ -83,11 +105,17 @@ export default function CustomersManager() {
             ) : (
               filteredCustomers.map((customer) => (
                 <TableRow key={customer.id}>
-                  <TableCell className="font-medium">{customer.name}</TableCell>
+                  <TableCell className="font-medium">{customer.nome}</TableCell>
                   <TableCell>{customer.email}</TableCell>
-                  <TableCell>{customer.phone}</TableCell>
-                  <TableCell>{customer.orders}</TableCell>
-                  <TableCell>R$ {customer.totalSpent.toFixed(2)}</TableCell>
+                  <TableCell>{customer.tipo === 'admin' ? 'Administrador' : 'Cliente'}</TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded-full text-xs ${
+                      customer.ativo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {customer.ativo ? 'Ativo' : 'Inativo'}
+                    </span>
+                  </TableCell>
+                  <TableCell>{new Date(customer.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell className="text-right">
                     <Dialog>
                       <DialogTrigger asChild>
@@ -108,52 +136,37 @@ export default function CustomersManager() {
                             <TabsList className="mb-4">
                               <TabsTrigger value="info">Informações</TabsTrigger>
                               <TabsTrigger value="orders">Pedidos</TabsTrigger>
-                              <TabsTrigger value="notes">Anotações</TabsTrigger>
                             </TabsList>
                             
                             <TabsContent value="info">
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
                                   <p className="text-sm font-medium">Nome</p>
-                                  <p className="text-sm">{customer.name}</p>
+                                  <p className="text-sm">{customer.nome}</p>
                                 </div>
                                 <div>
                                   <p className="text-sm font-medium">Email</p>
                                   <p className="text-sm">{customer.email}</p>
                                 </div>
                                 <div>
-                                  <p className="text-sm font-medium">Telefone</p>
-                                  <p className="text-sm">{customer.phone}</p>
+                                  <p className="text-sm font-medium">Tipo</p>
+                                  <p className="text-sm">{customer.tipo === 'admin' ? 'Administrador' : 'Cliente'}</p>
                                 </div>
                                 <div>
-                                  <p className="text-sm font-medium">Cadastro</p>
-                                  <p className="text-sm">{new Date(customer.joined).toLocaleDateString()}</p>
+                                  <p className="text-sm font-medium">Status</p>
+                                  <p className="text-sm">{customer.ativo ? 'Ativo' : 'Inativo'}</p>
                                 </div>
                                 <div>
-                                  <p className="text-sm font-medium">Pedidos</p>
-                                  <p className="text-sm">{customer.orders}</p>
-                                </div>
-                                <div>
-                                  <p className="text-sm font-medium">Total Gasto</p>
-                                  <p className="text-sm">R$ {customer.totalSpent.toFixed(2)}</p>
+                                  <p className="text-sm font-medium">Data de Cadastro</p>
+                                  <p className="text-sm">{new Date(customer.createdAt).toLocaleDateString()}</p>
                                 </div>
                               </div>
                             </TabsContent>
                             
                             <TabsContent value="orders">
                               <p className="text-sm text-gray-500 text-center py-4">
-                                O histórico de pedidos será exibido aqui
+                                Histórico de pedidos será implementado em breve
                               </p>
-                            </TabsContent>
-                            
-                            <TabsContent value="notes">
-                              <div className="space-y-4">
-                                <p className="text-sm text-gray-500">
-                                  Nenhuma anotação para este cliente.
-                                </p>
-                                <Input placeholder="Adicionar uma anotação..." />
-                                <Button variant="outline">Salvar Anotação</Button>
-                              </div>
                             </TabsContent>
                           </Tabs>
                         </div>

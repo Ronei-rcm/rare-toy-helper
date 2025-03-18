@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Catálogo de Brinquedos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Painel Administrativo</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-section="produtos">Produtos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-section="categorias">Categorias</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-section="pedidos">Pedidos</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="logoutBtn">Sair</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Seção de Produtos -->
+        <div id="produtosSection" class="section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Gerenciar Produtos</h2>
+                <button class="btn btn-primary" onclick="AdminPanel.editarProduto()">Novo Produto</button>
+            </div>
+            <table class="table" id="produtosTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Categoria</th>
+                        <th>Preço</th>
+                        <th>Estoque</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Seção de Categorias -->
+        <div id="categoriasSection" class="section" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Gerenciar Categorias</h2>
+                <button class="btn btn-primary" onclick="AdminPanel.editarCategoria()">Nova Categoria</button>
+            </div>
+            <table class="table" id="categoriasTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Descrição</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Seção de Pedidos -->
+        <div id="pedidosSection" class="section" style="display: none;">
+            <h2>Gerenciar Pedidos</h2>
+            <table class="table" id="pedidosTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal de Produto -->
+    <div class="modal fade" id="produtoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Produto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="produtoForm">
+                        <input type="hidden" id="produtoId">
+                        <div class="mb-3">
+                            <label for="produtoNome" class="form-label">Nome</label>
+                            <input type="text" class="form-control" id="produtoNome" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="produtoDescricao" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="produtoDescricao" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="produtoCategoria" class="form-label">Categoria</label>
+                            <select class="form-control" id="produtoCategoria" required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="produtoPreco" class="form-label">Preço</label>
+                            <input type="number" class="form-control" id="produtoPreco" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="produtoEstoque" class="form-label">Estoque</label>
+                            <input type="number" class="form-control" id="produtoEstoque" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="produtoImagem" class="form-label">URL da Imagem</label>
+                            <input type="url" class="form-control" id="produtoImagem">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="AdminPanel.salvarProduto()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Categoria -->
+    <div class="modal fade" id="categoriaModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Categoria</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="categoriaForm">
+                        <input type="hidden" id="categoriaId">
+                        <div class="mb-3">
+                            <label for="categoriaNome" class="form-label">Nome</label>
+                            <input type="text" class="form-control" id="categoriaNome" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categoriaDescricao" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="categoriaDescricao"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="AdminPanel.salvarCategoria()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

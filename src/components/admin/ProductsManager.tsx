@@ -1,80 +1,100 @@
-
-import { useState } from "react";
-import { ToyItem } from "@/components/ToyCard";
-import { ProductForm } from "./ProductForm";
-import { ProductTable } from "./ProductTable";
-import { ProductSearch } from "./ProductSearch";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { toast } from "sonner";
+import { Brinquedo, RespostaApi } from "../../types";
+import { API_URL, getAuthHeaders } from "../../config/api";
+import ProductList from "./ProductList";
+import AddProductDialog from "./AddProductDialog";
+import { Button } from "../ui/button";
+import { Plus } from "lucide-react";
 
-// Dados fictícios
-const mockProducts: ToyItem[] = [
-  { id: "1", name: "Urso de Pelúcia Vintage", price: 89.90, image: "/placeholder.svg", category: "Bichinhos de Pelúcia", condition: "good", isRare: true },
-  { id: "2", name: "Action Figure Colecionável", price: 129.99, image: "/placeholder.svg", category: "Action Figures", condition: "excellent", isRare: true },
-  { id: "3", name: "Jogo de Tabuleiro Clássico", price: 59.90, image: "/placeholder.svg", category: "Jogos de Tabuleiro", condition: "good", isRare: false },
-  { id: "4", name: "Console de Videogame Retrô", price: 299.90, image: "/placeholder.svg", category: "Videogames", condition: "fair", isRare: true },
-  { id: "5", name: "Kit de Trem de Modelo", price: 189.50, image: "/placeholder.svg", category: "Modelos", condition: "good", isRare: false },
-];
+export function ProductsManager() {
+  const [products, setProducts] = useState<Brinquedo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-export default function ProductsManager() {
-  const [products, setProducts] = useState<ToyItem[]>(mockProducts);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [editingProduct, setEditingProduct] = useState<ToyItem | null>(null);
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get<RespostaApi<Brinquedo[]>>(`${API_URL}/produtos`, {
+        headers: getAuthHeaders()
+      });
 
-  const filteredProducts = products.filter(product => 
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleAddProduct = (product: ToyItem) => {
-    setProducts([...products, product]);
+      if (response.data.sucesso && response.data.dados) {
+        setProducts(response.data.dados);
+      } else {
+        toast.error(response.data.erro || "Erro ao carregar produtos");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar produtos:", error);
+      toast.error("Erro ao carregar produtos. Tente novamente mais tarde.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleUpdateProduct = (updatedProduct: ToyItem) => {
-    setProducts(products.map(product => 
-      product.id === updatedProduct.id ? updatedProduct : product
-    ));
-    setEditingProduct(null);
-    toast.success("Produto atualizado com sucesso!");
+  const handleAddProduct = async (product: Omit<Brinquedo, "id">) => {
+    try {
+      const response = await axios.post<RespostaApi<Brinquedo>>(`${API_URL}/produtos`, product, {
+        headers: getAuthHeaders()
+      });
+
+      if (response.data.sucesso && response.data.dados) {
+        setProducts([...products, response.data.dados]);
+        toast.success("Produto adicionado com sucesso!");
+        setDialogOpen(false);
+      } else {
+        toast.error(response.data.erro || "Erro ao adicionar produto");
+      }
+    } catch (error) {
+      console.error("Erro ao adicionar produto:", error);
+      toast.error("Erro ao adicionar produto. Tente novamente mais tarde.");
+    }
   };
 
-  const handleDeleteProduct = (id: string) => {
-    setProducts(products.filter(product => product.id !== id));
-    toast.success("Produto removido com sucesso!");
+  const handleDeleteProduct = async (id: string) => {
+    try {
+      const response = await axios.delete<RespostaApi<void>>(`${API_URL}/produtos/${id}`, {
+        headers: getAuthHeaders()
+      });
+
+      if (response.data.sucesso) {
+        setProducts(products.filter(p => p.id !== id));
+        toast.success("Produto removido com sucesso!");
+      } else {
+        toast.error(response.data.erro || "Erro ao remover produto");
+      }
+    } catch (error) {
+      console.error("Erro ao remover produto:", error);
+      toast.error("Erro ao remover produto. Tente novamente mais tarde.");
+    }
   };
 
-  const handleEditProduct = (product: ToyItem) => {
-    setEditingProduct(product);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingProduct(null);
-  };
-
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-  };
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Produtos</h1>
-          <p className="text-gray-500">Gerencie seu inventário de produtos</p>
-        </div>
-        <ProductForm 
-          onAddProduct={handleAddProduct} 
-          onUpdateProduct={handleUpdateProduct}
-          editingProduct={editingProduct}
-          onCancelEdit={handleCancelEdit}
-        />
+        <h2 className="text-xl font-bold">Produtos</h2>
+        <Button onClick={() => setDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Adicionar Produto
+        </Button>
       </div>
-      
-      <ProductSearch searchTerm={searchTerm} onSearchChange={handleSearchChange} />
-      
-      <ProductTable 
-        products={filteredProducts} 
-        onDeleteProduct={handleDeleteProduct} 
-        onEditProduct={handleEditProduct}
+
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      ) : (
+        <ProductList products={products} onDelete={handleDeleteProduct} />
+      )}
+
+      <AddProductDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onSubmit={handleAddProduct}
       />
     </div>
   );

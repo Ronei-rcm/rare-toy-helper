@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { z } from "zod";
@@ -8,8 +7,8 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { User, Mail, Lock, ArrowRight } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import {
   Form,
   FormControl,
@@ -17,8 +16,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
+} from "../components/ui/form";
+import { Checkbox } from "../components/ui/checkbox";
 
 // Definição do esquema de validação
 const formSchema = z.object({
@@ -201,7 +200,7 @@ export default function Register() {
             <p className="text-sm text-gray-600">
               Já tem uma conta?{" "}
               <Link to="/login" className="text-primary hover:underline font-medium">
-                Entrar
+                Entre aqui
               </Link>
             </p>
           </div>

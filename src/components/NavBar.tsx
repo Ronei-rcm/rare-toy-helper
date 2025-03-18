@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, ShoppingCart, Menu, X, User, LogIn } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useIsMobile } from '@/hooks/use-mobile';
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { useIsMobile } from '../hooks/use-mobile';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +12,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "./ui/dropdown-menu";
 import { toast } from "sonner";
 
 const NavBar = () => {
@@ -199,45 +198,13 @@ const NavBar = () => {
                   to={item.path}
                   className={`px-4 py-2 rounded-md transition-colors duration-200 ${
                     location.pathname === item.path
-                      ? 'bg-primary/10 text-primary font-medium'
-                      : 'hover:bg-secondary'
+                      ? 'bg-primary/10 text-primary'
+                      : 'hover:bg-gray-100'
                   }`}
                 >
                   {item.name}
                 </Link>
               ))}
-              
-              {!user ? (
-                <div className="flex space-x-2 mt-2">
-                  <Button asChild className="flex-1">
-                    <Link to="/login">Login</Link>
-                  </Button>
-                  <Button asChild variant="outline" className="flex-1">
-                    <Link to="/register">Cadastrar</Link>
-                  </Button>
-                </div>
-              ) : (
-                <div className="border-t mt-2 pt-4">
-                  <div className="mb-2 px-4">
-                    <p className="font-medium">{user.name}</p>
-                    <p className="text-sm text-gray-500">{user.email}</p>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-start px-4 text-left"
-                    onClick={goToUserArea}
-                  >
-                    {user.role === "admin" ? "Painel de Administração" : "Minha Área"}
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-start px-4 text-red-500 hover:text-red-700 text-left"
-                    onClick={handleLogout}
-                  >
-                    Sair
-                  </Button>
-                </div>
-              )}
             </nav>
           </div>
         </motion.div>
@@ -246,27 +213,23 @@ const NavBar = () => {
   );
 };
 
+// NavLink component for desktop navigation
 const NavLink = ({ to, label }: { to: string; label: string }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
-
+  
   return (
-    <Link to={to} className="relative group">
-      <span className={`transition-colors duration-200 ${isActive ? 'text-primary font-medium' : 'text-gray-600 hover:text-gray-900'}`}>
-        {label}
-      </span>
-      <motion.span
-        className="absolute bottom-0 left-0 w-full h-0.5 bg-primary origin-left rounded-full"
-        initial={false}
-        animate={{ scaleX: isActive ? 1 : 0 }}
-        transition={{ duration: 0.3 }}
-      />
-      {!isActive && (
-        <motion.span
-          className="absolute bottom-0 left-0 w-full h-0.5 bg-primary origin-left rounded-full"
-          initial={{ scaleX: 0 }}
-          whileHover={{ scaleX: 1 }}
-          transition={{ duration: 0.3 }}
+    <Link
+      to={to}
+      className={`relative font-medium transition-colors duration-200 ${
+        isActive ? 'text-primary' : 'text-gray-600 hover:text-gray-900'
+      }`}
+    >
+      {label}
+      {isActive && (
+        <motion.div
+          className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary"
+          layoutId="navbar-indicator"
         />
       )}
     </Link>

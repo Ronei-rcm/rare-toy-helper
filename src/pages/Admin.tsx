@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { 
@@ -13,14 +12,15 @@ import {
   Home
 } from "lucide-react";
 import { toast } from "sonner";
-import AdminDashboard from "@/components/admin/AdminDashboard";
-import ProductsManager from "@/components/admin/ProductsManager";
-import CategoriesManager from "@/components/admin/CategoriesManager";
-import OrdersManager from "@/components/admin/OrdersManager";
-import CustomersManager from "@/components/admin/CustomersManager";
-import SettingsManager from "@/components/admin/SettingsManager";
-import RelatoriosManager from "@/components/admin/RelatoriosManager";
-import { Button } from "@/components/ui/button";
+import { isAdmin } from "../config/api";
+import AdminDashboard from "../components/admin/AdminDashboard";
+import { ProductsManager } from "../components/admin/ProductsManager";
+import CategoriesManager from "../components/admin/CategoriesManager";
+import OrdersManager from "../components/admin/OrdersManager";
+import CustomersManager from "../components/admin/CustomersManager";
+import SettingsManager from "../components/admin/SettingsManager";
+import RelatoriosManager from "../components/admin/RelatoriosManager";
+import { Button } from "../components/ui/button";
 import { 
   SidebarProvider, 
   Sidebar, 
@@ -32,19 +32,19 @@ import {
   SidebarTrigger,
   SidebarInset,
   SidebarFooter
-} from "@/components/ui/sidebar";
+} from "../components/ui/sidebar";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const navigate = useNavigate();
-  const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
+  const [user, setUser] = useState<{ nome: string; email: string; tipo: string } | null>(null);
 
   // Verifica se o usuário está logado e se é admin
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
-      if (parsedUser.role === "admin") {
+      if (isAdmin()) {
         setUser(parsedUser);
       } else {
         // Se não for admin, redireciona para a tela de login
@@ -60,6 +60,7 @@ export default function Admin() {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
     localStorage.removeItem("isLoggedIn");
     toast.success("Logout realizado com sucesso!");
     navigate("/");
@@ -171,7 +172,7 @@ export default function Admin() {
                   "Configurações"
                 }</h1>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">Olá, {user.name}</span>
+                  <span className="text-sm text-gray-500">Olá, {user.nome}</span>
                 </div>
               </div>
 

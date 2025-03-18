@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -22,6 +21,8 @@ export interface ToyItem {
   condition: 'mint' | 'excellent' | 'good' | 'fair';
   year?: string;
   isRare?: boolean;
+  description?: string;
+  stock?: number;
 }
 
 interface ToyCardProps {

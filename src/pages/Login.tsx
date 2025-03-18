@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { z } from "zod";
@@ -7,9 +6,10 @@ import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
+import { API_URL } from "../config/api";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import {
   Form,
   FormControl,
@@ -17,7 +17,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "../components/ui/form";
 
 // Definição do esquema de validação
 const formSchema = z.object({
@@ -44,60 +44,47 @@ export default function Login() {
   });
 
   // Handler do envio de formulário
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     setLoginError("");
     
-    // Simulando um login (aqui você integraria com sua API)
-    setTimeout(() => {
-      // Verifica se é o usuário admin
-      if (values.email === "admin@muhlstore.com" && values.password === "admin123") {
-        localStorage.setItem("user", JSON.stringify({
-          id: "admin1",
-          name: "Administrador",
+    try {
+      const response = await fetch(`${API_URL}/usuarios/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
           email: values.email,
-          role: "admin"
-        }));
-        localStorage.setItem("isLoggedIn", "true");
-        setIsSubmitting(false);
-        toast.success("Login realizado com sucesso!");
-        navigate("/admin");
-        return;
+          senha: values.password
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erro ao fazer login');
       }
+
+      const data = await response.json();
       
-      // Verifica se é o usuário cliente demo
-      if (values.email === "cliente@muhlstore.com" && values.password === "cliente123") {
-        localStorage.setItem("user", JSON.stringify({
-          id: "cliente1",
-          name: "Cliente Demo",
-          email: values.email,
-          role: "client"
-        }));
-        localStorage.setItem("isLoggedIn", "true");
-        setIsSubmitting(false);
-        toast.success("Login realizado com sucesso!");
-        navigate("/cliente");
-        return;
-      }
+      // Salvar dados do usuário e token
+      localStorage.setItem("user", JSON.stringify(data.usuario));
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("isLoggedIn", "true");
       
-      // Verifica se o usuário existe no localStorage (simulação)
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        const user = JSON.parse(storedUser);
-        if (user.email === values.email) {
-          // Em um ambiente real, você verificaria a senha com hash
-          localStorage.setItem("isLoggedIn", "true");
-          setIsSubmitting(false);
-          toast.success("Login realizado com sucesso!");
-          navigate("/cliente");
-          return;
-        }
-      }
-      
-      // Se não encontrar o usuário
       setIsSubmitting(false);
-      setLoginError("Email ou senha incorretos.");
-    }, 1500);
+      toast.success("Login realizado com sucesso!");
+      
+      // Redirecionar baseado no tipo de usuário
+      if (data.usuario.tipo === 'admin') {
+        navigate("/admin");
+      } else {
+        navigate("/cliente");
+      }
+    } catch (error) {
+      setIsSubmitting(false);
+      setLoginError(error instanceof Error ? error.message : "Email ou senha incorretos.");
+    }
   }
 
   return (
@@ -197,7 +184,7 @@ export default function Login() {
               </div>
               <div className="border rounded-md p-3">
                 <p className="font-semibold mb-2">Administrador</p>
-                <p><span className="text-gray-500">Email:</span> admin@muhlstore.com</p>
+                <p><span className="text-gray-500">Email:</span> admin@example.com</p>
                 <p><span className="text-gray-500">Senha:</span> admin123</p>
               </div>
             </div>

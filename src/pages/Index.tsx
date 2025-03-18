@@ -1,15 +1,15 @@
-
 import { useEffect } from 'react';
-import NavBar from '@/components/NavBar';
-import Hero from '@/components/Hero';
-import FeaturedToys from '@/components/FeaturedToys';
-import CategorySection from '@/components/CategorySection';
-import NewsletterSection from '@/components/NewsletterSection';
-import Footer from '@/components/Footer';
+import NavBar from '../components/NavBar';
+import Hero from '../components/Hero';
+import FeaturedToys from '../components/FeaturedToys';
+import CategorySection from '../components/CategorySection';
+import NewsletterSection from '../components/NewsletterSection';
+import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Star, Award, CheckCircle, Truck } from 'lucide-react';
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
+import { ProdutosList } from "../components/ProdutosList";
 
 const Index = () => {
   // Scroll to top on page load
@@ -167,6 +167,14 @@ const Index = () => {
         
         {/* Categories */}
         <CategorySection />
+        
+        {/* Produtos List */}
+        <section className="py-20">
+          <div className="container mx-auto py-8">
+            <h1 className="text-3xl font-bold mb-6">Catálogo de Brinquedos Raros</h1>
+            <ProdutosList />
+          </div>
+        </section>
         
         {/* Call to Action */}
         <section className="py-20 bg-gradient-to-r from-primary/20 to-primary/5">

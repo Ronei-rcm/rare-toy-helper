@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ToyItem } from "@/components/ToyCard";
 import { Button } from "@/components/ui/button";
@@ -36,9 +35,11 @@ export function ProductForm({
     name: "",
     price: 0,
     category: "",
-    condition: "good" as const,
+    condition: "bom" as const,
     image: "/placeholder.svg",
-    isRare: false
+    isRare: false,
+    stock: 0,
+    description: ""
   };
   
   const [formData, setFormData] = useState<Partial<ToyItem>>(defaultProductState);
@@ -67,7 +68,6 @@ export function ProductForm({
         } as ToyItem;
         
         onUpdateProduct(updatedProduct);
-        toast.success("Produto atualizado com sucesso!");
       } else {
         // Modo de adição
         const product = {
@@ -77,13 +77,12 @@ export function ProductForm({
         } as ToyItem;
         
         onAddProduct(product);
-        toast.success("Produto adicionado com sucesso!");
       }
       
       resetForm();
       setIsDialogOpen(false);
     } else {
-      toast.error("Preencha pelo menos o nome e o preço do produto!");
+      toast.error("Por favor, preencha o nome e o preço do produto!");
     }
   };
 
@@ -101,13 +100,12 @@ export function ProductForm({
   };
 
   const handleConditionChange = (value: string) => {
-    // Ensure condition is one of the allowed values
-    const condition = value as 'mint' | 'excellent' | 'good' | 'fair';
+    const condition = value as 'novo' | 'otimo' | 'bom' | 'regular';
     setFormData({...formData, condition});
   };
 
-  const dialogTitle = editingProduct ? "Editar Produto" : "Adicionar Novo Produto";
-  const buttonText = editingProduct ? "Salvar Alterações" : "Salvar";
+  const dialogTitle = editingProduct ? "Editar Brinquedo" : "Adicionar Novo Brinquedo";
+  const buttonText = editingProduct ? "Salvar Alterações" : "Adicionar";
   
   return (
     <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
@@ -116,7 +114,7 @@ export function ProductForm({
           {!editingProduct && (
             <>
               <Plus className="mr-2 h-4 w-4" />
-              Adicionar Produto
+              Adicionar Brinquedo
             </>
           )}
         </Button>
@@ -127,7 +125,7 @@ export function ProductForm({
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="product-image">Imagem do Produto</Label>
+            <Label htmlFor="product-image">Imagem do Brinquedo</Label>
             <ImageUploader 
               selectedImage={selectedImage || formData.image || "/placeholder.svg"} 
               onImageChange={handleImageChange} 
@@ -140,6 +138,17 @@ export function ProductForm({
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
               className="col-span-3"
+              placeholder="Nome do brinquedo"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="description" className="text-right">Descrição</Label>
+            <Input
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="col-span-3"
+              placeholder="Descrição do brinquedo"
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
@@ -150,29 +159,50 @@ export function ProductForm({
               value={formData.price}
               onChange={(e) => setFormData({...formData, price: Number(e.target.value)})}
               className="col-span-3"
+              placeholder="0,00"
+              step="0.01"
+              min="0"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="stock" className="text-right">Estoque</Label>
+            <Input
+              id="stock"
+              type="number"
+              value={formData.stock}
+              onChange={(e) => setFormData({...formData, stock: Number(e.target.value)})}
+              className="col-span-3"
+              placeholder="0"
+              min="0"
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="category" className="text-right">Categoria</Label>
-            <Input
+            <select
               id="category"
               value={formData.category}
               onChange={(e) => setFormData({...formData, category: e.target.value})}
-              className="col-span-3"
-            />
+              className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+            >
+              <option value="">Selecione uma categoria</option>
+              <option value="Bonecos">Bonecos</option>
+              <option value="Jogos de Tabuleiro">Jogos de Tabuleiro</option>
+              <option value="Carrinhos">Carrinhos</option>
+              <option value="Pelúcias">Pelúcias</option>
+            </select>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="condition" className="text-right">Condição</Label>
+            <Label htmlFor="condition" className="text-right">Estado</Label>
             <select
               id="condition"
               value={formData.condition}
               onChange={(e) => handleConditionChange(e.target.value)}
               className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
             >
-              <option value="mint">Perfeito</option>
-              <option value="excellent">Excelente</option>
-              <option value="good">Bom</option>
-              <option value="fair">Regular</option>
+              <option value="novo">Novo</option>
+              <option value="otimo">Ótimo</option>
+              <option value="bom">Bom</option>
+              <option value="regular">Regular</option>
             </select>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
@@ -185,7 +215,7 @@ export function ProductForm({
                 onChange={(e) => setFormData({...formData, isRare: e.target.checked})}
                 className="mr-2 h-4 w-4"
               />
-              <label htmlFor="isRare">Produto raro</label>
+              <label htmlFor="isRare">Brinquedo raro</label>
             </div>
           </div>
         </div>

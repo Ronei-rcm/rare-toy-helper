@@ -1,7 +1,8 @@
+
 import axios, { AxiosError } from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3003/api',
+  baseURL: 'http://localhost:3002/api',
   timeout: 10000, // 10 segundos
   headers: {
     'Content-Type': 'application/json'

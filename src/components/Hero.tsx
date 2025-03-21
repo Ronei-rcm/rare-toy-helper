@@ -8,43 +8,67 @@ import { Link } from 'react-router-dom';
 const slides = [
   {
     id: 1,
-    title: "Rare & Collectible Toys",
-    subtitle: "Discover unique pieces from the past",
-    cta: "Explore Collection",
-    image: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-    link: "/collection"
-  },
-  {
-    id: 2,
-    title: "Vintage Action Figures",
-    subtitle: "Relive the golden age of toys",
-    cta: "View Figures",
-    image: "https://images.unsplash.com/photo-1608889476561-6242cfdbf622?ixlib=rb-4.0.3&auto=format&fit=crop&w=2080&q=80",
-    link: "/categories/action-figures"
-  },
-  {
-    id: 3,
-    title: "Childhood Memories",
-    subtitle: "Find the toys you grew up with",
-    cta: "Discover More",
-    image: "https://images.unsplash.com/photo-1560859251-abf769462b45?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-    link: "/categories/vintage"
-  },
-  {
-    id: 4,
-    title: "Sustainable Toy Collecting",
-    subtitle: "Join our eco-friendly toy recycling community",
-    cta: "Learn More",
-    image: "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    title: "Sustentabilidade na Prática",
+    subtitle: "Ao optar por brinquedos semi-novos, você contribui para um mundo sustentável",
+    cta: "Saiba Mais",
+    image: "public/lovable-uploads/ef893baa-5a20-4b2d-8e1e-4ec8226bd668.png",
     link: "/about"
   },
   {
-    id: 5,
-    title: "Toys With Stories",
-    subtitle: "Every toy carries history and emotions",
-    cta: "Find Your Story",
-    image: "https://images.unsplash.com/photo-1558060370-d644486b0020?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    id: 2,
+    title: "Os Melhores Carros Hot Wheels",
+    subtitle: "Carrinhos em miniatura que encantam colecionadores de todas as idades",
+    cta: "Ver Coleção",
+    image: "public/lovable-uploads/748d6bb0-e064-49e7-ad36-a6c2ae92aeb6.png",
+    link: "/categories/carros"
+  },
+  {
+    id: 3,
+    title: "Economia Financeira e Sustentabilidade",
+    subtitle: "Com valor de 1 brinquedo você pode comprar até 5",
+    cta: "Confira Ofertas",
+    image: "public/lovable-uploads/5c56d1fe-9643-459e-8e80-e5e23b7afb89.png",
     link: "/collection"
+  },
+  {
+    id: 4,
+    title: "Star Wars e Colecionáveis",
+    subtitle: "Os melhores vilões e heróis para sua coleção",
+    cta: "Ver Colecionáveis",
+    image: "public/lovable-uploads/a0458ab2-6365-4b6c-bfde-fe7108a451d5.png",
+    link: "/categories/action-figures"
+  },
+  {
+    id: 5,
+    title: "Bonecas Barbie e Acessórios",
+    subtitle: "Encontre modelos novos e usados em perfeito estado",
+    cta: "Explore",
+    image: "public/lovable-uploads/9bc480a9-9694-470f-b6b8-ebc9de483263.png",
+    link: "/categories/bonecas"
+  },
+  {
+    id: 6,
+    title: "Personagens Preferidos",
+    subtitle: "Brinquedos que trazem alegria e memórias especiais",
+    cta: "Descubra Mais",
+    image: "public/lovable-uploads/3785c4b3-c195-40d2-a97e-737af231796d.png",
+    link: "/collection"
+  },
+  {
+    id: 7,
+    title: "Economia Financeira",
+    subtitle: "Sustentabilidade x Rotatividade: brinquedos acessíveis para todos",
+    cta: "Ver Ofertas",
+    image: "public/lovable-uploads/fc275b37-7bea-40e1-93fc-62f61d26cb4b.png",
+    link: "/categories/ofertas"
+  },
+  {
+    id: 8,
+    title: "Brinquedos Semi-Novos",
+    subtitle: "Você contribui para um mundo sustentável",
+    cta: "Conheça Nossa Missão",
+    image: "public/lovable-uploads/fb4de360-61f0-4564-b9cc-fd0db856daca.png",
+    link: "/about"
   }
 ];
 

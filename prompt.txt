@@ -1,0 +1,233 @@
+
+# MUHL STORE - Projeto de E-commerce de Brinquedos
+
+Este documento contém instruções para criar e configurar o projeto MUHL STORE, uma loja online especializada em brinquedos novos e usados, promovendo sustentabilidade e economia circular.
+
+## Visão do Projeto
+
+A MUHL STORE é uma plataforma de e-commerce focada em:
+- Venda de brinquedos novos e semi-novos
+- Promoção da economia financeira e de recursos naturais
+- Sustentabilidade e rotatividade de produtos
+- Conexão emocional com brinquedos que carregam histórias
+
+## Tecnologias Utilizadas
+
+### Frontend
+- React + TypeScript
+- TailwindCSS para estilização
+- Framer Motion para animações
+- React Router para navegação
+- React Query para gerenciamento de estado e requisições
+- Shadcn/UI para componentes de interface
+- Lucide React para ícones
+
+### Backend
+- Node.js + Express
+- Sequelize ORM para interação com banco de dados
+- MySQL para persistência de dados
+- JWT para autenticação
+- Multer para upload de arquivos
+
+## Estrutura de Diretórios
+
+```
+muhl-store/
+├── client/                # Frontend da aplicação
+│   ├── public/            # Arquivos estáticos
+│   └── src/               # Código fonte React
+│       ├── components/    # Componentes reutilizáveis
+│       ├── pages/         # Páginas da aplicação
+│       ├── contexts/      # Contextos React (auth, cart, etc)
+│       ├── services/      # Serviços (API, etc)
+│       ├── hooks/         # Hooks customizados
+│       └── types/         # Definições de tipos TypeScript
+└── server/                # Backend da aplicação
+    ├── src/
+    │   ├── config/        # Configurações (database, etc)
+    │   ├── controllers/   # Controladores da API
+    │   ├── models/        # Modelos Sequelize
+    │   ├── routes/        # Rotas da API
+    │   └── middleware/    # Middlewares Express
+    └── uploads/           # Diretório para uploads
+```
+
+## Configuração do Banco de Dados MySQL
+
+### 1. Instalação do MySQL
+
+#### Windows
+1. Baixe e instale o MySQL Community Server: https://dev.mysql.com/downloads/mysql/
+2. Durante a instalação, defina a senha do usuário root
+3. Instale o MySQL Workbench para gerenciamento visual
+
+#### Linux (Ubuntu/Debian)
+```bash
+sudo apt update
+sudo apt install mysql-server
+sudo mysql_secure_installation
+```
+
+#### macOS
+```bash
+brew install mysql
+brew services start mysql
+mysql_secure_installation
+```
+
+### 2. Criação do Banco de Dados
+
+Acesse o MySQL via terminal ou MySQL Workbench:
+
+```sql
+CREATE DATABASE catalogo_de_brinquedos;
+CREATE USER 'muhlstore_user'@'localhost' IDENTIFIED BY 'sua_senha_segura';
+GRANT ALL PRIVILEGES ON catalogo_de_brinquedos.* TO 'muhlstore_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+### 3. Configuração da Conexão no Projeto
+
+1. Crie um arquivo `.env` na raiz do diretório `server/` com as seguintes variáveis:
+
+```
+DB_HOST=localhost
+DB_USER=muhlstore_user
+DB_PASS=sua_senha_segura
+DB_NAME=catalogo_de_brinquedos
+DB_PORT=3306
+JWT_SECRET=sua_chave_secreta_jwt
+```
+
+2. O arquivo de configuração da conexão já está em `server/src/config/sequelize.js` e usa essas variáveis de ambiente.
+
+## Inicialização do Projeto
+
+### Instalação de Dependências
+
+```bash
+# Clone o repositório (ou crie um novo)
+git clone https://github.com/seu-usuario/muhl-store.git
+cd muhl-store
+
+# Frontend
+cd client
+npm install
+cd ..
+
+# Backend
+cd server
+npm install
+cd ..
+```
+
+### Iniciar o Desenvolvimento
+
+```bash
+# Terminal 1 - Backend
+cd server
+npm run dev
+
+# Terminal 2 - Frontend
+cd client
+npm run dev
+```
+
+## Principais Recursos e Funcionalidades
+
+1. **Catálogo de Produtos**
+   - Listagem de brinquedos por categoria
+   - Filtros por estado (novo/usado), preço, idade recomendada
+   - Páginas de detalhe de produto
+
+2. **Sistema de Usuários**
+   - Registro e login
+   - Perfil do usuário
+   - Histórico de compras
+
+3. **Carrinho de Compras**
+   - Adição/remoção de itens
+   - Cálculo de frete
+   - Aplicação de cupons de desconto
+
+4. **Painel Administrativo**
+   - Gestão de produtos
+   - Gestão de categorias
+   - Gestão de pedidos
+   - Relatórios de vendas
+
+5. **Integração com WhatsApp**
+   - Comunicação direta com o cliente
+   - Notificações de status de pedido
+   - Suporte ao cliente
+
+## Modelos de Banco de Dados
+
+### Principais tabelas:
+
+1. **usuarios**
+   - id (PK)
+   - nome
+   - email
+   - senha (hash)
+   - tipo (admin/cliente)
+   - created_at
+   - updated_at
+
+2. **produtos**
+   - id (PK)
+   - nome
+   - descricao
+   - preco
+   - estado (novo/usado)
+   - categoria_id (FK)
+   - estoque
+   - imagens (JSON)
+   - created_at
+   - updated_at
+
+3. **categorias**
+   - id (PK)
+   - nome
+   - descricao
+   - created_at
+   - updated_at
+
+4. **pedidos**
+   - id (PK)
+   - usuario_id (FK)
+   - status
+   - valor_total
+   - endereco_entrega (JSON)
+   - metodo_pagamento
+   - created_at
+   - updated_at
+
+5. **itens_pedido**
+   - id (PK)
+   - pedido_id (FK)
+   - produto_id (FK)
+   - quantidade
+   - preco_unitario
+   - created_at
+   - updated_at
+
+## Implantação em Produção
+
+Para implantação em ambiente de produção, recomenda-se:
+
+1. **Frontend**: Vercel, Netlify ou AWS S3 + CloudFront
+2. **Backend**: Heroku, DigitalOcean, AWS EC2 ou Railway
+3. **Banco de Dados**: MySQL hospedado (AWS RDS, DigitalOcean Managed Databases) ou migração para PostgreSQL
+
+## Manutenção e Escalabilidade
+
+- Configure backups regulares do banco de dados
+- Implemente monitoramento de performance
+- Considere CDN para distribuição de imagens
+- Implemente cache para APIs frequentemente acessadas
+- Configure CI/CD para automação de deploy
+
+---
+
+Slogan: "MUHL STORE - Aqui os brinquedos não são objetos, eles carregam histórias e emoções."

@@ -1,7 +1,7 @@
 
 // Serviço para gerenciar notificações em tempo real
 import { toast } from "sonner";
-import { BellIcon, Bell, BellDot } from "lucide-react";
+import { Bell, BellDot } from "lucide-react";
 import { create } from "zustand";
 
 // Tipos de notificações
@@ -47,7 +47,10 @@ export const useNotificationStore = create<NotificationState>((set) => ({
         description: newNotification.message,
         icon: notification.category === "message" ? <Bell size={18} /> : <BellDot size={18} />,
         action: newNotification.link 
-          ? { label: "Ver", onClick: () => window.location.href = newNotification.link! }
+          ? { 
+              label: "Ver", 
+              onClick: () => window.location.href = newNotification.link! 
+            }
           : undefined
       });
       

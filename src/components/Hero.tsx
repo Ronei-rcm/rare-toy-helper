@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "./ui/button";
@@ -9,26 +8,32 @@ const slides = [
   {
     id: 1,
     title: "Sustentabilidade na Prática",
-    subtitle: "Ao optar por brinquedos semi-novos, você contribui para um mundo sustentável",
+    subtitle: "Brinquedos que fazem a diferença para o planeta",
+    overlay: "Reduza, Reutilize, Brinque",
     cta: "Saiba Mais",
     image: "public/lovable-uploads/ef893baa-5a20-4b2d-8e1e-4ec8226bd668.png",
-    link: "/about"
+    link: "/about",
+    textColor: "text-green-300"
   },
   {
     id: 2,
-    title: "Os Melhores Carros Hot Wheels",
-    subtitle: "Carrinhos em miniatura que encantam colecionadores de todas as idades",
+    title: "Colecionáveis Hot Wheels",
+    subtitle: "Carrinhos em miniatura que encantam gerações",
+    overlay: "Histórias em Miniatura",
     cta: "Ver Coleção",
     image: "public/lovable-uploads/748d6bb0-e064-49e7-ad36-a6c2ae92aeb6.png",
-    link: "/categories/carros"
+    link: "/categories/carros",
+    textColor: "text-blue-200"
   },
   {
     id: 3,
-    title: "Economia Financeira e Sustentabilidade",
+    title: "Economia Financeira",
     subtitle: "Com valor de 1 brinquedo você pode comprar até 5",
+    overlay: "Consumo Inteligente",
     cta: "Confira Ofertas",
     image: "public/lovable-uploads/5c56d1fe-9643-459e-8e80-e5e23b7afb89.png",
-    link: "/collection"
+    link: "/collection",
+    textColor: "text-yellow-200"
   },
   {
     id: 4,
@@ -76,7 +81,6 @@ const Hero = () => {
   const [current, setCurrent] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
 
-  // Auto-advance slides, pause on hover
   useEffect(() => {
     if (isHovering) return;
     
@@ -101,14 +105,12 @@ const Hero = () => {
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      {/* Slogan Banner */}
       <div className="absolute top-0 left-0 right-0 bg-primary/80 text-white py-2 z-30 text-center backdrop-blur-sm">
         <p className="text-sm md:text-base px-4 font-medium">
           Bem-vindos à MUHL STORE - Onde brinquedos carregam histórias e emoções
         </p>
       </div>
       
-      {/* Slides */}
       <AnimatePresence mode="wait">
         {slides.map((slide, index) => (
           index === current && (
@@ -120,7 +122,6 @@ const Hero = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 1 }}
             >
-              {/* Image with overlay */}
               <div className="relative h-full">
                 <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent z-10" />
                 <img 
@@ -128,9 +129,19 @@ const Hero = () => {
                   alt={slide.title} 
                   className="h-full w-full object-cover"
                 />
+                
+                <div className="absolute top-10 left-10 z-20 p-4 bg-black/40 backdrop-blur-sm rounded-xl">
+                  <motion.h2
+                    className={`text-2xl sm:text-3xl font-bold ${slide.textColor}`}
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3, duration: 0.6 }}
+                  >
+                    {slide.overlay}
+                  </motion.h2>
+                </div>
               </div>
               
-              {/* Content */}
               <div className="absolute inset-0 z-20 flex items-center">
                 <div className="container mx-auto px-4">
                   <motion.div
@@ -159,7 +170,6 @@ const Hero = () => {
         ))}
       </AnimatePresence>
       
-      {/* Navigation arrows */}
       <div className="absolute bottom-8 right-8 z-30 flex space-x-2">
         <Button
           variant="outline" 
@@ -179,7 +189,6 @@ const Hero = () => {
         </Button>
       </div>
       
-      {/* Indicators */}
       <div className="absolute bottom-8 left-0 right-0 z-30">
         <div className="flex justify-center space-x-2">
           {slides.map((_, index) => (
@@ -195,7 +204,6 @@ const Hero = () => {
         </div>
       </div>
       
-      {/* Extended slogan */}
       <div className="absolute bottom-20 left-0 right-0 z-20 text-white bg-black/40 backdrop-blur-sm py-3">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm md:text-base max-w-2xl mx-auto">

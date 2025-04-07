@@ -1,7 +1,7 @@
 
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { CategoryItem, categories } from '@/data/categoriesData';
+import { CategoryItem, categories } from '../data/categoriesData';
 
 const CategorySection = () => {
   // Filtrar apenas categorias em destaque, como fazemos na página Categories

@@ -8,49 +8,64 @@ export interface WhatsAppConfig {
   autoReplyMessage: string;
 }
 
-// Configurações padrão
+// Default configuration
 const defaultConfig: WhatsAppConfig = {
   enabled: true,
-  phoneNumber: "5511999999999", // Substitua pelo número real
-  welcomeMessage: "Olá! Bem-vindo à nossa loja de brinquedos. Como posso ajudar?",
-  notificationsEnabled: true,
-  autoReplyEnabled: true,
-  autoReplyMessage: "Agradecemos seu contato! Responderemos em breve."
+  phoneNumber: "5521999999999",
+  welcomeMessage: "Olá! Como posso ajudar?",
+  notificationsEnabled: false,
+  autoReplyEnabled: false,
+  autoReplyMessage: "Obrigado por entrar em contato! Responderemos em breve."
 };
 
-// Simulando armazenamento da configuração
-let whatsAppConfig: WhatsAppConfig = { ...defaultConfig };
+// Try to load config from localStorage or use default
+const loadConfig = (): WhatsAppConfig => {
+  try {
+    const savedConfig = localStorage.getItem("whatsappConfig");
+    return savedConfig ? JSON.parse(savedConfig) : defaultConfig;
+  } catch (error) {
+    console.error("Error loading WhatsApp config:", error);
+    return defaultConfig;
+  }
+};
+
+// Save config to localStorage
+const saveConfig = (config: WhatsAppConfig): void => {
+  try {
+    localStorage.setItem("whatsappConfig", JSON.stringify(config));
+  } catch (error) {
+    console.error("Error saving WhatsApp config:", error);
+  }
+};
 
 export const whatsappService = {
-  // Obter configuração atual
+  // Get current configuration
   getConfig: (): WhatsAppConfig => {
-    return whatsAppConfig;
+    return loadConfig();
   },
-  
-  // Atualizar configuração
-  updateConfig: (config: Partial<WhatsAppConfig>): WhatsAppConfig => {
-    whatsAppConfig = { ...whatsAppConfig, ...config };
-    return whatsAppConfig;
+
+  // Update configuration
+  updateConfig: (config: WhatsAppConfig): WhatsAppConfig => {
+    saveConfig(config);
+    return config;
   },
-  
-  // Gerar link do WhatsApp
-  generateWhatsAppLink: (message?: string): string => {
-    const encodedMessage = encodeURIComponent(message || whatsAppConfig.welcomeMessage);
-    return `https://wa.me/${whatsAppConfig.phoneNumber}?text=${encodedMessage}`;
+
+  // Generate WhatsApp link
+  generateWhatsAppLink: (customMessage?: string): string => {
+    const config = loadConfig();
+    const message = encodeURIComponent(customMessage || config.welcomeMessage);
+    return `https://wa.me/${config.phoneNumber}?text=${message}`;
   },
-  
-  // Simular envio de mensagem (em um ambiente real, isso seria feito via API)
-  sendMessage: async (to: string, message: string): Promise<boolean> => {
-    console.log(`Enviando mensagem para ${to}: ${message}`);
+
+  // Simulate sending a WhatsApp message (in a real app, this would use the WhatsApp Business API)
+  sendMessage: async (phone: string, message: string): Promise<boolean> => {
+    // This is just a simulation
+    console.log(`Sending WhatsApp message to ${phone}: ${message}`);
     
-    // Simular atraso de rede
-    return new Promise(resolve => {
-      setTimeout(() => {
-        // Simulação de sucesso (90% de chance)
-        const success = Math.random() < 0.9;
-        console.log(`Mensagem ${success ? 'enviada' : 'falhou'}`);
-        resolve(success);
-      }, 800);
-    });
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // In a real implementation, we would call the WhatsApp API here
+    return true;
   }
 };

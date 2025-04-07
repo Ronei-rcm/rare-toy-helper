@@ -1,53 +1,64 @@
 
-export interface ProductItem {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  image: string;
-}
+import { ToyItem } from "../components/ToyCard";
 
-export const popularProducts: ProductItem[] = [
+export const popularProducts: ToyItem[] = [
   {
-    id: "p1",
-    name: "Optimus Prime G1",
-    category: "action-figures",
-    price: 1299.90,
+    id: "1",
+    name: "Vintage Transformer Action Figure",
+    price: 149.99,
+    originalPrice: 199.99,
     image: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    category: "Action Figures",
+    condition: "excellent",
+    year: "1985",
+    isRare: true
   },
   {
-    id: "p2",
-    name: "Barbie Coleção 1975",
-    category: "vintage-dolls",
-    price: 799.90,
+    id: "2",
+    name: "Classic Star Wars X-Wing Fighter",
+    price: 299.99,
+    image: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    category: "Vehicles",
+    condition: "good",
+    year: "1978"
+  },
+  {
+    id: "3",
+    name: "Collectible Barbie Doll Limited Edition",
+    price: 89.99,
+    originalPrice: 120.00,
     image: "https://images.unsplash.com/photo-1613682988402-a12e5e13cba5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    category: "Dolls",
+    condition: "mint",
+    year: "1992",
+    isRare: true
   },
   {
-    id: "p3",
-    name: "Ferrari F40 Escala 1:18",
-    category: "model-vehicles",
-    price: 549.90,
-    image: "https://images.unsplash.com/photo-1594787318286-3d835c1d207f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-  },
-  {
-    id: "p4",
-    name: "Game Boy Original",
-    category: "electronic-toys",
-    price: 899.90,
+    id: "4",
+    name: "Retro Nintendo Game Boy",
+    price: 179.99,
     image: "https://images.unsplash.com/photo-1531525645387-7f14be1bdbbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    category: "Electronic Toys",
+    condition: "fair",
+    year: "1989"
   },
   {
-    id: "p5",
-    name: "LEGO Space Set 1986",
-    category: "building-toys",
-    price: 1249.90,
+    id: "5",
+    name: "Vintage Tin Robot",
+    price: 129.99,
+    image: "https://images.unsplash.com/photo-1521714161819-15534968fc5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    category: "Mechanical Toys",
+    condition: "good",
+    year: "1960",
+    isRare: true
+  },
+  {
+    id: "6",
+    name: "LEGO Space Set Complete",
+    price: 249.99,
     image: "https://images.unsplash.com/photo-1578652520385-c05f6f3b5de3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-  },
-  {
-    id: "p6",
-    name: "Monopólio Vintage",
-    category: "board-games",
-    price: 399.90,
-    image: "https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    category: "Building Toys",
+    condition: "excellent",
+    year: "1995"
   }
 ];

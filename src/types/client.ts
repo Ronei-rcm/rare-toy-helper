@@ -1,62 +1,105 @@
 
-export type OrderStatus = "pendente" | "processando" | "enviado" | "entregue" | "cancelado";
+// Client Types
 
-export interface OrderItem {
-  id: string;
-  name: string;
-  quantity: number;
-  price: number;
-}
-
-export interface Order {
-  id: string;
-  date: string;
-  items: OrderItem[];
-  total: number;
-  status: OrderStatus;
-  trackingCode?: string;
-}
-
-export interface WishlistItem {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-}
-
-export interface UserProfile {
-  name: string;
-  email: string;
-  phone: string;
-  address: {
-    street: string;
-    number: string;
-    complement: string;
-    neighborhood: string;
-    city: string;
-    state: string;
-    zipCode: string;
-  };
-}
-
+// Cart item type
 export interface CartItem {
   id: string;
   name: string;
   price: number;
   quantity: number;
-  image: string;
+  image?: string;
+  maxQuantity?: number;
 }
 
-export interface Coupon {
-  code: string;
+// Order status
+export type OrderStatus = 
+  | "pending"     // Order created but not paid
+  | "processing"  // Order paid and being processed
+  | "shipped"     // Order has been shipped
+  | "delivered"   // Order has been delivered
+  | "completed"   // Order complete (after any return period)
+  | "cancelled"   // Order cancelled
+  | "refunded";   // Order refunded
+
+// Payment method
+export type PaymentMethod = 
+  | "credit_card"
+  | "debit_card"
+  | "pix"
+  | "boleto"
+  | "paypal";
+
+// Address
+export interface Address {
+  id?: string;
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  zipcode: string;
+  isDefault?: boolean;
+}
+
+// Order
+export interface Order {
+  id: string;
+  userId: string;
+  items: CartItem[];
+  status: OrderStatus;
+  total: number;
+  shippingCost: number;
   discount: number;
-  type: "percentage" | "fixed";
-  isValid: boolean;
+  paymentMethod: PaymentMethod;
+  shippingAddress: Address;
+  createdAt: string;
+  updatedAt: string;
+  estimatedDelivery?: string;
+  trackingNumber?: string;
 }
 
-export interface ShippingOption {
+// User profile
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  addresses: Address[];
+  notificationPreferences: {
+    email: boolean;
+    sms: boolean;
+    push: boolean;
+  };
+}
+
+// Wishlist item
+export interface WishlistItem {
   id: string;
   name: string;
   price: number;
-  estimatedDays: string;
+  image?: string;
+  addedAt: string;
+  isInStock: boolean;
+}
+
+// Complete client state
+export interface ClientState {
+  cart: {
+    items: CartItem[];
+    total: number;
+    shippingCost: number;
+    discount: number;
+    couponCode?: string;
+  };
+  orders: Order[];
+  selectedOrder?: Order;
+  wishlist: WishlistItem[];
+  profile: UserProfile | null;
+  ui: {
+    showOrderDetails: boolean;
+    showCheckout: boolean;
+    checkoutStep: number;
+    activeSection: string;
+  };
 }

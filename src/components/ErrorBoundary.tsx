@@ -1,7 +1,6 @@
+
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
 
 interface Props {
   children?: ReactNode;
@@ -30,22 +29,24 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return this.props.fallback || (
         <div className="min-h-[400px] flex items-center justify-center p-4">
-          <Alert variant="destructive" className="max-w-lg">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Ops! Algo deu errado</AlertTitle>
-            <AlertDescription className="mt-2">
-              <p className="mb-4">{this.state.error?.message}</p>
-              <Button
-                variant="outline"
+          <div className="max-w-lg border border-red-200 bg-red-50 p-4 rounded-lg">
+            <div className="flex items-center">
+              <AlertCircle className="h-4 w-4 text-red-600 mr-2" />
+              <h2 className="text-lg font-medium text-red-800">Ops! Algo deu errado</h2>
+            </div>
+            <div className="mt-2">
+              <p className="text-sm text-red-700 mb-4">{this.state.error?.message}</p>
+              <button
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
                 onClick={() => {
                   this.setState({ hasError: false });
                   window.location.reload();
                 }}
               >
                 Tentar novamente
-              </Button>
-            </AlertDescription>
-          </Alert>
+              </button>
+            </div>
+          </div>
         </div>
       );
     }

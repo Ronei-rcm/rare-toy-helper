@@ -1,17 +1,8 @@
 
 import React, { useEffect } from "react";
 import { Bell, BellDot, Check, X, Tag } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { connectToNotificationService, useNotificationStore } from "@/services/notificationService";
+import { connectToNotificationService, useNotificationStore } from "../services/notificationService";
 
 interface NotificationCenterProps {
   userId?: string;
@@ -53,52 +44,51 @@ export default function NotificationCenter({ userId }: NotificationCenterProps) 
   };
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          {unreadCount > 0 ? (
-            <>
-              <BellDot className="h-5 w-5" />
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center">
-                {unreadCount > 9 ? "9+" : unreadCount}
-              </Badge>
-            </>
-          ) : (
-            <Bell className="h-5 w-5" />
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
-        <div className="flex items-center justify-between p-4">
+    <div className="relative">
+      <button className="relative p-2 rounded-full hover:bg-gray-100">
+        {unreadCount > 0 ? (
+          <>
+            <BellDot className="h-5 w-5" />
+            <span className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs rounded-full">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          </>
+        ) : (
+          <Bell className="h-5 w-5" />
+        )}
+      </button>
+      
+      <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg overflow-hidden z-50 border">
+        <div className="flex items-center justify-between p-4 border-b">
           <div className="font-semibold">Notificações</div>
           <div className="flex gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
+              className="p-1 text-xs hover:bg-gray-100 rounded"
               onClick={markAllAsRead}
               disabled={unreadCount === 0}
             >
-              <Check className="h-4 w-4 mr-1" />
-              <span className="text-xs">Marcar como lidas</span>
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm"
+              <Check className="h-4 w-4 mr-1 inline" />
+              <span>Marcar como lidas</span>
+            </button>
+            <button 
+              className="p-1 text-xs hover:bg-gray-100 rounded"
               onClick={clearNotifications}
               disabled={notifications.length === 0}
             >
-              <X className="h-4 w-4 mr-1" />
-              <span className="text-xs">Limpar</span>
-            </Button>
+              <X className="h-4 w-4 mr-1 inline" />
+              <span>Limpar</span>
+            </button>
           </div>
         </div>
-        <Separator />
+        
+        <div className="border-b" />
+        
         {notifications.length === 0 ? (
-          <div className="py-8 text-center text-muted-foreground">
+          <div className="py-8 text-center text-gray-500">
             Não há notificações
           </div>
         ) : (
-          <ScrollArea className="h-[400px]">
+          <div className="max-h-[400px] overflow-y-auto">
             <div className="space-y-1 p-1">
               {notifications.map((notification) => (
                 <div
@@ -112,23 +102,23 @@ export default function NotificationCenter({ userId }: NotificationCenterProps) 
                   <div className="flex-1">
                     <div className="flex justify-between">
                       <div className="font-medium">{notification.title}</div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-gray-500">
                         {format(new Date(notification.timestamp), "HH:mm")}
                       </div>
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-gray-500">
                       {notification.message}
                     </div>
-                    <div className="text-xs mt-1 text-muted-foreground">
+                    <div className="text-xs mt-1 text-gray-500">
                       {format(new Date(notification.timestamp), "dd/MM/yyyy")}
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-          </ScrollArea>
+          </div>
         )}
-      </PopoverContent>
-    </Popover>
+      </div>
+    </div>
   );
 }

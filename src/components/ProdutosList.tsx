@@ -1,6 +1,6 @@
+
 import { useQuery } from "@tanstack/react-query";
-import { produtosAPI } from "@/services/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { produtosAPI } from "../services/api";
 import { Loader2, PackageSearch } from "lucide-react";
 import { ErrorBoundary } from "./ErrorBoundary";
 
@@ -47,17 +47,13 @@ function ProdutosListContent() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
       {produtos.map((produto) => (
-        <Card key={produto.id}>
-          <CardHeader>
-            <CardTitle>{produto.nome}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600">{produto.descricao}</p>
-            <p className="text-lg font-bold mt-2">
-              R$ {produto.preco.toFixed(2)}
-            </p>
-          </CardContent>
-        </Card>
+        <div key={produto.id} className="border rounded-lg p-4 shadow-sm">
+          <h3 className="font-medium">{produto.nome}</h3>
+          <p className="text-gray-600 text-sm">{produto.descricao}</p>
+          <p className="text-lg font-bold mt-2">
+            R$ {produto.preco.toFixed(2)}
+          </p>
+        </div>
       ))}
     </div>
   );

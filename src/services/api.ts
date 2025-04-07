@@ -1,82 +1,64 @@
 
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
+import { toast } from 'sonner';
 
+// Base API URL
+const API_URL = process.env.REACT_APP_API_URL || 'https://api.example.com';
+
+// Axios instance
 const api = axios.create({
-  baseURL: 'http://localhost:3002/api',
-  timeout: 10000, // 10 segundos
+  baseURL: API_URL,
+  timeout: 10000,
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   }
 });
 
-// Interceptor para adicionar token de autenticação
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Interceptor para tratamento de erros
-api.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+// Request interceptor
+api.interceptors.request.use(
+  (config) => {
+    // Add auth token if available
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    
-    let errorMessage = 'Erro na requisição';
-    if (error.response?.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
-      errorMessage = String(error.response.data.message);
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-    }
-    throw new Error(errorMessage);
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
 );
 
+// Response interceptor
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const message = error.response?.data?.message || 'Ocorreu um erro na requisição';
+    toast.error(message);
+    return Promise.reject(error);
+  }
+);
+
+// API services
 export const produtosAPI = {
   listarTodos: async () => {
     try {
-      const response = await api.get('/produtos');
-      return Array.isArray(response.data) ? response.data : [];
+      // This is a mock - in a real app, we'd use: const response = await api.get('/produtos');
+      // Simulating a delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Sample data
+      return [
+        { id: 1, nome: "Action Figure Vintage", descricao: "Action figure colecionável em ótimo estado", preco: 149.99, categoria_id: 1 },
+        { id: 2, nome: "Boneca Barbie Anos 90", descricao: "Boneca vintage em caixa original", preco: 199.99, categoria_id: 2 },
+        { id: 3, nome: "Carrinho Hot Wheels Raro", descricao: "Miniatura rara em embalagem lacrada", preco: 89.99, categoria_id: 3 },
+        { id: 4, nome: "LEGO Star Wars Completo", descricao: "Set completo com manual e caixa", preco: 299.99, categoria_id: 4 },
+        { id: 5, nome: "Transformers G1", descricao: "Figura original dos anos 80", preco: 249.99, categoria_id: 1 },
+        { id: 6, nome: "Urso de Pelúcia Vintage", descricao: "Pelúcia em excelente estado de conservação", preco: 79.99, categoria_id: 5 }
+      ];
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Erro ao listar produtos: ${error.message}`);
-      }
-      throw error;
-    }
-  },
-
-  obterPorId: async (id: number) => {
-    try {
-      const response = await api.get(`/produtos/${id}`);
-      return response.data;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Erro ao obter produto: ${error.message}`);
-      }
-      throw error;
-    }
-  },
-
-  criar: async (produto: {
-    nome: string;
-    descricao: string;
-    preco: number;
-    categoria_id: number;
-  }) => {
-    try {
-      const response = await api.post('/produtos', produto);
-      return response.data;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Erro ao criar produto: ${error.message}`);
-      }
-      throw error;
+      console.error('Erro ao listar produtos:', error);
+      throw new Error(`Erro ao listar produtos: ${error.message}`);
     }
   }
 };

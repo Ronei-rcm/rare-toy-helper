@@ -3,6 +3,7 @@
 import { toast } from "sonner";
 import { Bell, BellDot } from "lucide-react";
 import { create } from "zustand";
+import React from "react";
 
 // Tipos de notificações
 export type NotificationType = "info" | "success" | "warning" | "error";
@@ -45,7 +46,9 @@ export const useNotificationStore = create<NotificationState>((set) => ({
       // Mostrar toast para notificação em tempo real
       toast(newNotification.title, {
         description: newNotification.message,
-        icon: notification.category === "message" ? <Bell size={18} /> : <BellDot size={18} />,
+        icon: notification.category === "message" ? 
+              React.createElement(Bell, { size: 18 }) : 
+              React.createElement(BellDot, { size: 18 }),
         action: newNotification.link 
           ? { 
               label: "Ver", 

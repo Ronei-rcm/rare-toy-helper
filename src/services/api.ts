@@ -2,8 +2,8 @@
 import axios from 'axios';
 import { toast } from 'sonner';
 
-// Base API URL
-const API_URL = process.env.REACT_APP_API_URL || 'https://api.example.com';
+// Base API URL - use import.meta.env for Vite environment variables
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
 // Axios instance
 const api = axios.create({

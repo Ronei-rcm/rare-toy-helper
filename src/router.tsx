@@ -57,6 +57,5 @@ const router = createBrowserRouter([
 ]);
 
 export const Router = () => {
-  // Remove v7_startTransition option that was causing error
   return <RouterProvider router={router} />;
 };

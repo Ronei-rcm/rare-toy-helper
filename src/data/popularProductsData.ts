@@ -1,47 +1,67 @@
 
-import { ToyItem } from '../components/ToyCard';
+export interface ProductItem {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+  description: string;
+  sales: number;
+}
 
-export interface ProductItem extends ToyItem {}
-
-export const popularProducts: ToyItem[] = [
+export const popularProducts: ProductItem[] = [
   {
     id: "1",
-    name: "Vintage Transformer Action Figure",
-    price: 149.99,
-    originalPrice: 199.99,
-    image: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    name: "Boneco Star Wars Vintage",
+    price: 299.90,
+    image: "/products/star-wars-figure.jpg",
     category: "Action Figures",
-    condition: "excellent",
-    year: "1985",
-    isRare: true
+    description: "Boneco original da primeira coleção Star Wars dos anos 80",
+    sales: 53
   },
   {
     id: "2",
-    name: "Classic Star Wars X-Wing Fighter",
-    price: 299.99,
-    image: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    category: "Vehicles",
-    condition: "good",
-    year: "1978"
+    name: "Urso de Pelúcia Retrô",
+    price: 149.90,
+    image: "/products/retro-bear.jpg",
+    category: "Bichinhos de Pelúcia",
+    description: "Urso de pelúcia com design dos anos 60, cuidadosamente restaurado",
+    sales: 42
   },
   {
     id: "3",
-    name: "Collectible Barbie Doll Limited Edition",
-    price: 89.99,
-    originalPrice: 120.00,
-    image: "https://images.unsplash.com/photo-1613682988402-a12e5e13cba5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    category: "Dolls",
-    condition: "mint",
-    year: "1992",
-    isRare: true
+    name: "Jogo Banco Imobiliário Antigo",
+    price: 189.90,
+    image: "/products/monopoly-vintage.jpg",
+    category: "Jogos de Tabuleiro",
+    description: "Edição original do clássico jogo Banco Imobiliário dos anos 70",
+    sales: 38
   },
   {
     id: "4",
-    name: "Retro Nintendo Game Boy",
-    price: 179.99,
-    image: "https://images.unsplash.com/photo-1531525645387-7f14be1bdbbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    category: "Electronic Toys",
-    condition: "fair",
-    year: "1989"
+    name: "Console Nintendo NES",
+    price: 899.90,
+    image: "/products/nintendo-nes.jpg",
+    category: "Videogames Retrô",
+    description: "Console Nintendo Entertainment System em perfeito estado de funcionamento",
+    sales: 35
+  },
+  {
+    id: "5",
+    name: "Boneca Barbie 1980",
+    price: 359.90,
+    image: "/products/barbie-1980.jpg",
+    category: "Action Figures",
+    description: "Boneca Barbie original da coleção de 1980, item de colecionador",
+    sales: 32
+  },
+  {
+    id: "6",
+    name: "Hot Wheels Série Limitada 1995",
+    price: 129.90,
+    image: "/products/hot-wheels-1995.jpg",
+    category: "Miniaturas",
+    description: "Conjunto de carrinhos Hot Wheels da série limitada de 1995",
+    sales: 29
   }
 ];

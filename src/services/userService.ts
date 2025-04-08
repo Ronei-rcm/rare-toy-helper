@@ -1,156 +1,76 @@
 
-import { toast } from "sonner";
+interface User {
+  id: string;
+  nome: string;
+  email: string;
+  tipo: string;
+  ativo: boolean;
+  createdAt: string;
+}
 
-// Sample user data
-const mockUsers = [
+// Mock data for users
+const mockUsers: User[] = [
   {
     id: "1",
-    nome: "Admin User",
-    email: "admin@example.com",
-    tipo: "admin",
+    nome: "João Silva",
+    email: "joao.silva@email.com",
+    tipo: "client",
     ativo: true,
-    createdAt: "2023-01-15T10:30:00Z"
+    createdAt: "2023-01-15T10:30:00.000Z"
   },
   {
     id: "2",
-    nome: "João Silva",
-    email: "joao.silva@example.com",
-    tipo: "cliente",
+    nome: "Maria Oliveira",
+    email: "maria.oliveira@email.com",
+    tipo: "client",
     ativo: true,
-    createdAt: "2023-02-20T14:15:00Z"
+    createdAt: "2023-02-20T14:45:00.000Z"
   },
   {
     id: "3",
-    nome: "Maria Oliveira",
-    email: "maria.oliveira@example.com",
-    tipo: "cliente",
+    nome: "Pedro Santos",
+    email: "pedro.santos@email.com",
+    tipo: "admin",
     ativo: true,
-    createdAt: "2023-03-10T09:45:00Z"
-  },
-  {
-    id: "4",
-    nome: "Carlos Pereira",
-    email: "carlos.pereira@example.com",
-    tipo: "cliente",
-    ativo: false,
-    createdAt: "2023-04-05T16:20:00Z"
-  },
-  {
-    id: "5",
-    nome: "Ana Souza",
-    email: "ana.souza@example.com",
-    tipo: "cliente",
-    ativo: true,
-    createdAt: "2023-05-12T11:10:00Z"
+    createdAt: "2023-03-05T09:15:00.000Z"
   }
 ];
 
-// In-memory storage
-let users = [...mockUsers];
-
 export const userService = {
-  // Get all users
-  getUsers: async () => {
-    try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      return users;
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      throw new Error("Failed to fetch users");
-    }
+  getUsers(): Promise<User[]> {
+    return Promise.resolve([...mockUsers]);
   },
 
-  // Get user by ID
-  getUserById: async (id: string) => {
-    try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const user = users.find(u => u.id === id);
-      if (!user) {
-        throw new Error("User not found");
-      }
-      
-      return user;
-    } catch (error) {
-      console.error(`Error fetching user ${id}:`, error);
-      throw new Error("Failed to fetch user details");
-    }
+  getUserById(id: string): Promise<User | undefined> {
+    const user = mockUsers.find(user => user.id === id);
+    return Promise.resolve(user);
   },
 
-  // Create new user
-  createUser: async (userData: Omit<typeof mockUsers[0], "id" | "createdAt">) => {
-    try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Check if email already exists
-      if (users.some(u => u.email === userData.email)) {
-        throw new Error("Email already in use");
-      }
-      
-      const newUser = {
-        ...userData,
-        id: (users.length + 1).toString(),
-        createdAt: new Date().toISOString()
-      };
-      
-      users.push(newUser);
-      return newUser;
-    } catch (error) {
-      console.error("Error creating user:", error);
-      throw error;
-    }
+  createUser(user: Omit<User, "id" | "createdAt">): Promise<User> {
+    const newUser = {
+      ...user,
+      id: String(Date.now()),
+      createdAt: new Date().toISOString()
+    };
+    mockUsers.push(newUser);
+    return Promise.resolve(newUser);
   },
 
-  // Update user
-  updateUser: async (id: string, userData: Partial<Omit<typeof mockUsers[0], "id" | "createdAt">>) => {
-    try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const userIndex = users.findIndex(u => u.id === id);
-      if (userIndex === -1) {
-        throw new Error("User not found");
-      }
-      
-      // Check if email is being changed and if it's already in use
-      if (userData.email && userData.email !== users[userIndex].email) {
-        if (users.some(u => u.email === userData.email)) {
-          throw new Error("Email already in use");
-        }
-      }
-      
-      users[userIndex] = {
-        ...users[userIndex],
-        ...userData
-      };
-      
-      return users[userIndex];
-    } catch (error) {
-      console.error(`Error updating user ${id}:`, error);
-      throw error;
+  updateUser(id: string, userData: Partial<User>): Promise<User | undefined> {
+    const index = mockUsers.findIndex(user => user.id === id);
+    if (index !== -1) {
+      mockUsers[index] = { ...mockUsers[index], ...userData };
+      return Promise.resolve(mockUsers[index]);
     }
+    return Promise.resolve(undefined);
   },
 
-  // Delete user
-  deleteUser: async (id: string) => {
-    try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 600));
-      
-      const initialLength = users.length;
-      users = users.filter(u => u.id !== id);
-      
-      if (users.length === initialLength) {
-        throw new Error("User not found");
-      }
-      
-      return true;
-    } catch (error) {
-      console.error(`Error deleting user ${id}:`, error);
-      throw error;
+  deleteUser(id: string): Promise<boolean> {
+    const index = mockUsers.findIndex(user => user.id === id);
+    if (index !== -1) {
+      mockUsers.splice(index, 1);
+      return Promise.resolve(true);
     }
+    return Promise.resolve(false);
   }
 };

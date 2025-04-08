@@ -1,12 +1,12 @@
 
-interface WhatsAppConfig {
+export interface WhatsAppConfig {
   enabled: boolean;
   phoneNumber: string;
   defaultMessage: string;
-  welcomeMessage?: string;
-  notificationsEnabled?: boolean;
-  autoReplyEnabled?: boolean;
-  autoReplyMessage?: string;
+  welcomeMessage: string;
+  notificationsEnabled: boolean;
+  autoReplyEnabled: boolean;
+  autoReplyMessage: string;
 }
 
 // Initial configuration
@@ -34,13 +34,14 @@ export const whatsappService = {
     return `https://wa.me/${config.phoneNumber}?text=${message}`;
   },
 
-  updateConfig(config: Partial<WhatsAppConfig>): void {
+  updateConfig(config: Partial<WhatsAppConfig>): WhatsAppConfig {
     whatsAppConfig = { ...whatsAppConfig, ...config };
+    return this.getConfig();
   },
 
-  // Add this function to fix the WhatsAppManager component
-  sendMessage(message: string): void {
-    console.log(`Sending message via WhatsApp: ${message}`);
+  sendMessage(phoneNumber: string, message: string): Promise<boolean> {
+    console.log(`Sending message to ${phoneNumber}: ${message}`);
     // In a real application, this would use the WhatsApp Business API or similar
+    return Promise.resolve(true);
   }
 };

@@ -1,41 +1,41 @@
 
+export type CouponType = 'percentage' | 'fixed' | 'freeShipping';
+
 export interface Coupon {
   code: string;
-  discount: number; // percentage
-  description: string;
-  validUntil: Date;
+  type: CouponType;
+  discount: number;
+  minPurchaseAmount?: number;
+  expiryDate?: Date;
+  usageLimit?: number;
   isValid: boolean;
-  minimumPurchase?: number;
-  maxDiscount?: number;
-  isPercentage: boolean;
 }
 
-const coupons: Coupon[] = [
-  {
-    code: "WELCOME10",
-    discount: 10,
-    description: "10% off your first purchase",
-    validUntil: new Date(2025, 11, 31),
-    isValid: true,
-    isPercentage: true
+// Mock data
+const mockCoupons: Coupon[] = [
+  { 
+    code: 'WELCOME10', 
+    type: 'percentage', 
+    discount: 10, 
+    expiryDate: new Date(2023, 11, 31), 
+    isValid: true 
   },
-  {
-    code: "SUMMER25",
-    discount: 25,
-    description: "25% off summer collection",
-    validUntil: new Date(2025, 8, 30),
-    isValid: true,
-    minimumPurchase: 100,
-    maxDiscount: 50,
-    isPercentage: true
-  }
+  { 
+    code: 'FREESHIPPING', 
+    type: 'freeShipping', 
+    discount: 0, 
+    minPurchaseAmount: 100, 
+    isValid: true 
+  },
+  { 
+    code: 'FIXED20', 
+    type: 'fixed', 
+    discount: 20, 
+    isValid: true 
+  },
 ];
 
-interface AppliedCoupon {
-  code: string;
-  discount: number;
-  isPercentage: boolean;
-}
+let coupons = [...mockCoupons];
 
 export const couponService = {
   getAllCoupons(): Coupon[] {
@@ -44,67 +44,72 @@ export const couponService = {
 
   getCouponByCode(code: string): Coupon {
     const coupon = coupons.find(c => c.code === code);
-    return coupon || {
-      code: "",
-      discount: 0,
-      description: "",
-      validUntil: new Date(),
-      isValid: false,
-      isPercentage: false
-    };
+    if (!coupon) {
+      throw new Error(`Coupon with code ${code} not found`);
+    }
+    return { ...coupon };
   },
 
   isValidCoupon(code: string): boolean {
-    const coupon = coupons.find(c => c.code === code);
-    if (!coupon) return false;
-    
-    const now = new Date();
-    return coupon.isValid && coupon.validUntil > now;
+    try {
+      const coupon = this.getCouponByCode(code);
+      
+      // Check if coupon is marked as valid
+      if (!coupon.isValid) return false;
+      
+      // Check expiration date
+      if (coupon.expiryDate && new Date() > new Date(coupon.expiryDate)) {
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      return false;
+    }
   },
 
   addCoupon(coupon: Omit<Coupon, "isValid">): void {
-    coupons.push({
-      ...coupon,
-      isValid: true
-    });
+    const newCoupon = { 
+      ...coupon, 
+      isValid: true,
+    };
+    coupons.push(newCoupon as Coupon);
   },
 
   updateCoupon(coupon: Coupon): void {
     const index = coupons.findIndex(c => c.code === coupon.code);
-    if (index >= 0) {
-      coupons[index] = coupon;
+    if (index !== -1) {
+      coupons[index] = { ...coupon };
     }
   },
 
   deleteCoupon(code: string): void {
-    const index = coupons.findIndex(c => c.code === code);
-    if (index >= 0) {
-      coupons.splice(index, 1);
-    }
+    coupons = coupons.filter(c => c.code !== code);
   },
 
-  // Adding the missing methods referenced in the CartSectionWithService component
-  applyCoupon(code: string, subtotal: number): AppliedCoupon | null {
+  applyCoupon(code: string, amount: number): number {
+    if (!this.isValidCoupon(code)) {
+      throw new Error("Invalid or expired coupon");
+    }
+
     const coupon = this.getCouponByCode(code);
     
-    if (!this.isValidCoupon(code)) {
-      return null;
+    // Check minimum purchase requirement
+    if (coupon.minPurchaseAmount && amount < coupon.minPurchaseAmount) {
+      throw new Error(`Minimum purchase amount of R$${coupon.minPurchaseAmount} not met`);
     }
-
-    if (coupon.minimumPurchase && subtotal < coupon.minimumPurchase) {
-      return null;
-    }
-
-    let discount = coupon.isPercentage ? (subtotal * coupon.discount / 100) : coupon.discount;
     
-    if (coupon.maxDiscount && discount > coupon.maxDiscount) {
-      discount = coupon.maxDiscount;
+    // Calculate discount based on type
+    switch (coupon.type) {
+      case 'percentage':
+        return amount * (1 - coupon.discount / 100);
+      case 'fixed':
+        return Math.max(0, amount - coupon.discount);
+      case 'freeShipping':
+        // This would be handled elsewhere, return original amount
+        return amount;
+      default:
+        return amount;
     }
-
-    return {
-      code: coupon.code,
-      discount,
-      isPercentage: coupon.isPercentage
-    };
   }
 };

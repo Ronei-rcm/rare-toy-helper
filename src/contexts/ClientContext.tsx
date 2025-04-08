@@ -1,146 +1,100 @@
 
-import { createContext, useContext, useState, ReactNode } from "react";
-import { Order, WishlistItem, UserProfile, CartItem, ShippingOption, Coupon } from "@/types/client";
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { ClientContextType, User, Order, CartItem, WishlistItem } from '../types/client';
 
-interface ClientContextType {
-  orders: Order[];
-  setOrders: React.Dispatch<React.SetStateAction<Order[]>>;
-  wishlist: WishlistItem[];
-  setWishlist: React.Dispatch<React.SetStateAction<WishlistItem[]>>;
-  cartItems: CartItem[];
-  setCartItems: React.Dispatch<React.SetStateAction<CartItem[]>>;
-  profile: UserProfile;
-  setProfile: React.Dispatch<React.SetStateAction<UserProfile>>;
-  selectedOrder: Order | null;
-  setSelectedOrder: React.Dispatch<React.SetStateAction<Order | null>>;
-  isOrderDetailsOpen: boolean;
-  setIsOrderDetailsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  isCheckoutOpen: boolean;
-  setIsCheckoutOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  handleRemoveFromWishlist: (id: string) => void;
-  handleAddToCart: (item: WishlistItem) => void;
-  handleRemoveFromCart: (id: string) => void;
-  handleUpdateCartItemQuantity: (id: string, quantity: number) => void;
-  handleOrderDetails: (order: Order) => void;
-  handleCheckout: () => void;
-  handleCheckoutComplete: () => void;
-  cartTotal: number;
-}
+// Create the context with a default value
+const ClientContext = createContext<ClientContextType | undefined>(undefined);
 
-export const ClientContext = createContext<ClientContextType | undefined>(undefined);
-
-export const ClientProvider: React.FC<{ children: ReactNode; initialData: any }> = ({ 
-  children, 
-  initialData 
-}) => {
-  const [orders, setOrders] = useState<Order[]>(initialData.orders);
-  const [wishlist, setWishlist] = useState<WishlistItem[]>(initialData.wishlist);
-  const [cartItems, setCartItems] = useState<CartItem[]>(initialData.cartItems);
-  const [profile, setProfile] = useState<UserProfile>(initialData.profile);
+// Provider component
+export const ClientProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [activeTab, setActiveTab] = useState("orders");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  
-  // Calcular o total do carrinho
-  const cartTotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const [checkout, setCheckout] = useState(false);
 
-  const handleRemoveFromWishlist = (id: string) => {
-    setWishlist(wishlist.filter(item => item.id !== id));
+  // Add to cart function
+  const addToCart = (product: CartItem) => {
+    setCart(prevCart => {
+      const existingProductIndex = prevCart.findIndex(item => item.productId === product.productId);
+      
+      if (existingProductIndex !== -1) {
+        // Product exists, increase quantity
+        const updatedCart = [...prevCart];
+        updatedCart[existingProductIndex] = {
+          ...updatedCart[existingProductIndex],
+          quantidade: updatedCart[existingProductIndex].quantidade + product.quantidade
+        };
+        return updatedCart;
+      } else {
+        // Product doesn't exist, add new
+        return [...prevCart, product];
+      }
+    });
   };
 
-  const handleAddToCart = (item: WishlistItem) => {
-    // Verifica se o item já está no carrinho
-    const existingItem = cartItems.find(cartItem => cartItem.id === item.id);
-    
-    if (existingItem) {
-      // Se já existe, aumenta a quantidade
-      handleUpdateCartItemQuantity(item.id, existingItem.quantity + 1);
-    } else {
-      // Se não existe, adiciona ao carrinho
-      setCartItems([
-        ...cartItems,
-        { ...item, quantity: 1 }
-      ]);
-    }
+  // Remove from cart function
+  const removeFromCart = (productId: string) => {
+    setCart(prevCart => prevCart.filter(item => item.productId !== productId));
   };
 
-  const handleRemoveFromCart = (id: string) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
-  };
-
-  const handleUpdateCartItemQuantity = (id: string, quantity: number) => {
-    setCartItems(cartItems.map(item => 
-      item.id === id ? { ...item, quantity } : item
+  // Update cart item quantity
+  const updateCartItem = (productId: string, quantity: number) => {
+    setCart(prevCart => prevCart.map(item => 
+      item.productId === productId ? { ...item, quantidade: quantity } : item
     ));
   };
 
-  const handleCheckout = () => {
-    setIsCheckoutOpen(true);
+  // Clear cart
+  const clearCart = () => {
+    setCart([]);
   };
 
-  const handleCheckoutComplete = () => {
-    // Simular criação de um novo pedido
-    const newOrder: Order = {
-      id: Math.floor(10000 + Math.random() * 90000).toString(),
-      date: new Date().toISOString().split('T')[0],
-      items: cartItems.map(item => ({
-        id: item.id,
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price
-      })),
-      total: cartTotal,
-      status: "pendente"
-    };
-    
-    // Adicionar o novo pedido à lista
-    setOrders([newOrder, ...orders]);
-    
-    // Limpar o carrinho
-    setCartItems([]);
+  // Add to wishlist function
+  const addToWishlist = (product: WishlistItem) => {
+    setWishlist(prevWishlist => {
+      // Check if product already exists
+      if (prevWishlist.some(item => item.productId === product.productId)) {
+        return prevWishlist;
+      }
+      return [...prevWishlist, product];
+    });
   };
 
-  const handleOrderDetails = (order: Order) => {
-    setSelectedOrder(order);
-    setIsOrderDetailsOpen(true);
+  // Remove from wishlist function
+  const removeFromWishlist = (productId: string) => {
+    setWishlist(prevWishlist => prevWishlist.filter(item => item.productId !== productId));
   };
 
-  return (
-    <ClientContext.Provider
-      value={{
-        orders,
-        setOrders,
-        wishlist,
-        setWishlist,
-        cartItems,
-        setCartItems,
-        profile,
-        setProfile,
-        selectedOrder,
-        setSelectedOrder,
-        isOrderDetailsOpen,
-        setIsOrderDetailsOpen,
-        isCheckoutOpen,
-        setIsCheckoutOpen,
-        handleRemoveFromWishlist,
-        handleAddToCart,
-        handleRemoveFromCart,
-        handleUpdateCartItemQuantity,
-        handleOrderDetails,
-        handleCheckout,
-        handleCheckoutComplete,
-        cartTotal
-      }}
-    >
-      {children}
-    </ClientContext.Provider>
-  );
+  const value = {
+    user,
+    orders,
+    cart,
+    wishlist,
+    activeTab,
+    setActiveTab,
+    selectedOrder,
+    setSelectedOrder,
+    addToCart,
+    removeFromCart,
+    updateCartItem,
+    clearCart,
+    addToWishlist,
+    removeFromWishlist,
+    checkout,
+    setCheckout
+  };
+
+  return <ClientContext.Provider value={value}>{children}</ClientContext.Provider>;
 };
 
+// Custom hook to use the client context
 export const useClientContext = (): ClientContextType => {
   const context = useContext(ClientContext);
   if (context === undefined) {
-    throw new Error("useClientContext must be used within a ClientProvider");
+    throw new Error('useClientContext must be used within a ClientProvider');
   }
   return context;
 };

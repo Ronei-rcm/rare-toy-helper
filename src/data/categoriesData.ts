@@ -6,71 +6,62 @@ export interface CategoryItem {
   image: string;
   featured?: boolean;
   productCount?: number;
+  count?: number; // Added to fix type errors
 }
 
 export const categories: CategoryItem[] = [
   {
     id: "action-figures",
     name: "Action Figures",
-    description: "Figuras de ação colecionáveis",
-    image: "/categories/action-figures.jpg",
+    description: "Collectible action figures from various franchises and eras",
+    image: "/category-action-figures.jpg",
     featured: true,
-    productCount: 48
+    productCount: 48,
+    count: 48
   },
   {
-    id: "pelucias",
-    name: "Bichinhos de Pelúcia",
-    description: "Pelúcias e brinquedos de pelúcia",
-    image: "/categories/pelucias.jpg",
+    id: "vintage-dolls",
+    name: "Vintage Dolls",
+    description: "Classic and rare dolls from the past decades",
+    image: "/category-dolls.jpg",
     featured: true,
-    productCount: 32
+    productCount: 36,
+    count: 36
   },
   {
-    id: "jogos-tabuleiro",
-    name: "Jogos de Tabuleiro",
-    description: "Jogos de tabuleiro clássicos e colecionáveis",
-    image: "/categories/board-games.jpg",
+    id: "model-vehicles",
+    name: "Model Vehicles",
+    description: "Detailed replicas of classic and rare vehicles",
+    image: "/category-vehicles.jpg",
+    featured: true,
+    productCount: 24,
+    count: 24
+  },
+  {
+    id: "electronic-toys",
+    name: "Electronic Toys",
+    description: "Vintage electronic games and educational toys",
+    image: "/category-electronic.jpg",
     featured: false,
-    productCount: 25
+    productCount: 18,
+    count: 18
   },
   {
-    id: "carros",
-    name: "Carrinhos e Veículos",
-    description: "Miniaturas de carros e veículos colecionáveis",
-    image: "/categories/cars.jpg",
-    featured: true,
-    productCount: 56
-  },
-  {
-    id: "bonecas",
-    name: "Bonecas",
-    description: "Bonecas colecionáveis e vintage",
-    image: "/categories/dolls.jpg",
-    featured: true,
-    productCount: 42
-  },
-  {
-    id: "lego",
-    name: "Blocos e LEGO",
-    description: "Conjuntos de blocos e LEGO colecionáveis",
-    image: "/categories/lego.jpg",
+    id: "building-toys",
+    name: "Building Toys",
+    description: "Classic construction and building sets",
+    image: "/category-building.jpg",
     featured: false,
-    productCount: 37
+    productCount: 29,
+    count: 29
   },
   {
-    id: "videogames",
-    name: "Videogames Retrô",
-    description: "Consoles e jogos clássicos",
-    image: "/categories/retro-games.jpg",
+    id: "board-games",
+    name: "Board Games",
+    description: "Vintage and collectible board games",
+    image: "/category-boardgames.jpg",
     featured: false,
-    productCount: 28
-  },
-  {
-    id: "ofertas",
-    name: "Ofertas Especiais",
-    description: "Produtos com descontos e promoções",
-    image: "/categories/deals.jpg",
-    featured: true,
-    productCount: 19
+    productCount: 32,
+    count: 32
   }
 ];

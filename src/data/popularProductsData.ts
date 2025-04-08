@@ -1,5 +1,7 @@
 
-import { ToyItem } from "../components/ToyCard";
+import { ToyItem } from '../components/ToyCard';
+
+export interface ProductItem extends ToyItem {}
 
 export const popularProducts: ToyItem[] = [
   {
@@ -41,24 +43,5 @@ export const popularProducts: ToyItem[] = [
     category: "Electronic Toys",
     condition: "fair",
     year: "1989"
-  },
-  {
-    id: "5",
-    name: "Vintage Tin Robot",
-    price: 129.99,
-    image: "https://images.unsplash.com/photo-1521714161819-15534968fc5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    category: "Mechanical Toys",
-    condition: "good",
-    year: "1960",
-    isRare: true
-  },
-  {
-    id: "6",
-    name: "LEGO Space Set Complete",
-    price: 249.99,
-    image: "https://images.unsplash.com/photo-1578652520385-c05f6f3b5de3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    category: "Building Toys",
-    condition: "excellent",
-    year: "1995"
   }
 ];

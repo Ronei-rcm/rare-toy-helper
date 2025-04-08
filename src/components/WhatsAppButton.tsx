@@ -1,7 +1,7 @@
 
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { whatsappService } from "@/services/whatsappService";
+import { Button } from "../components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../components/ui/tooltip";
+import { whatsappService } from "../services/whatsappService";
 
 interface WhatsAppButtonProps {
   customMessage?: string;

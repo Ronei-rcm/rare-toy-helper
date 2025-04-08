@@ -1,229 +1,219 @@
-import { useState, useEffect } from "react";
-import { ToyItem } from "@/components/ToyCard";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ImageUploader } from "./ImageUploader";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogFooter, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from "@/components/ui/dialog";
-import { Plus, Pencil } from "lucide-react";
-import { toast } from "sonner";
+
+import { useState } from 'react';
+import { ToyItem } from '../ToyCard';
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { ImageUploader } from './ImageUploader';
+
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 
 interface ProductFormProps {
-  onAddProduct: (product: ToyItem) => void;
-  onUpdateProduct?: (product: ToyItem) => void;
-  editingProduct?: ToyItem | null;
-  onCancelEdit?: () => void;
+  initialProduct?: ToyItem;
+  onSave: (product: ToyItem) => void;
+  buttonText?: string;
 }
 
-export function ProductForm({ 
-  onAddProduct, 
-  onUpdateProduct, 
-  editingProduct, 
-  onCancelEdit 
-}: ProductFormProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  
-  const defaultProductState: Partial<ToyItem> = {
-    name: "",
-    price: 0,
-    category: "",
-    condition: "bom" as const,
-    image: "/placeholder.svg",
-    isRare: false,
-    stock: 0,
-    description: ""
-  };
-  
-  const [formData, setFormData] = useState<Partial<ToyItem>>(defaultProductState);
-
-  useEffect(() => {
-    if (editingProduct) {
-      setFormData(editingProduct);
-      setSelectedImage(editingProduct.image);
-      setIsDialogOpen(true);
+export const ProductForm = ({ initialProduct, onSave, buttonText = "Add Product" }: ProductFormProps) => {
+  const [product, setProduct] = useState<ToyItem>(() => {
+    if (initialProduct) {
+      return { ...initialProduct };
     }
-  }, [editingProduct]);
+    return {
+      id: String(Date.now()),
+      name: '',
+      price: 0,
+      image: '/placeholder.svg',
+      category: '',
+      condition: 'good', // Changed from 'bom' to valid enum value
+      year: '',
+      isRare: false,
+      description: '',
+      stock: 1,
+    };
+  });
 
-  const handleImageChange = (imageUrl: string) => {
-    setSelectedImage(imageUrl);
-    setFormData({...formData, image: imageUrl});
-  };
-
-  const handleSubmit = () => {
-    if (formData.name && formData.price) {
-      if (editingProduct && onUpdateProduct) {
-        // Modo de edição
-        const updatedProduct = {
-          ...formData,
-          id: editingProduct.id,
-          image: formData.image || "/placeholder.svg",
-        } as ToyItem;
-        
-        onUpdateProduct(updatedProduct);
-      } else {
-        // Modo de adição
-        const product = {
-          ...formData,
-          id: String(Date.now()),
-          image: formData.image || "/placeholder.svg",
-        } as ToyItem;
-        
-        onAddProduct(product);
-      }
-      
-      resetForm();
-      setIsDialogOpen(false);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setProduct(prev => ({ ...prev, [name]: checked }));
+    } else if (name === 'price' || name === 'originalPrice' || name === 'stock') {
+      setProduct(prev => ({ ...prev, [name]: parseFloat(value) || 0 }));
     } else {
-      toast.error("Por favor, preencha o nome e o preço do produto!");
+      setProduct(prev => ({ ...prev, [name]: value }));
     }
   };
 
-  const resetForm = () => {
-    setFormData(defaultProductState);
-    setSelectedImage(null);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(product);
   };
 
-  const handleDialogOpenChange = (open: boolean) => {
-    setIsDialogOpen(open);
-    if (!open && editingProduct && onCancelEdit) {
-      onCancelEdit();
-      resetForm();
-    }
+  const setImage = (imageUrl: string) => {
+    setProduct(prev => ({ ...prev, image: imageUrl }));
   };
 
-  const handleConditionChange = (value: string) => {
-    const condition = value as 'novo' | 'otimo' | 'bom' | 'regular';
-    setFormData({...formData, condition});
+  const conditionOptions = [
+    { label: "Mint (Perfeito)", value: "mint" },
+    { label: "Excellent (Excelente)", value: "excellent" },
+    { label: "Good (Bom)", value: "good" },
+    { label: "Fair (Regular)", value: "fair" }
+  ];
+
+  // Map Portuguese condition names to English values that match our type
+  const conditionMapping: Record<string, "mint" | "excellent" | "good" | "fair"> = {
+    "novo": "mint",
+    "otimo": "excellent",
+    "bom": "good",
+    "regular": "fair"
   };
 
-  const dialogTitle = editingProduct ? "Editar Brinquedo" : "Adicionar Novo Brinquedo";
-  const buttonText = editingProduct ? "Salvar Alterações" : "Adicionar";
-  
   return (
-    <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
-      <DialogTrigger asChild>
-        <Button>
-          {!editingProduct && (
-            <>
-              <Plus className="mr-2 h-4 w-4" />
-              Adicionar Brinquedo
-            </>
-          )}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>{dialogTitle}</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
           <div className="space-y-2">
-            <Label htmlFor="product-image">Imagem do Brinquedo</Label>
-            <ImageUploader 
-              selectedImage={selectedImage || formData.image || "/placeholder.svg"} 
-              onImageChange={handleImageChange} 
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">Nome</Label>
+            <Label htmlFor="name">Nome do Produto</Label>
             <Input
               id="name"
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="col-span-3"
-              placeholder="Nome do brinquedo"
+              name="name"
+              value={product.name}
+              onChange={handleChange}
+              required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="description" className="text-right">Descrição</Label>
-            <Input
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="col-span-3"
-              placeholder="Descrição do brinquedo"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="price" className="text-right">Preço</Label>
-            <Input
-              id="price"
-              type="number"
-              value={formData.price}
-              onChange={(e) => setFormData({...formData, price: Number(e.target.value)})}
-              className="col-span-3"
-              placeholder="0,00"
-              step="0.01"
-              min="0"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="stock" className="text-right">Estoque</Label>
-            <Input
-              id="stock"
-              type="number"
-              value={formData.stock}
-              onChange={(e) => setFormData({...formData, stock: Number(e.target.value)})}
-              className="col-span-3"
-              placeholder="0"
-              min="0"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="category" className="text-right">Categoria</Label>
-            <select
-              id="category"
-              value={formData.category}
-              onChange={(e) => setFormData({...formData, category: e.target.value})}
-              className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-            >
-              <option value="">Selecione uma categoria</option>
-              <option value="Bonecos">Bonecos</option>
-              <option value="Jogos de Tabuleiro">Jogos de Tabuleiro</option>
-              <option value="Carrinhos">Carrinhos</option>
-              <option value="Pelúcias">Pelúcias</option>
-            </select>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="condition" className="text-right">Estado</Label>
-            <select
-              id="condition"
-              value={formData.condition}
-              onChange={(e) => handleConditionChange(e.target.value)}
-              className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-            >
-              <option value="novo">Novo</option>
-              <option value="otimo">Ótimo</option>
-              <option value="bom">Bom</option>
-              <option value="regular">Regular</option>
-            </select>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="isRare" className="text-right">Raridade</Label>
-            <div className="col-span-3 flex items-center">
-              <input
-                type="checkbox"
-                id="isRare"
-                checked={formData.isRare}
-                onChange={(e) => setFormData({...formData, isRare: e.target.checked})}
-                className="mr-2 h-4 w-4"
+          
+          <div className="grid grid-cols-2 gap-2 my-4">
+            <div className="space-y-2">
+              <Label htmlFor="price">Preço (R$)</Label>
+              <Input
+                id="price"
+                name="price"
+                type="number"
+                step="0.01"
+                value={product.price}
+                onChange={handleChange}
+                required
               />
-              <label htmlFor="isRare">Brinquedo raro</label>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="originalPrice">Preço Original (opcional)</Label>
+              <Input
+                id="originalPrice"
+                name="originalPrice"
+                type="number"
+                step="0.01"
+                value={product.originalPrice || ''}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2 my-4">
+            <div className="space-y-2">
+              <Label htmlFor="category">Categoria</Label>
+              <Input
+                id="category"
+                name="category"
+                value={product.category}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="condition">Condição</Label>
+              <select
+                id="condition"
+                name="condition"
+                className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md"
+                value={product.condition}
+                onChange={handleChange}
+                required
+              >
+                {conditionOptions.map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => handleDialogOpenChange(false)}>Cancelar</Button>
-          <Button onClick={handleSubmit}>{buttonText}</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        
+        <div>
+          <div className="space-y-2">
+            <Label htmlFor="image">Imagem</Label>
+            <div className="flex flex-col items-center gap-4">
+              <img 
+                src={product.image} 
+                alt={product.name || 'Preview'}
+                className="w-full h-40 object-contain bg-gray-100 rounded-md"
+              />
+              <ImageUploader onImageUploaded={setImage} />
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="year">Ano</Label>
+          <Input
+            id="year"
+            name="year"
+            value={product.year || ''}
+            onChange={handleChange}
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="stock">Estoque</Label>
+          <Input
+            id="stock"
+            name="stock"
+            type="number"
+            min="0"
+            value={product.stock || 0}
+            onChange={handleChange}
+          />
+        </div>
+        
+        <div className="space-y-2 flex items-end">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              name="isRare"
+              checked={product.isRare || false}
+              onChange={handleChange}
+              className="h-4 w-4"
+            />
+            <span>Item Raro/Colecionável</span>
+          </label>
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="description">Descrição</Label>
+        <textarea
+          id="description"
+          name="description"
+          value={product.description || ''}
+          onChange={handleChange}
+          rows={3}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+        />
+      </div>
+      
+      <div className="flex justify-end">
+        <Button type="submit">{buttonText}</Button>
+      </div>
+    </form>
   );
-}
+};

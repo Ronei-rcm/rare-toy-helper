@@ -1,15 +1,16 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, ShoppingCart, Eye } from 'lucide-react';
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
 import { 
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
+} from "../components/ui/tooltip";
+import { Badge } from "../components/ui/badge";
 
 export interface ToyItem {
   id: string;

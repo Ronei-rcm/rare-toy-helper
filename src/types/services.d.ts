@@ -1,3 +1,4 @@
+
 // Type declarations for services and custom components
 
 declare module '@/services/whatsappService' {

@@ -14,6 +14,8 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
   const [activeTab, setActiveTab] = useState("orders");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [checkout, setCheckout] = useState(false);
+  const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   // Add to cart function
   const addToCart = (product: CartItem) => {
@@ -68,6 +70,29 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     setWishlist(prevWishlist => prevWishlist.filter(item => item.productId !== productId));
   };
 
+  // Calculate cart total
+  const cartTotal = cart.reduce((total, item) => {
+    return total + (item.price || item.preco || 0) * (item.quantity || item.quantidade || 0);
+  }, 0);
+
+  // Handle order details
+  const handleOrderDetails = (order: Order) => {
+    setSelectedOrder(order);
+    setIsOrderDetailsOpen(true);
+  };
+
+  // Handle checkout
+  const handleCheckout = () => {
+    setIsCheckoutOpen(true);
+  };
+
+  // Handle checkout complete
+  const handleCheckoutComplete = () => {
+    setIsCheckoutOpen(false);
+    clearCart();
+    // Show success message or redirect to orders
+  };
+
   const value: ClientContextType = {
     user,
     orders,
@@ -84,7 +109,33 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     addToWishlist,
     removeFromWishlist,
     checkout,
-    setCheckout
+    setCheckout,
+    // Additional properties for components
+    cartItems: cart,
+    profile: user ? {
+      id: user.id,
+      name: user.nome,
+      email: user.email,
+      phone: user.telefone,
+      addresses: user.endereco ? [user.endereco] : [],
+      notificationPreferences: {
+        email: user.preferences?.notifications || false,
+        sms: false,
+        push: false
+      }
+    } : null,
+    handleRemoveFromWishlist: removeFromWishlist,
+    handleAddToCart: addToCart,
+    handleRemoveFromCart: removeFromCart,
+    handleUpdateCartItemQuantity: updateCartItem,
+    handleOrderDetails,
+    handleCheckout,
+    cartTotal,
+    isOrderDetailsOpen,
+    setIsOrderDetailsOpen,
+    isCheckoutOpen,
+    setIsCheckoutOpen,
+    handleCheckoutComplete
   };
 
   return <ClientContext.Provider value={value}>{children}</ClientContext.Provider>;

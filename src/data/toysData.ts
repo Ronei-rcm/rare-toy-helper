@@ -1,4 +1,18 @@
 
+export interface ToyItem {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  image: string;
+  category: string;
+  condition: 'mint' | 'excellent' | 'good' | 'fair';
+  year?: string;
+  isRare?: boolean;
+  description?: string;
+  stock?: number;
+}
+
 export interface Toy {
   id: string;
   nome: string;
@@ -103,4 +117,13 @@ export const toys: Toy[] = [
 ];
 
 // Add products export to be consistent with the import in components
-export const products = toys;
+export const products = toys.map(toy => ({
+  id: toy.id,
+  name: toy.nome, 
+  price: toy.preco,
+  image: toy.imagem,
+  category: toy.categoria,
+  condition: toy.condicao,
+  description: toy.descricao,
+  stock: toy.estoque
+})) as ToyItem[];

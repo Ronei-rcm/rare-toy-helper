@@ -21,7 +21,7 @@ interface ToastContextType {
   dismissToast: (id: string) => void;
 }
 
-// Create a standalone toast function
+// Create a standalone toast object
 export const toast = {
   // All the toast methods
   create: (props: Omit<Toast, "id">) => {
@@ -65,8 +65,8 @@ export function useToast(): ToastContextType {
     return () => window.removeEventListener('toast', handleStorageChange);
   }, []);
   
-  const addToast = (toast: Omit<Toast, "id">) => {
-    toast.create(toast);
+  const addToast = (props: Omit<Toast, "id">) => {
+    toast.create(props);
   };
   
   const updateToast = (id: string, toast: Partial<Toast>) => {

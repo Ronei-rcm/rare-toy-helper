@@ -60,7 +60,7 @@ const Hero = () => {
 
   return (
     <section 
-      className="relative h-[80vh] overflow-hidden"
+      className="relative h-[70vh] md:h-[80vh] overflow-hidden"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
@@ -84,21 +84,21 @@ const Hero = () => {
             <img 
               src={slide.image} 
               alt={slide.title} 
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover object-center"
             />
             
-            <div className="absolute inset-0 z-20 flex items-center">
+            <div className="absolute inset-0 z-20 flex items-end pb-20 md:items-center">
               <div className="container mx-auto px-4">
                 <motion.div
-                  className="max-w-lg"
+                  className="max-w-lg bg-black/40 p-6 rounded-lg"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.7 }}
                 >
-                  <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+                  <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4">
                     {slide.title}
                   </h1>
-                  <p className="text-xl text-gray-200 mb-6">
+                  <p className="text-lg text-gray-200 mb-6">
                     {slide.subtitle}
                   </p>
                   <Link to={slide.link}>

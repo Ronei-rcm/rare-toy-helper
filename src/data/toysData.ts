@@ -66,6 +66,39 @@ export const toys: Toy[] = [
     imagem: "/products/barbie-1980.jpg",
     condicao: "mint",
     raro: true
+  },
+  {
+    id: "6",
+    nome: "Action Figure Mario",
+    descricao: "Action figure colecionável do Mario em pose de corrida",
+    preco: 189.90,
+    estoque: 12,
+    categoria: "Personagens Nintendo",
+    imagem: "/nintendo/mario-figure.jpg",
+    condicao: "mint",
+    raro: false
+  },
+  {
+    id: "7",
+    nome: "Pelúcia Luigi",
+    descricao: "Pelúcia oficial do Luigi feita com materiais de alta qualidade",
+    preco: 149.90,
+    estoque: 8,
+    categoria: "Personagens Nintendo",
+    imagem: "/nintendo/luigi-plush.jpg",
+    condicao: "excellent",
+    raro: false
+  },
+  {
+    id: "8",
+    nome: "Princesa Peach Colecionável",
+    descricao: "Figura colecionável da Princesa Peach em seu vestido clássico",
+    preco: 239.90,
+    estoque: 5,
+    categoria: "Personagens Nintendo",
+    imagem: "/nintendo/peach-collectible.jpg",
+    condicao: "mint",
+    raro: true
   }
 ];
 

@@ -64,5 +64,17 @@ export const categories: CategoryItem[] = [
     image: "/categories/miniaturas.jpg",
     featured: false,
     count: 37
+  },
+  {
+    id: "7",
+    name: "Personagens Nintendo",
+    slug: "nintendo",
+    description: "Brinquedos e figuras de personagens clássicos da Nintendo",
+    image: "/categories/nintendo.jpg",
+    featured: true,
+    count: 42
   }
 ];
+
+// Add products export to be consistent with the import in components
+export const products = [...categories];

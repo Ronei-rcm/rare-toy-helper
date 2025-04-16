@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import NavBar from '../components/NavBar';
 import Hero from '../components/Hero';
@@ -5,6 +6,7 @@ import FeaturedToys from '../components/FeaturedToys';
 import CategorySection from '../components/CategorySection';
 import NewsletterSection from '../components/NewsletterSection';
 import Footer from '../components/Footer';
+import NintendoCharactersBanner from '../components/NintendoCharactersBanner';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Star, Award, CheckCircle, Truck } from 'lucide-react';
@@ -24,6 +26,9 @@ const Index = () => {
       <main className="flex-grow">
         {/* Hero section */}
         <Hero />
+        
+        {/* Nintendo Characters Banner */}
+        <NintendoCharactersBanner />
         
         {/* Destaques / Benefícios */}
         <section className="py-12 bg-secondary/30">

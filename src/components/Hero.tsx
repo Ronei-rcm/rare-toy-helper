@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Button } from "./ui/button";
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -7,73 +8,31 @@ import { Link } from 'react-router-dom';
 const slides = [
   {
     id: 1,
-    title: "Sustentabilidade na Prática",
-    subtitle: "Brinquedos que fazem a diferença para o planeta",
-    overlay: "Reduza, Reutilize, Brinque",
-    cta: "Saiba Mais",
+    title: "Brinquedos Sustentáveis",
+    subtitle: "Ótimos para o planeta e suas crianças",
     image: "public/lovable-uploads/ef893baa-5a20-4b2d-8e1e-4ec8226bd668.png",
-    link: "/about",
-    textColor: "text-green-300"
+    link: "/about"
   },
   {
     id: 2,
     title: "Colecionáveis Hot Wheels",
-    subtitle: "Carrinhos em miniatura que encantam gerações",
-    overlay: "Histórias em Miniatura",
-    cta: "Ver Coleção",
+    subtitle: "Carrinhos em miniatura para colecionadores",
     image: "public/lovable-uploads/748d6bb0-e064-49e7-ad36-a6c2ae92aeb6.png",
-    link: "/categories/carros",
-    textColor: "text-blue-200"
+    link: "/categories/carros"
   },
   {
     id: 3,
-    title: "Economia Financeira",
-    subtitle: "Com valor de 1 brinquedo você pode comprar até 5",
-    overlay: "Consumo Inteligente",
-    cta: "Confira Ofertas",
+    title: "Economia",
+    subtitle: "Compre mais com menos",
     image: "public/lovable-uploads/5c56d1fe-9643-459e-8e80-e5e23b7afb89.png",
-    link: "/collection",
-    textColor: "text-yellow-200"
-  },
-  {
-    id: 4,
-    title: "Star Wars e Colecionáveis",
-    subtitle: "Os melhores vilões e heróis para sua coleção",
-    cta: "Ver Colecionáveis",
-    image: "public/lovable-uploads/a0458ab2-6365-4b6c-bfde-fe7108a451d5.png",
-    link: "/categories/action-figures"
-  },
-  {
-    id: 5,
-    title: "Bonecas Barbie e Acessórios",
-    subtitle: "Encontre modelos novos e usados em perfeito estado",
-    cta: "Explore",
-    image: "public/lovable-uploads/9bc480a9-9694-470f-b6b8-ebc9de483263.png",
-    link: "/categories/bonecas"
-  },
-  {
-    id: 6,
-    title: "Personagens Preferidos",
-    subtitle: "Brinquedos que trazem alegria e memórias especiais",
-    cta: "Descubra Mais",
-    image: "public/lovable-uploads/3785c4b3-c195-40d2-a97e-737af231796d.png",
     link: "/collection"
   },
   {
-    id: 7,
-    title: "Economia Financeira",
-    subtitle: "Sustentabilidade x Rotatividade: brinquedos acessíveis para todos",
-    cta: "Ver Ofertas",
-    image: "public/lovable-uploads/fc275b37-7bea-40e1-93fc-62f61d26cb4b.png",
-    link: "/categories/ofertas"
-  },
-  {
-    id: 8,
-    title: "Brinquedos Semi-Novos",
-    subtitle: "Você contribui para um mundo sustentável",
-    cta: "Conheça Nossa Missão",
-    image: "public/lovable-uploads/fb4de360-61f0-4564-b9cc-fd0db856daca.png",
-    link: "/about"
+    id: 4,
+    title: "Star Wars",
+    subtitle: "Melhores colecionáveis",
+    image: "public/lovable-uploads/a0458ab2-6365-4b6c-bfde-fe7108a451d5.png",
+    link: "/categories/action-figures"
   }
 ];
 
@@ -101,81 +60,79 @@ const Hero = () => {
 
   return (
     <section 
-      className="relative h-[85vh] overflow-hidden"
+      className="relative h-[80vh] overflow-hidden"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      <div className="absolute top-0 left-0 right-0 bg-primary/80 text-white py-2 z-30 text-center backdrop-blur-sm">
+      <div className="absolute top-0 left-0 right-0 bg-primary/50 text-white py-2 z-30 text-center">
         <p className="text-sm md:text-base px-4 font-medium">
-          Bem-vindos à MUHL STORE - Onde brinquedos carregam histórias e emoções
+          MUHL STORE - Brinquedos com histórias e emoções
         </p>
       </div>
       
-      <AnimatePresence mode="wait">
-        {slides.map((slide, index) => (
-          index === current && (
-            <motion.div
-              key={slide.id}
-              className="absolute inset-0"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1 }}
-            >
-              <div className="relative h-full">
-                <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent z-10" />
-                <img 
-                  src={slide.image} 
-                  alt={slide.title} 
-                  className="h-full w-full object-cover"
-                />
-                
-                <div className="absolute top-10 left-10 z-20 p-4 bg-black/40 backdrop-blur-sm rounded-xl">
-                  <motion.h2
-                    className={`text-2xl sm:text-3xl font-bold ${slide.textColor}`}
-                    initial={{ opacity: 0, x: -50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3, duration: 0.6 }}
-                  >
-                    {slide.overlay}
-                  </motion.h2>
-                </div>
+      {slides.map((slide, index) => (
+        index === current && (
+          <motion.div
+            key={slide.id}
+            className="absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent z-10" />
+            <img 
+              src={slide.image} 
+              alt={slide.title} 
+              className="h-full w-full object-cover"
+            />
+            
+            <div className="absolute inset-0 z-20 flex items-center">
+              <div className="container mx-auto px-4">
+                <motion.div
+                  className="max-w-lg"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7 }}
+                >
+                  <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+                    {slide.title}
+                  </h1>
+                  <p className="text-xl text-gray-200 mb-6">
+                    {slide.subtitle}
+                  </p>
+                  <Link to={slide.link}>
+                    <Button className="group">
+                      Ver mais
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Button>
+                  </Link>
+                </motion.div>
               </div>
-              
-              <div className="absolute inset-0 z-20 flex items-center">
-                <div className="container mx-auto px-4">
-                  <motion.div
-                    className="max-w-lg mt-8"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.2 }}
-                  >
-                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4">
-                      {slide.title}
-                    </h1>
-                    <p className="text-xl text-gray-200 mb-8">
-                      {slide.subtitle}
-                    </p>
-                    <Link to={slide.link}>
-                      <Button className="group" size="lg">
-                        {slide.cta}
-                        <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </Button>
-                    </Link>
-                  </motion.div>
-                </div>
-              </div>
-            </motion.div>
-          )
-        ))}
-      </AnimatePresence>
+            </div>
+          </motion.div>
+        )
+      ))}
       
-      <div className="absolute bottom-8 right-8 z-30 flex space-x-2">
+      <div className="absolute bottom-10 left-0 right-0 z-30 flex justify-center space-x-2">
+        {slides.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrent(index)}
+            className={`h-2 rounded-full transition-all ${
+              index === current ? 'w-8 bg-white' : 'w-2 bg-white/50'
+            }`}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
+      </div>
+      
+      <div className="absolute bottom-10 right-10 z-30 flex space-x-2">
         <Button
           variant="outline" 
           size="icon" 
           onClick={prevSlide}
-          className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30"
+          className="h-10 w-10 rounded-full bg-white/20 border-white/30 text-white hover:bg-white/30"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
@@ -183,34 +140,10 @@ const Hero = () => {
           variant="outline" 
           size="icon" 
           onClick={nextSlide}
-          className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30"
+          className="h-10 w-10 rounded-full bg-white/20 border-white/30 text-white hover:bg-white/30"
         >
           <ChevronRight className="h-5 w-5" />
         </Button>
-      </div>
-      
-      <div className="absolute bottom-8 left-0 right-0 z-30">
-        <div className="flex justify-center space-x-2">
-          {slides.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrent(index)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                index === current ? 'w-8 bg-white' : 'w-2 bg-white/50'
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
-        </div>
-      </div>
-      
-      <div className="absolute bottom-20 left-0 right-0 z-20 text-white bg-black/40 backdrop-blur-sm py-3">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm md:text-base max-w-2xl mx-auto">
-            Vendas de brinquedos novos e semi-novos. Conceito de economia financeira e de recursos naturais, 
-            sustentabilidade e rotatividade.
-          </p>
-        </div>
       </div>
     </section>
   );

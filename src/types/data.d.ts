@@ -14,16 +14,48 @@ declare module '@/data/categoriesData' {
   }
   
   export const categories: CategoryItem[];
-  export const products: CategoryItem[];
 }
 
 declare module '@/data/popularProductsData' {
-  import { ToyItem } from '@/components/ToyCard';
-  export const popularProducts: ToyItem[];
+  export interface ProductItem {
+    id: string;
+    name: string;
+    price: number;
+    image: string;
+    category: string;
+    description: string;
+    sales: number;
+  }
+  export const popularProducts: ProductItem[];
 }
 
 declare module '@/data/toysData' {
-  import { ToyItem } from '@/components/ToyCard';
-  export const toys: ToyItem[];
+  export interface ToyItem {
+    id: string;
+    name: string;
+    price: number;
+    originalPrice?: number;
+    image: string;
+    category: string;
+    condition: 'mint' | 'excellent' | 'good' | 'fair';
+    year?: string;
+    isRare?: boolean;
+    description?: string;
+    stock?: number;
+  }
+  
+  export interface Toy {
+    id: string;
+    nome: string;
+    descricao: string;
+    preco: number;
+    estoque: number;
+    categoria: string;
+    imagem: string;
+    condicao: "mint" | "excellent" | "good" | "fair";
+    raro: boolean;
+  }
+  
+  export const toys: Toy[];
   export const products: ToyItem[];
 }

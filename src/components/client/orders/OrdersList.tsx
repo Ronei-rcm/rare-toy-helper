@@ -14,11 +14,17 @@ interface OrdersListProps {
 export default function OrdersList({ orders, onViewDetails }: OrdersListProps) {
   const getStatusBadgeColor = (status: OrderStatus) => {
     switch (status) {
-      case "pendente": return "bg-yellow-100 text-yellow-800";
-      case "processando": return "bg-blue-100 text-blue-800";
-      case "enviado": return "bg-purple-100 text-purple-800";
-      case "entregue": return "bg-green-100 text-green-800";
-      case "cancelado": return "bg-red-100 text-red-800";
+      case "pendente":
+      case "pending": return "bg-yellow-100 text-yellow-800";
+      case "processando":
+      case "processing": return "bg-blue-100 text-blue-800";
+      case "enviado":
+      case "shipped": return "bg-purple-100 text-purple-800";
+      case "entregue":
+      case "delivered": return "bg-green-100 text-green-800";
+      case "cancelado":
+      case "cancelled": return "bg-red-100 text-red-800";
+      default: return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -55,7 +61,7 @@ export default function OrdersList({ orders, onViewDetails }: OrdersListProps) {
                       </span>
                     </div>
                     <p className="text-sm text-gray-500">
-                      Realizado em {new Date(order.date).toLocaleDateString('pt-BR')}
+                      Realizado em {new Date(order.date || order.createdAt || "").toLocaleDateString('pt-BR')}
                     </p>
                   </div>
                   <div className="text-right mt-2 md:mt-0">
@@ -75,25 +81,27 @@ export default function OrdersList({ orders, onViewDetails }: OrdersListProps) {
                   {order.items.map((item) => (
                     <div key={item.id} className="flex justify-between items-center border-b pb-3">
                       <div>
-                        <p className="font-medium">{item.name}</p>
-                        <p className="text-sm text-gray-500">Qtd: {item.quantity}</p>
+                        <p className="font-medium">{item.name || item.nome}</p>
+                        <p className="text-sm text-gray-500">Qtd: {item.quantity || item.quantidade}</p>
                       </div>
-                      <p className="font-medium">R$ {(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-medium">
+                        R$ {((item.price || item.preco || 0) * (item.quantity || item.quantidade || 0)).toFixed(2)}
+                      </p>
                     </div>
                   ))}
                 </div>
                 
-                {order.trackingCode && (
+                {(order.trackingCode || order.trackingNumber) && (
                   <div className="mt-4 p-3 bg-blue-50 rounded-md flex items-start">
                     <Clock className="h-5 w-5 text-blue-500 mt-0.5 mr-2 flex-shrink-0" />
                     <div>
                       <p className="font-medium text-blue-700">Rastreio da entrega</p>
-                      <p className="text-sm">Código: {order.trackingCode}</p>
+                      <p className="text-sm">Código: {order.trackingCode || order.trackingNumber}</p>
                     </div>
                   </div>
                 )}
                 
-                {order.status === "entregue" && (
+                {(order.status === "entregue" || order.status === "delivered") && (
                   <div className="mt-4 text-right">
                     <Button variant="outline" size="sm">
                       Avaliar Produtos

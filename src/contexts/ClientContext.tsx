@@ -1,16 +1,26 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { ClientContextType, User, Order, CartItem, WishlistItem } from '../types/client';
+import { ClientContextType, User, Order, CartItem, WishlistItem, UserProfile } from '@/types/client';
 
 // Create the context with a default value
 const ClientContext = createContext<ClientContextType | undefined>(undefined);
 
+interface ClientProviderProps {
+  children: ReactNode;
+  initialData?: {
+    orders?: Order[];
+    wishlist?: WishlistItem[];
+    cartItems?: CartItem[];
+    profile?: UserProfile | null;
+  };
+}
+
 // Provider component
-export const ClientProvider = ({ children }: { children: ReactNode }) => {
+export const ClientProvider = ({ children, initialData }: ClientProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [orders, setOrders] = useState<Order[]>(initialData?.orders || []);
+  const [cart, setCart] = useState<CartItem[]>(initialData?.cartItems || []);
+  const [wishlist, setWishlist] = useState<WishlistItem[]>(initialData?.wishlist || []);
   const [activeTab, setActiveTab] = useState("orders");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [checkout, setCheckout] = useState(false);
@@ -112,18 +122,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     setCheckout,
     // Additional properties for components
     cartItems: cart,
-    profile: user ? {
-      id: user.id,
-      name: user.nome,
-      email: user.email,
-      phone: user.telefone,
-      addresses: user.endereco ? [user.endereco] : [],
-      notificationPreferences: {
-        email: user.preferences?.notifications || false,
-        sms: false,
-        push: false
-      }
-    } : null,
+    profile: initialData?.profile || null,
     handleRemoveFromWishlist: removeFromWishlist,
     handleAddToCart: addToCart,
     handleRemoveFromCart: removeFromCart,

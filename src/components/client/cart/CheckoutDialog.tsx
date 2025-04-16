@@ -1,7 +1,5 @@
 
-import { useState } from "react";
-import { toast } from "sonner";
-import { CreditCard, Calendar, Lock } from "lucide-react";
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -10,11 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 interface CheckoutDialogProps {
   isOpen: boolean;
@@ -29,166 +27,170 @@ export default function CheckoutDialog({
   total,
   onCheckoutComplete,
 }: CheckoutDialogProps) {
-  const [paymentMethod, setPaymentMethod] = useState("credit");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [step, setStep] = useState(1);
+  const [paymentMethod, setPaymentMethod] = useState("credit_card");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsProcessing(true);
-    
-    // Simulação de processamento de pagamento
-    setTimeout(() => {
-      setIsProcessing(false);
-      onOpenChange(false);
+  const handleNext = () => {
+    if (step < 3) {
+      setStep(step + 1);
+    } else {
+      toast.success("Pedido realizado com sucesso!");
       onCheckoutComplete();
-      toast.success("Pagamento realizado com sucesso! Seu pedido foi confirmado.");
-    }, 2000);
+      setStep(1); // Reset for next time
+    }
+  };
+
+  const handleBack = () => {
+    if (step > 1) {
+      setStep(step - 1);
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Finalizar Compra</DialogTitle>
+          <DialogTitle>Finalização de Compra</DialogTitle>
           <DialogDescription>
-            Escolha seu método de pagamento preferido
+            {step === 1 && "Informe seu endereço de entrega"}
+            {step === 2 && "Escolha a forma de pagamento"}
+            {step === 3 && "Confirmação do pedido"}
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="credit" onValueChange={setPaymentMethod}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="credit">Cartão</TabsTrigger>
-            <TabsTrigger value="pix">PIX</TabsTrigger>
-            <TabsTrigger value="boleto">Boleto</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="credit">
-            <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <Label htmlFor="cardName">Nome no Cartão</Label>
-                <Input id="cardName" placeholder="Nome completo como no cartão" required />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="cardNumber">Número do Cartão</Label>
-                <div className="relative">
-                  <Input 
-                    id="cardNumber" 
-                    placeholder="0000 0000 0000 0000" 
-                    required 
-                  />
-                  <CreditCard className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <div className="space-y-4">
+          {step === 1 && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-2">
+                  <Label htmlFor="street">Rua</Label>
+                  <Input id="street" placeholder="Rua Exemplo" />
+                </div>
+                <div>
+                  <Label htmlFor="number">Número</Label>
+                  <Input id="number" placeholder="123" />
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="expiry">Validade</Label>
-                  <div className="relative">
-                    <Input 
-                      id="expiry" 
-                      placeholder="MM/AA" 
-                      required 
-                    />
-                    <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  </div>
+              <div>
+                <Label htmlFor="complement">Complemento (opcional)</Label>
+                <Input id="complement" placeholder="Apto 101" />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="neighborhood">Bairro</Label>
+                  <Input id="neighborhood" placeholder="Centro" />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cvc">CVC</Label>
-                  <div className="relative">
-                    <Input 
-                      id="cvc" 
-                      placeholder="123" 
-                      required 
-                    />
-                    <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  </div>
+                <div>
+                  <Label htmlFor="city">Cidade</Label>
+                  <Input id="city" placeholder="São Paulo" />
                 </div>
               </div>
               
-              <Separator />
-              
-              <div className="flex justify-between font-medium">
-                <span>Total a pagar:</span>
-                <span>R$ {total.toFixed(2)}</span>
-              </div>
-              
-              <DialogFooter className="pt-2">
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={isProcessing}
-                >
-                  {isProcessing ? "Processando..." : "Confirmar Pagamento"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </TabsContent>
-          
-          <TabsContent value="pix">
-            <div className="py-6 space-y-4">
-              <div className="border rounded-lg p-4 text-center">
-                <p className="text-sm text-gray-500 mb-2">Escaneie o QR Code para pagar</p>
-                <div className="w-48 h-48 mx-auto bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-400">QR Code PIX</span>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="state">Estado</Label>
+                  <Input id="state" placeholder="SP" />
                 </div>
-                <p className="mt-4 text-sm font-medium">Valor: R$ {total.toFixed(2)}</p>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="pixCode">Ou copie o código PIX</Label>
-                <div className="flex space-x-2">
-                  <Input 
-                    id="pixCode" 
-                    value="00020126580014br.gov.bcb.pix0136example.com/pix/randomcode5204000053039865802BR5913MUHLSTORE6008SAOPAULO62170513randomcodepix6304A942" 
-                    readOnly 
-                  />
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      navigator.clipboard.writeText("00020126580014br.gov.bcb.pix0136example.com/pix/randomcode5204000053039865802BR5913MUHLSTORE6008SAOPAULO62170513randomcodepix6304A942");
-                      toast.success("Código PIX copiado!");
-                    }}
-                  >
-                    Copiar
-                  </Button>
+                <div>
+                  <Label htmlFor="zipcode">CEP</Label>
+                  <Input id="zipcode" placeholder="00000-000" />
                 </div>
               </div>
-              
-              <p className="text-sm text-gray-500 text-center">
-                O pagamento será confirmado automaticamente após a transferência PIX
-              </p>
             </div>
-          </TabsContent>
+          )}
           
-          <TabsContent value="boleto">
-            <div className="py-6 space-y-4">
-              <div className="border rounded-lg p-4">
-                <h3 className="font-medium mb-2">Instruções:</h3>
-                <ol className="space-y-2 text-sm text-gray-600 list-decimal pl-4">
-                  <li>O boleto será enviado para seu e-mail</li>
-                  <li>O prazo de vencimento é de 3 dias úteis</li>
-                  <li>Após o pagamento, a compensação pode levar até 3 dias úteis</li>
-                  <li>Seu pedido será processado após a confirmação do pagamento</li>
-                </ol>
-              </div>
-              
-              <div className="text-center">
-                <p className="font-medium">Total a pagar: R$ {total.toFixed(2)}</p>
-              </div>
-              
-              <Button 
-                className="w-full"
-                onClick={() => {
-                  toast.success("Boleto gerado! Verifique seu e-mail.");
-                  onOpenChange(false);
-                }}
+          {step === 2 && (
+            <div className="space-y-3">
+              <RadioGroup 
+                value={paymentMethod} 
+                onValueChange={setPaymentMethod}
+                className="space-y-2"
               >
-                Gerar Boleto
-              </Button>
+                <div className="flex items-center space-x-2 border p-3 rounded">
+                  <RadioGroupItem value="credit_card" id="credit_card" />
+                  <Label htmlFor="credit_card">Cartão de Crédito</Label>
+                </div>
+                <div className="flex items-center space-x-2 border p-3 rounded">
+                  <RadioGroupItem value="pix" id="pix" />
+                  <Label htmlFor="pix">PIX</Label>
+                </div>
+                <div className="flex items-center space-x-2 border p-3 rounded">
+                  <RadioGroupItem value="boleto" id="boleto" />
+                  <Label htmlFor="boleto">Boleto Bancário</Label>
+                </div>
+              </RadioGroup>
+              
+              {paymentMethod === "credit_card" && (
+                <div className="space-y-3 mt-4">
+                  <div>
+                    <Label htmlFor="card_number">Número do Cartão</Label>
+                    <Input id="card_number" placeholder="0000 0000 0000 0000" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="expiry">Validade</Label>
+                      <Input id="expiry" placeholder="MM/AA" />
+                    </div>
+                    <div>
+                      <Label htmlFor="cvv">CVV</Label>
+                      <Input id="cvv" placeholder="123" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="card_name">Nome no Cartão</Label>
+                    <Input id="card_name" placeholder="Nome completo" />
+                  </div>
+                </div>
+              )}
             </div>
-          </TabsContent>
-        </Tabs>
+          )}
+          
+          {step === 3 && (
+            <div className="space-y-3">
+              <div className="bg-gray-50 p-4 rounded">
+                <h3 className="font-medium mb-2">Resumo do Pedido</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>Subtotal:</span>
+                    <span>R$ {total.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Frete:</span>
+                    <span>R$ 15.00</span>
+                  </div>
+                  <div className="flex justify-between font-medium text-base pt-2 border-t">
+                    <span>Total:</span>
+                    <span>R$ {(total + 15).toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gray-50 p-4 rounded">
+                <h3 className="font-medium mb-2">Pagamento</h3>
+                <p className="text-sm">
+                  {paymentMethod === "credit_card" && "Cartão de Crédito"}
+                  {paymentMethod === "pix" && "PIX"}
+                  {paymentMethod === "boleto" && "Boleto Bancário"}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <DialogFooter className="flex justify-between">
+          <div>
+            {step > 1 && (
+              <Button variant="outline" onClick={handleBack}>
+                Voltar
+              </Button>
+            )}
+          </div>
+          <Button onClick={handleNext}>
+            {step < 3 ? "Continuar" : "Finalizar Compra"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

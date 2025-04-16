@@ -1,11 +1,11 @@
 
 import { useClientContext } from "@/contexts/ClientContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import OrdersList from "@/components/client/orders/OrdersList";
-import WishlistSection from "@/components/client/wishlist/WishlistSection";
-import CartSection from "@/components/client/cart/CartSection";
-import UserProfileSection from "@/components/client/profile/UserProfileSection";
-import SettingsSection from "@/components/client/settings/SettingsSection";
+import OrdersList from "./orders/OrdersList";
+import WishlistSection from "./wishlist/WishlistSection";
+import CartSection from "./cart/CartSection";
+import UserProfileSection from "./profile/UserProfileSection";
+import SettingsSection from "./settings/SettingsSection";
 import { UserProfile } from "@/types/client";
 import { toast } from "sonner";
 
@@ -55,18 +55,18 @@ export default function ClientContent({ onUpdateProfile }: ClientContentProps) {
         <TabsContent value="desejos">
           <WishlistSection
             wishlist={wishlist}
-            onRemoveFromWishlist={handleRemoveFromWishlist}
-            onAddToCart={handleAddToCart}
+            onRemoveFromWishlist={handleRemoveFromWishlist!}
+            onAddToCart={handleAddToCart!}
           />
         </TabsContent>
         
         {/* Carrinho Tab */}
         <TabsContent value="carrinho">
           <CartSection
-            cartItems={cartItems}
-            onRemoveItem={handleRemoveFromCart}
-            onUpdateQuantity={handleUpdateCartItemQuantity}
-            onCheckout={handleCheckout}
+            cartItems={cartItems!}
+            onRemoveItem={handleRemoveFromCart!}
+            onUpdateQuantity={handleUpdateCartItemQuantity!}
+            onCheckout={handleCheckout!}
           />
         </TabsContent>
         

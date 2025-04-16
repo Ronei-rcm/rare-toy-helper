@@ -25,11 +25,17 @@ export default function OrderDetailsDialog({
 
   const getStatusBadgeColor = (status: OrderStatus) => {
     switch (status) {
-      case "pendente": return "bg-yellow-100 text-yellow-800";
-      case "processando": return "bg-blue-100 text-blue-800";
-      case "enviado": return "bg-purple-100 text-purple-800";
-      case "entregue": return "bg-green-100 text-green-800";
-      case "cancelado": return "bg-red-100 text-red-800";
+      case "pendente":
+      case "pending": return "bg-yellow-100 text-yellow-800";
+      case "processando": 
+      case "processing": return "bg-blue-100 text-blue-800";
+      case "enviado":
+      case "shipped": return "bg-purple-100 text-purple-800";
+      case "entregue":
+      case "delivered": return "bg-green-100 text-green-800";
+      case "cancelado":
+      case "cancelled": return "bg-red-100 text-red-800";
+      default: return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -53,7 +59,7 @@ export default function OrderDetailsDialog({
           
           <div className="border-b pb-2">
             <span className="text-sm font-medium">Data do pedido:</span>
-            <p className="text-sm">{new Date(order.date).toLocaleDateString('pt-BR')}</p>
+            <p className="text-sm">{new Date(order.date || order.createdAt || "").toLocaleDateString('pt-BR')}</p>
           </div>
           
           <div>
@@ -61,8 +67,8 @@ export default function OrderDetailsDialog({
             <ul className="mt-2 space-y-2">
               {order.items.map((item) => (
                 <li key={item.id} className="text-sm flex justify-between">
-                  <span>{item.name} (x{item.quantity})</span>
-                  <span>R$ {(item.price * item.quantity).toFixed(2)}</span>
+                  <span>{item.name || item.nome} (x{item.quantity || item.quantidade})</span>
+                  <span>R$ {((item.price || item.preco || 0) * (item.quantity || item.quantidade || 0)).toFixed(2)}</span>
                 </li>
               ))}
             </ul>
@@ -73,10 +79,10 @@ export default function OrderDetailsDialog({
             <span className="font-bold">R$ {order.total.toFixed(2)}</span>
           </div>
           
-          {order.trackingCode && (
+          {(order.trackingCode || order.trackingNumber) && (
             <div className="bg-blue-50 p-3 rounded-md">
               <p className="text-sm font-medium text-blue-700">Código de rastreio:</p>
-              <p className="text-sm">{order.trackingCode}</p>
+              <p className="text-sm">{order.trackingCode || order.trackingNumber}</p>
               <Button variant="link" className="text-blue-700 p-0 h-auto text-sm mt-1">
                 Rastrear meu pedido
               </Button>

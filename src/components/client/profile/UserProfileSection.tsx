@@ -1,252 +1,187 @@
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Check, AlertCircle } from "lucide-react";
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { UserProfile } from "@/types/client";
 
 interface UserProfileSectionProps {
-  profile: UserProfile;
-  onUpdateProfile: (profile: UserProfile) => void;
+  profile: UserProfile | null;
+  onUpdateProfile: (updatedProfile: UserProfile) => void;
 }
 
-export default function UserProfileSection({ profile, onUpdateProfile }: UserProfileSectionProps) {
-  const [localProfile, setLocalProfile] = useState<UserProfile>(profile);
-  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
-  const [newEmail, setNewEmail] = useState("");
-  const [emailError, setEmailError] = useState("");
+export default function UserProfileSection({
+  profile,
+  onUpdateProfile,
+}: UserProfileSectionProps) {
+  const [formData, setFormData] = useState<UserProfile>(
+    profile || {
+      name: "",
+      email: "",
+      phone: "",
+      addresses: [],
+      notificationPreferences: {
+        email: false,
+        sms: false,
+        push: false,
+      },
+    }
+  );
+  const [isEditing, setIsEditing] = useState(false);
 
-  const handleChangeEmail = () => {
-    // Validação de email
-    if (!newEmail) {
-      setEmailError("O email não pode estar vazio");
-      return;
-    }
-    
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
-      setEmailError("Digite um email válido");
-      return;
-    }
-    
-    // Atualiza o email no perfil
-    const updatedProfile = { 
-      ...localProfile, 
-      email: newEmail 
-    };
-    setLocalProfile(updatedProfile);
-    
-    setIsEmailDialogOpen(false);
-    setNewEmail("");
-    setEmailError("");
-    
-    onUpdateProfile(updatedProfile);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleSaveProfile = () => {
-    onUpdateProfile(localProfile);
+  const handleNotificationChange = (type: string, checked: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      notificationPreferences: {
+        ...prev.notificationPreferences,
+        [type]: checked,
+      },
+    }));
+  };
+
+  const handleSave = () => {
+    onUpdateProfile(formData);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setFormData(profile || {
+      name: "",
+      email: "",
+      phone: "",
+      addresses: [],
+      notificationPreferences: {
+        email: false,
+        sms: false,
+        push: false,
+      },
+    });
+    setIsEditing(false);
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className="bg-white rounded-lg shadow-sm border">
-        <div className="px-6 py-4 border-b">
-          <h2 className="text-lg font-semibold">Meu Perfil</h2>
-        </div>
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="space-y-6">
+      {/* User Information */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-medium mb-4">Informações Pessoais</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nome Completo
-                  </label>
-                  <Input 
-                    value={localProfile.name} 
-                    onChange={(e) => setLocalProfile({...localProfile, name: e.target.value})} 
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email
-                  </label>
-                  <div className="flex gap-2">
-                    <Input 
-                      value={localProfile.email} 
-                      readOnly
-                      className="bg-gray-50 flex-grow"
-                    />
-                    <Button 
-                      variant="outline" 
-                      type="button" 
-                      onClick={() => setIsEmailDialogOpen(true)}
-                    >
-                      Alterar
-                    </Button>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Telefone
-                  </label>
-                  <Input 
-                    value={localProfile.phone} 
-                    onChange={(e) => setLocalProfile({...localProfile, phone: e.target.value})} 
-                  />
-                </div>
+              <CardTitle>Informações Pessoais</CardTitle>
+              <CardDescription>Gerencie suas informações pessoais</CardDescription>
+            </div>
+            {!isEditing && (
+              <Button variant="outline" onClick={() => setIsEditing(true)}>
+                Editar
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="name">Nome Completo</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
               </div>
             </div>
-            
             <div>
-              <h3 className="text-lg font-medium mb-4">Endereço</h3>
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Logradouro
-                    </label>
-                    <Input 
-                      value={localProfile.address.street} 
-                      onChange={(e) => setLocalProfile({
-                        ...localProfile, 
-                        address: {...localProfile.address, street: e.target.value}
-                      })} 
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Número
-                    </label>
-                    <Input 
-                      value={localProfile.address.number} 
-                      onChange={(e) => setLocalProfile({
-                        ...localProfile, 
-                        address: {...localProfile.address, number: e.target.value}
-                      })} 
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Complemento
-                  </label>
-                  <Input 
-                    value={localProfile.address.complement} 
-                    onChange={(e) => setLocalProfile({
-                      ...localProfile, 
-                      address: {...localProfile.address, complement: e.target.value}
-                    })} 
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Bairro
-                  </label>
-                  <Input 
-                    value={localProfile.address.neighborhood} 
-                    onChange={(e) => setLocalProfile({
-                      ...localProfile, 
-                      address: {...localProfile.address, neighborhood: e.target.value}
-                    })} 
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Cidade
-                    </label>
-                    <Input 
-                      value={localProfile.address.city} 
-                      onChange={(e) => setLocalProfile({
-                        ...localProfile, 
-                        address: {...localProfile.address, city: e.target.value}
-                      })} 
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Estado
-                    </label>
-                    <Input 
-                      value={localProfile.address.state} 
-                      onChange={(e) => setLocalProfile({
-                        ...localProfile, 
-                        address: {...localProfile.address, state: e.target.value}
-                      })} 
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    CEP
-                  </label>
-                  <Input 
-                    value={localProfile.address.zipCode} 
-                    onChange={(e) => setLocalProfile({
-                      ...localProfile, 
-                      address: {...localProfile.address, zipCode: e.target.value}
-                    })} 
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="mt-6 flex justify-end">
-            <Button onClick={handleSaveProfile}>
-              <Check className="mr-2 h-4 w-4" />
-              Salvar Alterações
-            </Button>
-          </div>
-        </div>
-      </div>
-      
-      {/* Dialog para alterar email */}
-      <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Alterar Email</DialogTitle>
-            <DialogDescription>
-              Digite seu novo endereço de email abaixo
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none" htmlFor="new-email">
-                Novo Email
-              </label>
+              <Label htmlFor="phone">Telefone</Label>
               <Input
-                id="new-email"
-                placeholder="seu@email.com"
-                type="email"
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
+                id="phone"
+                name="phone"
+                value={formData.phone || ""}
+                onChange={handleInputChange}
+                disabled={!isEditing}
               />
-              {emailError && (
-                <p className="text-sm text-red-500 flex items-center mt-1">
-                  <AlertCircle className="h-3 w-3 mr-1" />
-                  {emailError}
-                </p>
-              )}
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setIsEmailDialogOpen(false);
-              setNewEmail("");
-              setEmailError("");
-            }}>
+        </CardContent>
+        {isEditing && (
+          <CardFooter className="justify-end gap-2">
+            <Button variant="outline" onClick={handleCancel}>
               Cancelar
             </Button>
-            <Button onClick={handleChangeEmail}>Confirmar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </motion.div>
+            <Button onClick={handleSave}>
+              Salvar
+            </Button>
+          </CardFooter>
+        )}
+      </Card>
+
+      {/* Notification Preferences */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Notificações</CardTitle>
+          <CardDescription>Gerencie suas preferências de notificação</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Notificações por Email</p>
+                <p className="text-sm text-gray-500">Receba atualizações sobre seus pedidos por email</p>
+              </div>
+              <Switch
+                checked={formData.notificationPreferences?.email || false}
+                onCheckedChange={(checked) => handleNotificationChange("email", checked)}
+                disabled={!isEditing}
+              />
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Notificações por SMS</p>
+                <p className="text-sm text-gray-500">Receba atualizações sobre seus pedidos por SMS</p>
+              </div>
+              <Switch
+                checked={formData.notificationPreferences?.sms || false}
+                onCheckedChange={(checked) => handleNotificationChange("sms", checked)}
+                disabled={!isEditing}
+              />
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Notificações Push</p>
+                <p className="text-sm text-gray-500">Receba atualizações sobre seus pedidos pelo app</p>
+              </div>
+              <Switch
+                checked={formData.notificationPreferences?.push || false}
+                onCheckedChange={(checked) => handleNotificationChange("push", checked)}
+                disabled={!isEditing}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

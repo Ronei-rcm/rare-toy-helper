@@ -4,16 +4,16 @@
 // Cart item type
 export interface CartItem {
   id: string;
-  productId: string;  // Added productId for compatibility with ClientContext
+  productId: string;  // Added productId for compatibility
   name: string;
   price: number;
   quantity: number;
-  quantidade: number;  // Added quantidade for compatibility with ClientContext
+  quantidade: number;  // Added for backward compatibility
   image?: string;
   maxQuantity?: number;
-  nome?: string;       // Added nome for backward compatibility
-  preco?: number;      // Added preco for backward compatibility
-  imagem?: string;     // Added imagem for backward compatibility
+  nome?: string;       // Added for backward compatibility
+  preco?: number;      // Added for backward compatibility
+  imagem?: string;     // Added for backward compatibility
 }
 
 // Order status
@@ -68,12 +68,12 @@ export interface Order {
   items: CartItem[];
   status: OrderStatus;
   total: number;
-  shippingCost: number;
-  discount: number;
-  paymentMethod: PaymentMethod;
-  shippingAddress: Address;
-  createdAt: string;
-  updatedAt: string;
+  shippingCost?: number;
+  discount?: number;
+  paymentMethod?: PaymentMethod;
+  shippingAddress?: Address;
+  createdAt?: string;
+  updatedAt?: string;
   date?: string;  // For compatibility with some components
   estimatedDelivery?: string;
   trackingNumber?: string;
@@ -82,12 +82,13 @@ export interface Order {
 
 // User profile
 export interface UserProfile {
-  id: string;
+  id?: string;
   name: string;
   email: string;
   phone?: string;
-  addresses: Address[];
-  notificationPreferences: {
+  address?: Address;
+  addresses?: Address[];
+  notificationPreferences?: {
     email: boolean;
     sms: boolean;
     push: boolean;
@@ -97,15 +98,15 @@ export interface UserProfile {
 // Wishlist item
 export interface WishlistItem {
   id: string;
-  productId: string;  // Added productId for compatibility with ClientContext
+  productId: string;  // Added productId for compatibility
   name: string;
   price: number;
   image?: string;
-  addedAt: string;
-  isInStock: boolean;
-  nome?: string;   // Added nome for backward compatibility
-  preco?: number;  // Added preco for backward compatibility
-  imagem?: string; // Added imagem for backward compatibility
+  addedAt?: string;
+  isInStock?: boolean;
+  nome?: string;   // Added for backward compatibility
+  preco?: number;  // Added for backward compatibility
+  imagem?: string; // Added for backward compatibility
 }
 
 // User data
@@ -121,9 +122,9 @@ export interface User {
 }
 
 export interface UserPreferences {
-  newsletter: boolean;
-  notifications: boolean;
-  darkMode: boolean;
+  newsletter?: boolean;
+  notifications?: boolean;
+  darkMode?: boolean;
 }
 
 // Complete client state
@@ -168,7 +169,7 @@ export interface ClientContextType {
   
   // Additional properties that might be used in components
   cartItems?: CartItem[];
-  profile?: UserProfile;
+  profile?: UserProfile | null;
   handleRemoveFromWishlist?: (productId: string) => void;
   handleAddToCart?: (product: CartItem) => void;
   handleRemoveFromCart?: (productId: string) => void;

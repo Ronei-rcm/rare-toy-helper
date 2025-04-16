@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 
 type ToastType = "default" | "destructive";
-type ToastAction = { label: string; onClick: () => void; altText?: string };
 
 export interface Toast {
   id: string;

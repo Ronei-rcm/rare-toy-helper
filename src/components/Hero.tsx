@@ -60,7 +60,7 @@ const Hero = () => {
 
   return (
     <section 
-      className="relative h-[70vh] md:h-[80vh] overflow-hidden"
+      className="relative h-[60vh] md:h-[70vh] overflow-hidden"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
@@ -84,10 +84,10 @@ const Hero = () => {
             <img 
               src={slide.image} 
               alt={slide.title} 
-              className="h-full w-full object-cover object-center"
+              className="h-full w-full object-cover object-bottom"
             />
             
-            <div className="absolute inset-0 z-20 flex items-end pb-20 md:items-center">
+            <div className="absolute inset-0 z-20 flex items-end pb-12 md:items-center">
               <div className="container mx-auto px-4">
                 <motion.div
                   className="max-w-lg bg-black/40 p-6 rounded-lg"

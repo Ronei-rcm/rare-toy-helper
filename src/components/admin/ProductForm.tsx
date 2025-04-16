@@ -32,7 +32,7 @@ export const ProductForm = ({ initialProduct, onSave, buttonText = "Add Product"
       price: 0,
       image: '/placeholder.svg',
       category: '',
-      condition: 'good', // Changed from 'bom' to valid enum value
+      condition: 'good',
       year: '',
       isRare: false,
       description: '',
@@ -156,7 +156,10 @@ export const ProductForm = ({ initialProduct, onSave, buttonText = "Add Product"
                 alt={product.name || 'Preview'}
                 className="w-full h-40 object-contain bg-gray-100 rounded-md"
               />
-              <ImageUploader onImageUploaded={setImage} />
+              <ImageUploader 
+                selectedImage={product.image} 
+                onImageChange={setImage} 
+              />
             </div>
           </div>
         </div>

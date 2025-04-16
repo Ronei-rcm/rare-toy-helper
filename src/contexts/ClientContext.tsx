@@ -68,7 +68,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     setWishlist(prevWishlist => prevWishlist.filter(item => item.productId !== productId));
   };
 
-  const value = {
+  const value: ClientContextType = {
     user,
     orders,
     cart,

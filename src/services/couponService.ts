@@ -11,105 +11,108 @@ export interface Coupon {
   isValid: boolean;
 }
 
-// Mock data
-const mockCoupons: Coupon[] = [
-  { 
-    code: 'WELCOME10', 
-    type: 'percentage', 
-    discount: 10, 
-    expiryDate: new Date(2023, 11, 31), 
-    isValid: true 
+// Dummy data to simulate a database
+const coupons: Coupon[] = [
+  {
+    code: "WELCOME10",
+    type: "percentage",
+    discount: 10,
+    isValid: true
   },
-  { 
-    code: 'FREESHIPPING', 
-    type: 'freeShipping', 
-    discount: 0, 
-    minPurchaseAmount: 100, 
-    isValid: true 
+  {
+    code: "FIXED20",
+    type: "fixed",
+    discount: 20,
+    minPurchaseAmount: 100,
+    isValid: true
   },
-  { 
-    code: 'FIXED20', 
-    type: 'fixed', 
-    discount: 20, 
-    isValid: true 
+  {
+    code: "FREESHIP",
+    type: "freeShipping",
+    discount: 0,
+    isValid: true
   },
+  {
+    code: "SUMMER30",
+    type: "percentage",
+    discount: 30,
+    expiryDate: new Date("2023-09-30"),
+    isValid: false
+  }
 ];
-
-let coupons = [...mockCoupons];
 
 export const couponService = {
   getAllCoupons(): Coupon[] {
     return [...coupons];
   },
-
-  getCouponByCode(code: string): Coupon {
-    const coupon = coupons.find(c => c.code === code);
-    if (!coupon) {
-      throw new Error(`Coupon with code ${code} not found`);
-    }
-    return { ...coupon };
+  
+  getCouponByCode(code: string): Coupon | undefined {
+    return coupons.find(coupon => coupon.code === code);
   },
-
+  
   isValidCoupon(code: string): boolean {
-    try {
-      const coupon = this.getCouponByCode(code);
-      
-      // Check if coupon is marked as valid
-      if (!coupon.isValid) return false;
-      
-      // Check expiration date
-      if (coupon.expiryDate && new Date() > new Date(coupon.expiryDate)) {
-        return false;
-      }
-      
-      return true;
-    } catch (error) {
+    const coupon = this.getCouponByCode(code);
+    if (!coupon) return false;
+    
+    if (!coupon.isValid) return false;
+    
+    if (coupon.expiryDate && new Date() > coupon.expiryDate) {
       return false;
     }
+    
+    return true;
   },
-
-  addCoupon(coupon: Omit<Coupon, "isValid">): void {
-    const newCoupon = { 
-      ...coupon, 
-      isValid: true,
-    };
-    coupons.push(newCoupon as Coupon);
+  
+  addCoupon(coupon: Omit<Coupon, 'isValid'>): void {
+    coupons.push({ ...coupon, isValid: true });
   },
-
+  
   updateCoupon(coupon: Coupon): void {
     const index = coupons.findIndex(c => c.code === coupon.code);
     if (index !== -1) {
-      coupons[index] = { ...coupon };
+      coupons[index] = coupon;
     }
   },
-
+  
   deleteCoupon(code: string): void {
-    coupons = coupons.filter(c => c.code !== code);
+    const index = coupons.findIndex(c => c.code === code);
+    if (index !== -1) {
+      coupons.splice(index, 1);
+    }
   },
 
-  applyCoupon(code: string, amount: number): number {
-    if (!this.isValidCoupon(code)) {
-      throw new Error("Invalid or expired coupon");
-    }
-
+  // Add these new methods to satisfy the component requirements
+  applyCoupon(code: string, cartTotal: number): { success: boolean; discount: number; message: string } {
     const coupon = this.getCouponByCode(code);
     
-    // Check minimum purchase requirement
-    if (coupon.minPurchaseAmount && amount < coupon.minPurchaseAmount) {
-      throw new Error(`Minimum purchase amount of R$${coupon.minPurchaseAmount} not met`);
+    if (!coupon) {
+      return { success: false, discount: 0, message: "Cupom não encontrado." };
     }
     
-    // Calculate discount based on type
-    switch (coupon.type) {
-      case 'percentage':
-        return amount * (1 - coupon.discount / 100);
-      case 'fixed':
-        return Math.max(0, amount - coupon.discount);
-      case 'freeShipping':
-        // This would be handled elsewhere, return original amount
-        return amount;
-      default:
-        return amount;
+    if (!this.isValidCoupon(code)) {
+      return { success: false, discount: 0, message: "Cupom inválido ou expirado." };
     }
+    
+    if (coupon.minPurchaseAmount && cartTotal < coupon.minPurchaseAmount) {
+      return { 
+        success: false, 
+        discount: 0, 
+        message: `Valor mínimo de compra é R$ ${coupon.minPurchaseAmount.toFixed(2)}`
+      };
+    }
+    
+    let discountValue = 0;
+    
+    if (coupon.type === "percentage") {
+      discountValue = (cartTotal * coupon.discount) / 100;
+    } else if (coupon.type === "fixed") {
+      discountValue = coupon.discount;
+    }
+    
+    return { 
+      success: true, 
+      discount: discountValue, 
+      message: `Cupom aplicado! Desconto de R$ ${discountValue.toFixed(2)}`
+    };
   }
 };

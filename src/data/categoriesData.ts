@@ -6,7 +6,7 @@ export interface CategoryItem {
   description: string;
   image: string;
   featured: boolean;
-  count: number; // Added count property to fix errors
+  count: number;
   products?: number; // Number of products in this category
 }
 

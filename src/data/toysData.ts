@@ -11,7 +11,7 @@ export interface Toy {
   raro: boolean;
 }
 
-export const products: Toy[] = [
+export const toys: Toy[] = [
   {
     id: "1",
     nome: "Boneco Star Wars Vintage",
@@ -68,3 +68,6 @@ export const products: Toy[] = [
     raro: true
   }
 ];
+
+// Add products export to be consistent with the import in components
+export const products = toys;

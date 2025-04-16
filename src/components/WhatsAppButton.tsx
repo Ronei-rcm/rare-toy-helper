@@ -1,6 +1,7 @@
 
-import { Button } from "../components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../components/ui/tooltip";
+import React from "react";
+import { Button } from "./ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { whatsappService } from "../services/whatsappService";
 
 interface WhatsAppButtonProps {

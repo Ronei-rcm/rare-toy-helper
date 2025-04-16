@@ -1,4 +1,3 @@
-
 // Type declarations for services and custom components
 
 declare module '@/services/whatsappService' {
@@ -6,12 +5,17 @@ declare module '@/services/whatsappService' {
     enabled: boolean;
     phoneNumber: string;
     defaultMessage: string;
+    welcomeMessage: string;
+    notificationsEnabled: boolean;
+    autoReplyEnabled: boolean;
+    autoReplyMessage: string;
   }
   
   export const whatsappService: {
     getConfig(): WhatsAppConfig;
     generateWhatsAppLink(customMessage?: string): string;
-    updateConfig(config: Partial<WhatsAppConfig>): void;
+    updateConfig(config: Partial<WhatsAppConfig>): WhatsAppConfig;
+    sendMessage(phoneNumber: string, message: string): Promise<boolean>;
   };
 }
 
@@ -35,6 +39,8 @@ declare module '@/services/couponService' {
     addCoupon(coupon: Omit<Coupon, 'isValid'>): void;
     updateCoupon(coupon: Coupon): void;
     deleteCoupon(code: string): void;
+    applyCoupon(coupon: Coupon, subtotal: number, shippingCost: number): number;
+    validateCoupon(code: string, subtotal: number): Coupon | null;
   };
 }
 

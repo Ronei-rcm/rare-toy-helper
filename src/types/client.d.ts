@@ -70,6 +70,22 @@ export interface WishlistItem {
   addedAt: string;
 }
 
+export interface Coupon {
+  code: string;
+  type: 'percentage' | 'fixed' | 'freeShipping';
+  discount: number;
+  minPurchaseAmount?: number;
+  expiryDate?: string;
+  isValid: boolean;
+}
+
+export interface ShippingOption {
+  id: string;
+  name: string;
+  price: number;
+  estimatedDays: string;
+}
+
 export interface ClientContextType {
   user: User | null;
   orders: Order[];

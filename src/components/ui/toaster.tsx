@@ -1,6 +1,7 @@
 
 import * as React from "react"
-import { useToast } from "@/hooks/use-toast"
+// Import directly from the local hook file instead of using the @/ path alias
+import { useToast } from "../hooks/use-toast"
 import {
   Toast,
   ToastClose,
@@ -8,7 +9,7 @@ import {
   ToastProvider,
   ToastTitle,
   ToastViewport,
-} from "@/components/ui/toast"
+} from "./toast"
 
 export function Toaster() {
   const { toasts } = useToast()

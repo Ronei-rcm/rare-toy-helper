@@ -1,17 +1,16 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-import NavBar from "@/components/NavBar";
-import Footer from "@/components/Footer";
-import ClientSidebar from "@/components/client/ClientSidebar";
-import ClientContent from "@/components/client/ClientContent";
-import ClientModals from "@/components/client/ClientModals";
-import { ClientProvider } from "@/contexts/ClientContext";
+import NavBar from "../components/NavBar";
+import Footer from "../components/Footer";
+import ClientSidebar from "../components/client/ClientSidebar";
+import ClientContent from "../components/client/ClientContent";
+import ClientModals from "../components/client/ClientModals";
+import { ClientProvider } from "../contexts/ClientContext";
 
 // Tipos
-import { Order, WishlistItem, UserProfile, CartItem } from "@/types/client";
+import { Order, WishlistItem, UserProfile, CartItem } from "../types/client";
 
 // Mock de pedidos
 const mockOrders: Order[] = [

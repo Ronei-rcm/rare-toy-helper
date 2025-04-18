@@ -6,9 +6,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Order, OrderStatus } from "@/types/client";
+} from "../../../components/ui/dialog";
+import { Button } from "../../../components/ui/button";
+import { Order, OrderStatus } from "../../../types/client";
 
 interface OrderDetailsDialogProps {
   isOpen: boolean;

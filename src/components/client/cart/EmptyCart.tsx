@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../ui/button";
 import { motion } from "framer-motion";
 
 export default function EmptyCart() {

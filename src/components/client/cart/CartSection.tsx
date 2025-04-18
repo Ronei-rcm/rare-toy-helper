@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "../../../components/ui/button";
+import { Card } from "../../../components/ui/card";
+import { Separator } from "../../../components/ui/separator";
 import { ShoppingCart } from "lucide-react";
-import EmptyCart from "@/components/client/cart/EmptyCart";
-import { CartItem } from "@/types/client";
+import EmptyCart from "./EmptyCart";
+import { CartItem } from "../../../types/client";
 
 interface CartSectionProps {
   cartItems: CartItem[];

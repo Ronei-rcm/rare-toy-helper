@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { ClientContextType, User, Order, CartItem, WishlistItem, UserProfile } from '@/types/client';
+import { ClientContextType, User, Order, CartItem, WishlistItem, UserProfile } from '../types/client';
 
 // Create the context with a default value
 const ClientContext = createContext<ClientContextType | undefined>(undefined);

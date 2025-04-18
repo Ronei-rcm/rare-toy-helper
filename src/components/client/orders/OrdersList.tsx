@@ -3,8 +3,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Package, Clock } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Order, OrderStatus } from "@/types/client";
+import { Button } from "../../../components/ui/button";
+import { Order, OrderStatus } from "../../../types/client";
 
 interface OrdersListProps {
   orders: Order[];

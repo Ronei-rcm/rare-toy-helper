@@ -1,7 +1,7 @@
 
-import { useClientContext } from "@/contexts/ClientContext";
 import OrderDetailsDialog from "./orders/OrderDetailsDialog";
 import CheckoutDialog from "./cart/CheckoutDialog";
+import { useClientContext } from "../../contexts/ClientContext";
 
 export default function ClientModals() {
   const {

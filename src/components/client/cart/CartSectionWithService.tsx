@@ -1,25 +1,24 @@
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ShoppingCart, Trash, Plus, Minus, CreditCard, Tag, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { Button } from "../../../components/ui/button";
+import { Input } from "../../../components/ui/input";
+import { Separator } from "../../../components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "../../../components/ui/radio-group";
+import { Label } from "../../../components/ui/label";
 import { 
   Card, 
   CardContent, 
   CardFooter,
   CardHeader, 
   CardTitle 
-} from "@/components/ui/card";
+} from "../../../components/ui/card";
 import { toast } from "sonner";
-import WhatsAppButton from "@/components/WhatsAppButton";
-import { CartItem, ShippingOption } from "@/types/client";
+import WhatsAppButton from "../../../components/WhatsAppButton";
+import { CartItem, ShippingOption } from "../../../types/client";
 import EmptyCart from "./EmptyCart";
-import { couponService, Coupon } from "@/services/couponService";
+import { couponService } from "../../../services/couponService";
 
 interface CartSectionWithServiceProps {
   cartItems: CartItem[];

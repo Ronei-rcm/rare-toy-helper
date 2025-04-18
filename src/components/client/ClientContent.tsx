@@ -1,13 +1,13 @@
 
-import { useClientContext } from "@/contexts/ClientContext";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { useClientContext } from "../../contexts/ClientContext";
+import { toast } from "sonner";
 import OrdersList from "./orders/OrdersList";
 import WishlistSection from "./wishlist/WishlistSection";
 import CartSection from "./cart/CartSection";
 import UserProfileSection from "./profile/UserProfileSection";
 import SettingsSection from "./settings/SettingsSection";
-import { UserProfile } from "@/types/client";
-import { toast } from "sonner";
+import { UserProfile } from "../../types/client";
 
 interface ClientContentProps {
   onUpdateProfile: (profile: UserProfile) => void;

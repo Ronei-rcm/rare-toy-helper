@@ -2,7 +2,6 @@
 import React from "react";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
-import { whatsappService } from "../services/whatsappService";
 
 interface WhatsAppButtonProps {
   customMessage?: string;
@@ -21,15 +20,12 @@ export default function WhatsAppButton({
   size = "default",
   showTooltip = true
 }: WhatsAppButtonProps) {
-  const config = whatsappService.getConfig();
-  
-  if (!config.enabled) {
-    return null;
-  }
-  
   const handleClick = () => {
-    const link = whatsappService.generateWhatsAppLink(customMessage);
-    window.open(link, '_blank');
+    const phoneNumber = "5511999999999"; // Example number
+    const message = customMessage || "Olá! Gostaria de mais informações sobre os brinquedos.";
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
   };
   
   const buttonStyle = {

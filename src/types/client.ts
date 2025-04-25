@@ -127,6 +127,25 @@ export interface UserPreferences {
   darkMode?: boolean;
 }
 
+// Add missing ShippingOption interface
+export interface ShippingOption {
+  id: string;
+  name: string;
+  price: number;
+  estimatedDays: string;
+}
+
+// Add explicit Coupon interface
+export interface Coupon {
+  code: string;
+  type: 'percentage' | 'fixed' | 'freeShipping';
+  discount: number;
+  minPurchaseAmount?: number;
+  expiryDate?: string | Date;
+  usageLimit?: number;
+  isValid: boolean;
+}
+
 // Complete client state
 export interface ClientState {
   cart: {

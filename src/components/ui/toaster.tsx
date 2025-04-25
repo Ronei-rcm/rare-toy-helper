@@ -1,7 +1,7 @@
 
 import * as React from "react"
 // Import directly from the local hook file instead of using the @/ path alias
-import { useToast } from "../hooks/use-toast"
+import { useToast } from "../../hooks/use-toast"
 import {
   Toast,
   ToastClose,

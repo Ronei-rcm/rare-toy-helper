@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -16,10 +17,11 @@ import { Order, WishlistItem, UserProfile, CartItem } from "../types/client";
 const mockOrders: Order[] = [
   {
     id: "42178",
+    userId: "user123",
     date: "2023-07-15",
     items: [
-      { id: "1", name: "Action Figure Star Wars - Darth Vader", quantity: 1, price: 149.90 },
-      { id: "2", name: "LEGO Classic Space - Nave Espacial", quantity: 1, price: 299.90 }
+      { id: "1", productId: "p1", name: "Action Figure Star Wars - Darth Vader", quantity: 1, quantidade: 1, price: 149.90 },
+      { id: "2", productId: "p2", name: "LEGO Classic Space - Nave Espacial", quantity: 1, quantidade: 1, price: 299.90 }
     ],
     total: 449.80,
     status: "entregue",
@@ -27,9 +29,10 @@ const mockOrders: Order[] = [
   },
   {
     id: "38954",
+    userId: "user123",
     date: "2023-09-22",
     items: [
-      { id: "3", name: "Boneca Vintage Colecionável", quantity: 1, price: 199.90 }
+      { id: "3", productId: "p3", name: "Boneca Vintage Colecionável", quantity: 1, quantidade: 1, price: 199.90 }
     ],
     total: 199.90,
     status: "enviado",
@@ -37,10 +40,11 @@ const mockOrders: Order[] = [
   },
   {
     id: "45678",
+    userId: "user123",
     date: "2023-11-05",
     items: [
-      { id: "4", name: "Console Retrô com 500 Jogos", quantity: 1, price: 349.90 },
-      { id: "5", name: "Controle Extra para Console Retrô", quantity: 2, price: 89.90 }
+      { id: "4", productId: "p4", name: "Console Retrô com 500 Jogos", quantity: 1, quantidade: 1, price: 349.90 },
+      { id: "5", productId: "p5", name: "Controle Extra para Console Retrô", quantity: 2, quantidade: 2, price: 89.90 }
     ],
     total: 529.70,
     status: "processando"
@@ -48,16 +52,16 @@ const mockOrders: Order[] = [
 ];
 
 // Mock de lista de desejos
-const mockWishlist = [
-  { id: "w1", name: "Urso de Pelúcia Vintage Raro", price: 299.90, image: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" },
-  { id: "w2", name: "Coleção Completa Star Wars 1977", price: 1299.90, image: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" },
-  { id: "w3", name: "Carro Miniatura Década de 60", price: 159.90, image: "https://images.unsplash.com/photo-1581235720704-06d3acfcb36f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" }
+const mockWishlist: WishlistItem[] = [
+  { id: "w1", productId: "wp1", name: "Urso de Pelúcia Vintage Raro", price: 299.90, image: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" },
+  { id: "w2", productId: "wp2", name: "Coleção Completa Star Wars 1977", price: 1299.90, image: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" },
+  { id: "w3", productId: "wp3", name: "Carro Miniatura Década de 60", price: 159.90, image: "https://images.unsplash.com/photo-1581235720704-06d3acfcb36f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" }
 ];
 
 // Mock do carrinho
 const mockCartItems: CartItem[] = [
-  { id: "c1", name: "Hot Wheels Edição Especial 50 Anos", price: 89.90, quantity: 2, image: "https://images.unsplash.com/photo-1594787318286-3d835c1d207f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" },
-  { id: "c2", name: "Boneco Articulado Marvel - Homem de Ferro", price: 199.90, quantity: 1, image: "https://images.unsplash.com/photo-1608278047522-58806a6ac8b6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" }
+  { id: "c1", productId: "cp1", name: "Hot Wheels Edição Especial 50 Anos", price: 89.90, quantity: 2, quantidade: 2, image: "https://images.unsplash.com/photo-1594787318286-3d835c1d207f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" },
+  { id: "c2", productId: "cp2", name: "Boneco Articulado Marvel - Homem de Ferro", price: 199.90, quantity: 1, quantidade: 1, image: "https://images.unsplash.com/photo-1608278047522-58806a6ac8b6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" }
 ];
 
 export default function ClientArea() {
@@ -77,7 +81,7 @@ export default function ClientArea() {
       neighborhood: "",
       city: "",
       state: "",
-      zipCode: ""
+      zipcode: ""
     }
   });
 
@@ -105,7 +109,7 @@ export default function ClientArea() {
         neighborhood: "Jardim Primavera",
         city: "São Paulo",
         state: "SP",
-        zipCode: "01234-567"
+        zipcode: "01234-567"
       }
     });
   }, [navigate]);

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { z } from "zod";
@@ -6,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
-import { API_URL } from "../config/api";
+import { API_URL, mockLogin } from "../config/api";
 
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -49,6 +50,28 @@ export default function Login() {
     setLoginError("");
     
     try {
+      // Primeiro tentamos o modo de demonstração com mock
+      try {
+        // Usamos mock login para evitar erros de API quando não há backend disponível
+        const data = await mockLogin(values.email, values.password);
+        
+        // Redirecionamos com base no tipo de usuário
+        if (data.usuario.tipo === 'admin') {
+          toast.success("Login realizado com sucesso!");
+          navigate("/admin");
+        } else {
+          toast.success("Login realizado com sucesso!");
+          navigate("/cliente");
+        }
+
+        setIsSubmitting(false);
+        return;
+      } catch (mockError) {
+        // Se o mock falhar, tentamos a API real
+        console.log("Mock login falhou, tentando API real...");
+      }
+
+      // Tentativa com API real
       const response = await fetch(`${API_URL}/usuarios/login`, {
         method: 'POST',
         headers: {
@@ -84,6 +107,7 @@ export default function Login() {
     } catch (error) {
       setIsSubmitting(false);
       setLoginError(error instanceof Error ? error.message : "Email ou senha incorretos.");
+      console.error("Erro de login:", error);
     }
   }
 

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { 
@@ -9,7 +10,8 @@ import {
   Folder,
   BarChart,
   LogOut,
-  Home
+  Home,
+  AlertCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import { isAdmin } from "../config/api";
@@ -21,6 +23,7 @@ import CustomersManager from "../components/admin/CustomersManager";
 import SettingsManager from "../components/admin/SettingsManager";
 import RelatoriosManager from "../components/admin/RelatoriosManager";
 import { Button } from "../components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { 
   SidebarProvider, 
   Sidebar, 
@@ -38,24 +41,45 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const navigate = useNavigate();
   const [user, setUser] = useState<{ nome: string; email: string; tipo: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [accessError, setAccessError] = useState("");
 
   // Verifica se o usuário está logado e se é admin
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      if (isAdmin()) {
-        setUser(parsedUser);
-      } else {
-        // Se não for admin, redireciona para a tela de login
-        toast.error("Acesso não autorizado!");
-        navigate("/login");
+    const checkAdminAccess = () => {
+      try {
+        setLoading(true);
+        const storedUser = localStorage.getItem("user");
+        const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+        if (!isLoggedIn || !storedUser) {
+          setAccessError("Você precisa fazer login para acessar esta área!");
+          setTimeout(() => {
+            navigate("/login");
+          }, 2000);
+          return;
+        }
+
+        const parsedUser = JSON.parse(storedUser);
+        if (isAdmin()) {
+          setUser(parsedUser);
+          toast.success(`Bem-vindo(a), ${parsedUser.nome}!`);
+        } else {
+          // Se não for admin, redireciona para a tela de login
+          setAccessError("Acesso não autorizado! Você não possui privilégios de administrador.");
+          setTimeout(() => {
+            navigate("/login");
+          }, 2000);
+        }
+      } catch (error) {
+        console.error("Erro ao verificar acesso:", error);
+        setAccessError("Erro ao verificar acesso. Tente novamente mais tarde.");
+      } finally {
+        setLoading(false);
       }
-    } else {
-      // Se não estiver logado, redireciona para a tela de login
-      toast.error("Você precisa fazer login para acessar esta área!");
-      navigate("/login");
-    }
+    };
+
+    checkAdminAccess();
   }, [navigate]);
 
   const handleLogout = () => {
@@ -63,8 +87,40 @@ export default function Admin() {
     localStorage.removeItem("token");
     localStorage.removeItem("isLoggedIn");
     toast.success("Logout realizado com sucesso!");
-    navigate("/");
+    navigate("/login");
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <h2 className="text-xl font-medium">Verificando acesso...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  if (accessError) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Acesso Negado</AlertTitle>
+            <AlertDescription>
+              {accessError}
+            </AlertDescription>
+          </Alert>
+          <div className="flex justify-center">
+            <Button onClick={() => navigate("/login")}>
+              Voltar para Login
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return null; // Não renderiza nada enquanto verifica o login
@@ -161,16 +217,18 @@ export default function Admin() {
           <SidebarInset>
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <SidebarTrigger className="md:hidden" />
-                <h1 className="text-2xl font-bold">{
-                  activeTab === "dashboard" ? "Dashboard" :
-                  activeTab === "products" ? "Gerenciar Produtos" :
-                  activeTab === "categories" ? "Gerenciar Categorias" :
-                  activeTab === "orders" ? "Gerenciar Pedidos" :
-                  activeTab === "customers" ? "Gerenciar Clientes" :
-                  activeTab === "relatorios" ? "Relatórios" :
-                  "Configurações"
-                }</h1>
+                <div className="flex items-center gap-2">
+                  <SidebarTrigger className="md:hidden" />
+                  <h1 className="text-2xl font-bold">{
+                    activeTab === "dashboard" ? "Dashboard" :
+                    activeTab === "products" ? "Gerenciar Produtos" :
+                    activeTab === "categories" ? "Gerenciar Categorias" :
+                    activeTab === "orders" ? "Gerenciar Pedidos" :
+                    activeTab === "customers" ? "Gerenciar Clientes" :
+                    activeTab === "relatorios" ? "Relatórios" :
+                    "Configurações"
+                  }</h1>
+                </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-500">Olá, {user.nome}</span>
                 </div>

@@ -1,14 +1,13 @@
-
 import { useState, useEffect } from 'react';
-import NavBar from '@/components/NavBar';
-import Footer from '@/components/Footer';
-import { products } from '@/data/toysData';
-import { useCollectionFilters } from '@/components/collection/useCollectionFilters';
-import FilterSidebar from '@/components/collection/FilterSidebar';
-import MobileFilterDialog from '@/components/collection/MobileFilterDialog';
-import SearchAndSort from '@/components/collection/SearchAndSort';
-import ProductGrid from '@/components/collection/ProductGrid';
-import CollectionHeader from '@/components/collection/CollectionHeader';
+import NavBar from '../components/NavBar';
+import Footer from '../components/Footer';
+import { products } from '../data/toysData';
+import { useCollectionFilters } from '../components/collection/useCollectionFilters';
+import FilterSidebar from '../components/collection/FilterSidebar';
+import MobileFilterDialog from '../components/collection/MobileFilterDialog';
+import SearchAndSort from '../components/collection/SearchAndSort';
+import ProductGrid from '../components/collection/ProductGrid';
+import CollectionHeader from '../components/collection/CollectionHeader';
 
 const Collection = () => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);

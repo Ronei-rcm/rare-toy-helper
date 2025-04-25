@@ -1,13 +1,12 @@
-
 import { useEffect } from 'react';
-import NavBar from '@/components/NavBar';
-import Footer from '@/components/Footer';
-import CategoriesHeader from '@/components/categories/CategoriesHeader';
-import FeaturedCategories from '@/components/categories/FeaturedCategories';
-import PopularProducts from '@/components/categories/PopularProducts';
-import AllCategories from '@/components/categories/AllCategories';
-import { categories } from '@/data/categoriesData';
-import { popularProducts } from '@/data/popularProductsData';
+import NavBar from '../components/NavBar';
+import Footer from '../components/Footer';
+import CategoriesHeader from '../components/categories/CategoriesHeader';
+import FeaturedCategories from '../components/categories/FeaturedCategories';
+import PopularProducts from '../components/categories/PopularProducts';
+import AllCategories from '../components/categories/AllCategories';
+import { categories } from '../data/categoriesData';
+import { popularProducts } from '../data/popularProductsData';
 
 const Categories = () => {
   // Scroll to top on page load

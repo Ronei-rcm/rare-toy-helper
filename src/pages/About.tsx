@@ -1,10 +1,9 @@
-
 import { useEffect } from 'react';
-import { motion } from 'framer-motion';
-import NavBar from '@/components/NavBar';
-import Footer from '@/components/Footer';
-import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import NavBar from '../components/NavBar';
+import Footer from '../components/Footer';
+import { Button } from "@/components/ui/button";
 import { CheckCircle, Mail, MapPin, Phone, Clock, ChevronRight } from 'lucide-react';
 
 const About = () => {

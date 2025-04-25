@@ -11,6 +11,7 @@ export interface Toast {
   type?: ToastType;
   duration?: number;
   onDismiss?: () => void;
+  variant?: "default" | "destructive"; // Add this for compatibility with shadcn toast
 }
 
 interface ToastContextType {

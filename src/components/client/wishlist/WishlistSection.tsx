@@ -2,8 +2,8 @@
 import React from 'react';
 import { motion } from "framer-motion";
 import { Heart, ShoppingCart } from "lucide-react";
-import { Button } from "../../ui/button";
-import { WishlistItem, CartItem } from "../../types/client";
+import { Button } from "../../../components/ui/button";
+import { WishlistItem, CartItem } from "../../../types/client";
 
 interface WishlistSectionProps {
   wishlist: WishlistItem[];

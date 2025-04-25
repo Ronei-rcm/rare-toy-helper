@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
-import { Separator } from "../ui/separator";
-import { Switch } from "../ui/switch";
-import { UserProfile } from "../../types/client";
+import { Button } from "../../../components/ui/button";
+import { Input } from "../../../components/ui/input";
+import { Label } from "../../../components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card";
+import { Separator } from "../../../components/ui/separator";
+import { Switch } from "../../../components/ui/switch";
+import { UserProfile } from "../../../types/client";
 
 interface UserProfileSectionProps {
   profile: UserProfile | null;

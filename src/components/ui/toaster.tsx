@@ -1,6 +1,6 @@
 
 import * as React from "react"
-// Import directly from the local hook file instead of using the @/ path alias
+// Import directly from the local hook file instead of using relative import path
 import { useToast } from "../../hooks/use-toast"
 import {
   Toast,
@@ -16,9 +16,13 @@ export function Toaster() {
 
   return (
     <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }) {
+      {toasts.map(function ({ id, title, description, action, type, ...props }) {
         return (
-          <Toast key={id} {...props} variant={props.type === "destructive" ? "destructive" : "default"}>
+          <Toast 
+            key={id} 
+            {...props} 
+            variant={type === "destructive" ? "destructive" : "default"}
+          >
             <div className="grid gap-1">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (

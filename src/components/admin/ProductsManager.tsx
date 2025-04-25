@@ -34,8 +34,23 @@ export function ProductsManager() {
 
   const handleAddProduct = async (product: Omit<Brinquedo, "id">) => {
     try {
-      const response = await axios.post<RespostaApi<Brinquedo>>(`${API_URL}/produtos`, product, {
-        headers: getAuthHeaders()
+      const formData = new FormData();
+      formData.append('nome', product.nome);
+      formData.append('descricao', product.descricao || '');
+      formData.append('preco', product.preco.toString());
+      formData.append('estoque', product.estoque.toString());
+      formData.append('categoria_id', product.categoria);
+
+      if (product.imagem && product.imagem.startsWith('data:image')) {
+        const blob = await fetch(product.imagem).then(r => r.blob());
+        formData.append('imagem', blob, 'produto.jpg');
+      }
+
+      const response = await axios.post<RespostaApi<Brinquedo>>(`${API_URL}/produtos`, formData, {
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'multipart/form-data'
+        }
       });
 
       if (response.data.sucesso && response.data.dados) {

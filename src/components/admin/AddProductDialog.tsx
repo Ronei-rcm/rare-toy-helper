@@ -1,9 +1,11 @@
+
 import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Brinquedo } from "../../types";
 import { Button } from "../ui/button";
+import { ImageUploader } from "./ImageUploader";
 import {
   Dialog,
   DialogContent,
@@ -40,7 +42,6 @@ const formSchema = z.object({
     message: "Estoque não pode ser negativo"
   }),
   categoria: z.string().min(1, "Selecione uma categoria"),
-  imagem: z.string().url("URL inválida").optional(),
 });
 
 interface AddProductDialogProps {
@@ -51,6 +52,7 @@ interface AddProductDialogProps {
 
 export default function AddProductDialog({ onSubmit, onClose, open = true }: AddProductDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string>("/placeholder.svg");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,7 +62,6 @@ export default function AddProductDialog({ onSubmit, onClose, open = true }: Add
       preco: "",
       estoque: "0",
       categoria: "",
-      imagem: "",
     },
   });
 
@@ -73,13 +74,14 @@ export default function AddProductDialog({ onSubmit, onClose, open = true }: Add
         preco: Number(values.preco),
         estoque: Number(values.estoque),
         categoria: values.categoria,
-        imagem: values.imagem || "/placeholder.svg",
+        imagem: selectedImage,
         condicao: "bom",
         raro: false,
       };
 
       await onSubmit(product);
       form.reset();
+      setSelectedImage("/placeholder.svg");
       onClose();
     } catch (error) {
       console.error("Erro ao adicionar produto:", error);
@@ -90,7 +92,7 @@ export default function AddProductDialog({ onSubmit, onClose, open = true }: Add
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
           <DialogTitle>Adicionar Produto</DialogTitle>
           <DialogDescription>
@@ -100,110 +102,110 @@ export default function AddProductDialog({ onSubmit, onClose, open = true }: Add
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="nome"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nome do produto" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="nome"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nome do produto" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="descricao"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Descrição do produto" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="descricao"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Descrição</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Descrição do produto" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="preco"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Preço *</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="0.00"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="preco"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Preço *</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-            <FormField
-              control={form.control}
-              name="estoque"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Estoque</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min="0"
-                      placeholder="0"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="categoria"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Categoria *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione uma categoria" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Bonecos">Bonecos</SelectItem>
+                          <SelectItem value="Jogos de Tabuleiro">Jogos de Tabuleiro</SelectItem>
+                          <SelectItem value="Carrinhos">Carrinhos</SelectItem>
+                          <SelectItem value="Pelúcias">Pelúcias</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="categoria"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categoria *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione uma categoria" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Bonecos">Bonecos</SelectItem>
-                      <SelectItem value="Jogos de Tabuleiro">Jogos de Tabuleiro</SelectItem>
-                      <SelectItem value="Carrinhos">Carrinhos</SelectItem>
-                      <SelectItem value="Pelúcias">Pelúcias</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="estoque"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Estoque</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder="0"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="imagem"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL da Imagem</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <div className="space-y-2">
+                  <FormLabel>Imagem do Produto</FormLabel>
+                  <ImageUploader
+                    selectedImage={selectedImage}
+                    onImageChange={setSelectedImage}
+                  />
+                </div>
+              </div>
+            </div>
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={onClose}>
@@ -219,3 +221,4 @@ export default function AddProductDialog({ onSubmit, onClose, open = true }: Add
     </Dialog>
   );
 }
+

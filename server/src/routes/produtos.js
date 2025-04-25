@@ -1,9 +1,37 @@
 import express from 'express';
+import multer from 'multer';
+import path from 'path';
 import { verificarAutenticacao } from '../middleware/auth.js';
 import { Produto, Categoria, Avaliacao, Usuario } from '../models/index.js';
 import { Op } from 'sequelize';
 
 const router = express.Router();
+
+// Configuração do Multer para upload de imagens
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/produtos/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // Limite de 5MB
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.mimetype)) {
+      cb(new Error('Tipo de arquivo não permitido. Apenas JPEG, PNG e WEBP são aceitos.'));
+      return;
+    }
+    cb(null, true);
+  }
+});
 
 // Listar produtos com filtros e paginação
 router.get('/', async (req, res) => {
@@ -107,10 +135,9 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Criar novo produto (requer autenticação de admin)
-router.post('/', verificarAutenticacao, async (req, res) => {
+// Criar novo produto com upload de imagem
+router.post('/', verificarAutenticacao, upload.single('imagem'), async (req, res) => {
   try {
-    // Verificar se o usuário é admin
     if (req.usuario.tipo !== 'admin') {
       return res.status(403).json({ message: 'Acesso negado' });
     }
@@ -121,7 +148,6 @@ router.post('/', verificarAutenticacao, async (req, res) => {
       preco,
       estoque,
       categoria_id,
-      imagem_url
     } = req.body;
 
     // Validações básicas
@@ -151,19 +177,19 @@ router.post('/', verificarAutenticacao, async (req, res) => {
       });
     }
 
-    // Criar produto
+    // Criar produto com imagem se houver
     const produto = await Produto.create({
       nome,
       descricao,
       preco,
       estoque,
       categoria_id,
-      imagem_url
+      imagem_url: req.file ? `/uploads/produtos/${req.file.filename}` : null
     });
 
     res.status(201).json(produto);
   } catch (error) {
-    res.status(500).json({ message: 'Erro ao criar produto' });
+    res.status(500).json({ message: 'Erro ao criar produto: ' + error.message });
   }
 });
 

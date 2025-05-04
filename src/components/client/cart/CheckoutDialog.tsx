@@ -37,6 +37,7 @@ export default function CheckoutDialog({
       toast.success("Pedido realizado com sucesso!");
       onCheckoutComplete();
       setStep(1); // Reset for next time
+      onOpenChange(false);
     }
   };
 
@@ -144,6 +145,26 @@ export default function CheckoutDialog({
                   </div>
                 </div>
               )}
+              
+              {paymentMethod === "pix" && (
+                <div className="border p-4 rounded mt-4">
+                  <div className="text-center mb-3">
+                    <p className="text-sm text-gray-500">
+                      Após confirmar seu pedido, você receberá um QR Code PIX para pagamento
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {paymentMethod === "boleto" && (
+                <div className="border p-4 rounded mt-4">
+                  <div className="text-center mb-3">
+                    <p className="text-sm text-gray-500">
+                      Após confirmar seu pedido, você poderá imprimir o boleto ou copiar o código de barras
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
           
@@ -154,7 +175,7 @@ export default function CheckoutDialog({
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>Subtotal:</span>
-                    <span>R$ {total.toFixed(2)}</span>
+                    <span>R$ {(total - 15).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Frete:</span>
@@ -162,7 +183,7 @@ export default function CheckoutDialog({
                   </div>
                   <div className="flex justify-between font-medium text-base pt-2 border-t">
                     <span>Total:</span>
-                    <span>R$ {(total + 15).toFixed(2)}</span>
+                    <span>R$ {total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>

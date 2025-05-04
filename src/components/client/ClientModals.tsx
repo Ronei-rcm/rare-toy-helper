@@ -1,4 +1,5 @@
 
+import React from 'react';
 import OrderDetailsDialog from "./orders/OrderDetailsDialog";
 import CheckoutDialog from "./cart/CheckoutDialog";
 import { useClientContext } from "../../contexts/ClientContext";

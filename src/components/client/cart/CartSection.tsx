@@ -32,30 +32,36 @@ const CartSection = ({
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Card className="shadow-lg">
-        <div className="p-6 space-y-6">
-          <div className="flex items-center gap-2 text-xl font-semibold text-primary">
-            <ShoppingCart className="w-6 h-6" />
-            <h2>Meu Carrinho</h2>
-          </div>
-          
-          <div className="divide-y">
-            {cartItems.map((item) => (
-              <CartItemCard
-                key={item.id}
-                item={item}
-                onRemove={onRemoveItem}
-                onUpdateQuantity={onUpdateQuantity}
-              />
-            ))}
-          </div>
-          
+      <div className="grid md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <Card className="shadow-lg">
+            <div className="p-6 space-y-6">
+              <div className="flex items-center gap-2 text-xl font-semibold text-primary">
+                <ShoppingCart className="w-6 h-6" />
+                <h2>Meu Carrinho</h2>
+              </div>
+              
+              <div className="divide-y">
+                {cartItems.map((item) => (
+                  <CartItemCard
+                    key={item.id}
+                    item={item}
+                    onRemove={onRemoveItem}
+                    onUpdateQuantity={onUpdateQuantity}
+                  />
+                ))}
+              </div>
+            </div>
+          </Card>
+        </div>
+        
+        <div>
           <CartSummary 
             subtotal={cartTotal}
             onCheckout={onCheckout}
           />
         </div>
-      </Card>
+      </div>
     </div>
   );
 };

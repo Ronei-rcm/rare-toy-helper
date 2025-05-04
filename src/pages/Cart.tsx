@@ -61,7 +61,7 @@ export default function Cart() {
     nome: item.nome,
     preco: item.preco,
     quantidade: item.quantidade,
-    imagem: item.imagem_url
+    imagem: item.imagem_url // Changed from imagem_url to imagem to match CartItem type
   }));
 
   return (

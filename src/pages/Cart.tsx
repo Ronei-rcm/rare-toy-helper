@@ -61,7 +61,8 @@ export default function Cart() {
     nome: item.nome,
     preco: item.preco,
     quantidade: item.quantidade,
-    imagem: item.imagem // Usando a propriedade imagem em vez de imagem_url para corresponder ao tipo CartItem
+    // Trocamos imagem para a propriedade image que está corretamente definida no tipo CartItem
+    image: item.imagem // Usar a propriedade que está corretamente definida no tipo CartItem
   }));
 
   return (

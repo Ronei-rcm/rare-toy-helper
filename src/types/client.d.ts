@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   nome: string;
@@ -30,6 +29,9 @@ export interface UserPreferences {
 export interface CartItem {
   id: string;
   productId: string;
+  name: string;
+  price: number;
+  quantity: number;
   nome: string;
   preco: number;
   quantidade: number;

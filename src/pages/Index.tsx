@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import NavBar from '../components/NavBar';
 import Hero from '../components/Hero';
@@ -7,6 +6,7 @@ import CategorySection from '../components/CategorySection';
 import NewsletterSection from '../components/NewsletterSection';
 import Footer from '../components/Footer';
 import NintendoCharactersBanner from '../components/NintendoCharactersBanner';
+import VideosSection from '../components/VideosSection';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Star, Award, CheckCircle, Truck } from 'lucide-react';
@@ -167,6 +167,9 @@ const Index = () => {
           </div>
         </section>
         
+        {/* Videos Section */}
+        <VideosSection />
+        
         {/* Featured toys */}
         <FeaturedToys />
         
@@ -195,10 +198,10 @@ const Index = () => {
                 Explore nossa coleção de brinquedos raros e colecionáveis. Registre-se hoje para acesso exclusivo a itens recém-chegados e ofertas especiais.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="rounded-full px-8">
+                <Button asChild>
                   <Link to="/collection">Ver coleção completa</Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="rounded-full px-8">
+                <Button asChild variant="outline">
                   <Link to="/register">Criar conta</Link>
                 </Button>
               </div>

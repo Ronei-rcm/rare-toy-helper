@@ -11,7 +11,8 @@ import {
   BarChart,
   LogOut,
   Home,
-  AlertCircle
+  AlertCircle,
+  Film
 } from "lucide-react";
 import { toast } from "sonner";
 import { isAdmin } from "../config/api";
@@ -22,6 +23,7 @@ import OrdersManager from "../components/admin/OrdersManager";
 import CustomersManager from "../components/admin/CustomersManager";
 import SettingsManager from "../components/admin/SettingsManager";
 import RelatoriosManager from "../components/admin/RelatoriosManager";
+import VideosManager from "../components/admin/VideosManager";
 import { Button } from "../components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { 
@@ -183,6 +185,15 @@ export default function Admin() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton 
+                    onClick={() => setActiveTab("videos")} 
+                    isActive={activeTab === "videos"}
+                  >
+                    <Film />
+                    <span>Vídeos</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
                     onClick={() => setActiveTab("relatorios")} 
                     isActive={activeTab === "relatorios"}
                   >
@@ -225,12 +236,13 @@ export default function Admin() {
                     activeTab === "categories" ? "Gerenciar Categorias" :
                     activeTab === "orders" ? "Gerenciar Pedidos" :
                     activeTab === "customers" ? "Gerenciar Clientes" :
+                    activeTab === "videos" ? "Gerenciar Vídeos" :
                     activeTab === "relatorios" ? "Relatórios" :
                     "Configurações"
                   }</h1>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">Olá, {user.nome}</span>
+                  <span className="text-sm text-gray-500">Olá, {user?.nome}</span>
                 </div>
               </div>
 
@@ -240,6 +252,7 @@ export default function Admin() {
                 {activeTab === "categories" && <CategoriesManager />}
                 {activeTab === "orders" && <OrdersManager />}
                 {activeTab === "customers" && <CustomersManager />}
+                {activeTab === "videos" && <VideosManager />}
                 {activeTab === "relatorios" && <RelatoriosManager />}
                 {activeTab === "settings" && <SettingsManager />}
               </div>

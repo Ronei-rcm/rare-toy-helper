@@ -61,7 +61,7 @@ export default function Cart() {
     nome: item.nome,
     preco: item.preco,
     quantidade: item.quantidade,
-    imagem: item.imagem_url || '' // Using imagem instead of imagem_url to match CartItem type
+    imagem: item.imagem // Usando a propriedade imagem em vez de imagem_url para corresponder ao tipo CartItem
   }));
 
   return (

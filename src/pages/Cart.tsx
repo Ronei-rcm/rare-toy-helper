@@ -61,7 +61,7 @@ export default function Cart() {
     nome: item.nome,
     preco: item.preco,
     quantidade: item.quantidade,
-    image: item.imagem || '' // Usando valor padrão vazio caso imagem não exista
+    image: '' // Use empty string as default since imagem doesn't exist in CartItem
   }));
 
   return (

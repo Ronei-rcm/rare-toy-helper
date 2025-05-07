@@ -12,7 +12,8 @@ import {
   LogOut,
   Home,
   AlertCircle,
-  Film
+  Film,
+  Images
 } from "lucide-react";
 import { toast } from "sonner";
 import { isAdmin } from "../config/api";
@@ -24,6 +25,7 @@ import CustomersManager from "../components/admin/CustomersManager";
 import SettingsManager from "../components/admin/SettingsManager";
 import RelatoriosManager from "../components/admin/RelatoriosManager";
 import VideosManager from "../components/admin/VideosManager";
+import CarouselManager from "../components/admin/CarouselManager";
 import { Button } from "../components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { 
@@ -167,6 +169,15 @@ export default function Admin() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton 
+                    onClick={() => setActiveTab("carousel")} 
+                    isActive={activeTab === "carousel"}
+                  >
+                    <Images />
+                    <span>Carrossel</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
                     onClick={() => setActiveTab("orders")} 
                     isActive={activeTab === "orders"}
                   >
@@ -234,6 +245,7 @@ export default function Admin() {
                     activeTab === "dashboard" ? "Dashboard" :
                     activeTab === "products" ? "Gerenciar Produtos" :
                     activeTab === "categories" ? "Gerenciar Categorias" :
+                    activeTab === "carousel" ? "Gerenciar Carrossel" :
                     activeTab === "orders" ? "Gerenciar Pedidos" :
                     activeTab === "customers" ? "Gerenciar Clientes" :
                     activeTab === "videos" ? "Gerenciar Vídeos" :
@@ -250,6 +262,7 @@ export default function Admin() {
                 {activeTab === "dashboard" && <AdminDashboard />}
                 {activeTab === "products" && <ProductsManager />}
                 {activeTab === "categories" && <CategoriesManager />}
+                {activeTab === "carousel" && <CarouselManager />}
                 {activeTab === "orders" && <OrdersManager />}
                 {activeTab === "customers" && <CustomersManager />}
                 {activeTab === "videos" && <VideosManager />}

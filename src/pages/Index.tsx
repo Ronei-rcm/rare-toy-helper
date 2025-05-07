@@ -1,6 +1,8 @@
+
 import { useEffect } from 'react';
 import NavBar from '../components/NavBar';
 import Hero from '../components/Hero';
+import MainCarousel from '../components/MainCarousel';
 import FeaturedToys from '../components/FeaturedToys';
 import CategorySection from '../components/CategorySection';
 import NewsletterSection from '../components/NewsletterSection';
@@ -24,6 +26,9 @@ const Index = () => {
       <NavBar />
       
       <main className="flex-grow">
+        {/* Main Carousel */}
+        <MainCarousel />
+        
         {/* Hero section */}
         <Hero />
         

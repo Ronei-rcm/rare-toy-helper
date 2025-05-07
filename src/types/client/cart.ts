@@ -1,5 +1,5 @@
-
 // Cart and Order related types
+import { Address } from './address';
 
 // Cart item type
 export interface CartItem {

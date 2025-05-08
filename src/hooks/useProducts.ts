@@ -8,7 +8,6 @@ import { API_URL, getAuthHeaders } from "../config/api";
 export function useProducts() {
   const [products, setProducts] = useState<Brinquedo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -37,6 +36,8 @@ export function useProducts() {
       formData.append('preco', product.preco.toString());
       formData.append('estoque', product.estoque.toString());
       formData.append('categoria_id', product.categoria);
+      formData.append('condicao', product.condicao);
+      formData.append('raro', product.raro.toString());
 
       if (product.imagem && product.imagem.startsWith('data:image')) {
         const blob = await fetch(product.imagem).then(r => r.blob());
@@ -53,7 +54,6 @@ export function useProducts() {
       if (response.data.sucesso && response.data.dados) {
         setProducts([...products, response.data.dados]);
         toast.success("Produto adicionado com sucesso!");
-        setDialogOpen(false);
       } else {
         toast.error(response.data.erro || "Erro ao adicionar produto");
       }
@@ -81,15 +81,40 @@ export function useProducts() {
     }
   }, [products]);
 
-  const handleEditProduct = useCallback(async (id: string, product: Omit<Brinquedo, "id">) => {
+  const handleEditProduct = useCallback(async (product: Omit<Brinquedo, "id">, id: string) => {
     try {
-      // Lógica para editar produto (implementar quando necessário)
-      toast.success("Produto atualizado com sucesso!");
+      const formData = new FormData();
+      formData.append('nome', product.nome);
+      formData.append('descricao', product.descricao || '');
+      formData.append('preco', product.preco.toString());
+      formData.append('estoque', product.estoque.toString());
+      formData.append('categoria_id', product.categoria);
+      formData.append('condicao', product.condicao);
+      formData.append('raro', product.raro.toString());
+
+      if (product.imagem && product.imagem.startsWith('data:image')) {
+        const blob = await fetch(product.imagem).then(r => r.blob());
+        formData.append('imagem', blob, 'produto.jpg');
+      }
+
+      const response = await axios.put<RespostaApi<Brinquedo>>(`${API_URL}/produtos/${id}`, formData, {
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      if (response.data.sucesso && response.data.dados) {
+        setProducts(products.map(p => p.id === id ? response.data.dados! : p));
+        toast.success("Produto atualizado com sucesso!");
+      } else {
+        toast.error(response.data.erro || "Erro ao atualizar produto");
+      }
     } catch (error) {
       console.error("Erro ao editar produto:", error);
       toast.error("Erro ao editar produto. Tente novamente mais tarde.");
     }
-  }, []);
+  }, [products]);
 
   useEffect(() => {
     fetchProducts();
@@ -98,10 +123,8 @@ export function useProducts() {
   return {
     products,
     loading,
-    dialogOpen,
-    setDialogOpen,
     handleAddProduct,
-    handleDeleteProduct,
-    handleEditProduct
+    handleEditProduct,
+    handleDeleteProduct
   };
 }

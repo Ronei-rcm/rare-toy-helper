@@ -6,32 +6,35 @@ import { LoadingSpinner } from "./products/LoadingSpinner";
 import { ProductActions } from "./products/ProductActions";
 import { ProductList } from "./products/ProductList";
 import AddProductDialog from "./AddProductDialog";
+import { EditProductDialog } from "./products/EditProductDialog";
 
 export function ProductsManager() {
   const {
     products,
     loading,
-    dialogOpen,
-    setDialogOpen,
     handleAddProduct,
+    handleEditProduct,
     handleDeleteProduct
   } = useProducts();
   
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Brinquedo | null>(null);
 
-  const handleEditProduct = (product: Brinquedo) => {
+  const handleOpenEditDialog = (product: Brinquedo) => {
     setSelectedProduct(product);
-    setDialogOpen(true);
+    setEditDialogOpen(true);
   };
 
-  const handleCloseDialog = () => {
+  const handleCloseDialogs = () => {
     setSelectedProduct(null);
-    setDialogOpen(false);
+    setAddDialogOpen(false);
+    setEditDialogOpen(false);
   };
 
   return (
     <div className="space-y-4">
-      <ProductActions onAddProduct={() => setDialogOpen(true)} />
+      <ProductActions onAddProduct={() => setAddDialogOpen(true)} />
 
       {loading ? (
         <LoadingSpinner />
@@ -39,14 +42,21 @@ export function ProductsManager() {
         <ProductList 
           products={products} 
           onDeleteProduct={handleDeleteProduct} 
-          onEditProduct={handleEditProduct}
+          onEditProduct={handleOpenEditDialog}
         />
       )}
 
       <AddProductDialog
-        open={dialogOpen}
-        onClose={handleCloseDialog}
+        open={addDialogOpen}
+        onClose={handleCloseDialogs}
         onSubmit={handleAddProduct}
+        product={null}
+      />
+
+      <EditProductDialog
+        open={editDialogOpen}
+        onClose={handleCloseDialogs}
+        onSubmit={handleEditProduct}
         product={selectedProduct}
       />
     </div>

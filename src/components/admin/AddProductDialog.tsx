@@ -37,6 +37,8 @@ const formSchema = z.object({
     message: "Categoria é obrigatória.",
   }),
   imagem: z.string().optional(),
+  condicao: z.string().default("novo"),
+  raro: z.boolean().default(false),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -62,6 +64,8 @@ export default function AddProductDialog({
     estoque: 0,
     categoria: '',
     imagem: '',
+    condicao: 'novo',
+    raro: false
   });
 
   const form = useForm<FormValues>({
@@ -78,6 +82,8 @@ export default function AddProductDialog({
       estoque: 0,
       categoria: '',
       imagem: '',
+      condicao: 'novo',
+      raro: false
     });
     form.reset(formValues);
   };
@@ -92,6 +98,8 @@ export default function AddProductDialog({
         estoque: product.estoque,
         categoria: product.categoria,
         imagem: product.imagem || '',
+        condicao: product.condicao || 'novo',
+        raro: product.raro || false
       });
     } else {
       resetForm();
@@ -101,7 +109,7 @@ export default function AddProductDialog({
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
-      // Fix: Replace validate with handleSubmit and manual validation
+      // Replace validate with handleSubmit and manual validation
       const isValid = await form.trigger();
       const values = form.getValues();
 
@@ -113,6 +121,8 @@ export default function AddProductDialog({
           estoque: values.estoque,
           categoria: values.categoria,
           imagem: values.imagem || '',
+          condicao: values.condicao,
+          raro: values.raro
         };
         
         onSubmit(newProduct);

@@ -6,9 +6,9 @@ import {
   CarouselItem,
   CarouselPrevious,
   CarouselNext
-} from '@/components/ui/carousel';
-import { CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { CarouselSlide } from '@/types/carousel';
+} from '../../ui/carousel';
+import { CardHeader, CardTitle, CardDescription, CardContent } from '../../ui/card';
+import { CarouselSlide } from '../../../types/carousel';
 
 interface CarouselPreviewProps {
   slides: CarouselSlide[];

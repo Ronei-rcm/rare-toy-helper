@@ -1,17 +1,18 @@
+
 import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Brinquedo } from "@/types";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Textarea } from "../ui/textarea";
+import { Brinquedo } from "../../types";
 
 const categoryOptions = [
   { value: "bonecas", label: "Bonecas" },
@@ -100,9 +101,11 @@ export default function AddProductDialog({
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
-      const values = await form.validate({ ...formValues });
+      // Fix: Replace validate with handleSubmit and manual validation
+      const isValid = await form.trigger();
+      const values = form.getValues();
 
-      if (values) {
+      if (isValid) {
         const newProduct: Omit<Brinquedo, "id"> = {
           nome: values.nome,
           descricao: values.descricao,

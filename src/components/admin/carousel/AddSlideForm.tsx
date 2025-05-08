@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Trash, Upload } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { DialogFooter } from '@/components/ui/dialog';
-import { CarouselSlide } from '@/types/carousel';
+import { Button } from '../../ui/button';
+import { Input } from '../../ui/input';
+import { Label } from '../../ui/label';
+import { DialogFooter } from '../../ui/dialog';
+import { CarouselSlide } from '../../../types/carousel';
 
 interface AddSlideFormProps {
   onAddSlide: (slide: Omit<CarouselSlide, 'id'>) => void;

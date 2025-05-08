@@ -15,7 +15,7 @@ import {
 import { AddSlideForm } from './carousel/AddSlideForm';
 import { CarouselPreview } from './carousel/CarouselPreview';
 import { SlidesList } from './carousel/SlidesList';
-import { CarouselSlide } from '@/types/carousel';
+import { CarouselSlide } from '../../types/carousel';
 
 // Mock inicial de slides (deve ser substituído por dados do backend)
 const initialSlides: CarouselSlide[] = [

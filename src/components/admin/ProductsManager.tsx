@@ -1,115 +1,53 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { toast } from "sonner";
-import { Brinquedo, RespostaApi } from "../../types";
-import { API_URL, getAuthHeaders } from "../../config/api";
-import ProductList from "./ProductList";
+
+import { useState } from "react";
+import { useProducts } from "../../hooks/useProducts";
+import { Brinquedo } from "../../types";
+import { LoadingSpinner } from "./products/LoadingSpinner";
+import { ProductActions } from "./products/ProductActions";
+import { ProductList } from "./products/ProductList";
 import AddProductDialog from "./AddProductDialog";
-import { Button } from "../ui/button";
-import { Plus } from "lucide-react";
 
 export function ProductsManager() {
-  const [products, setProducts] = useState<Brinquedo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const {
+    products,
+    loading,
+    dialogOpen,
+    setDialogOpen,
+    handleAddProduct,
+    handleDeleteProduct
+  } = useProducts();
+  
+  const [selectedProduct, setSelectedProduct] = useState<Brinquedo | null>(null);
 
-  const fetchProducts = async () => {
-    try {
-      const response = await axios.get<RespostaApi<Brinquedo[]>>(`${API_URL}/produtos`, {
-        headers: getAuthHeaders()
-      });
-
-      if (response.data.sucesso && response.data.dados) {
-        setProducts(response.data.dados);
-      } else {
-        toast.error(response.data.erro || "Erro ao carregar produtos");
-      }
-    } catch (error) {
-      console.error("Erro ao buscar produtos:", error);
-      toast.error("Erro ao carregar produtos. Tente novamente mais tarde.");
-    } finally {
-      setLoading(false);
-    }
+  const handleEditProduct = (product: Brinquedo) => {
+    setSelectedProduct(product);
+    setDialogOpen(true);
   };
 
-  const handleAddProduct = async (product: Omit<Brinquedo, "id">) => {
-    try {
-      const formData = new FormData();
-      formData.append('nome', product.nome);
-      formData.append('descricao', product.descricao || '');
-      formData.append('preco', product.preco.toString());
-      formData.append('estoque', product.estoque.toString());
-      formData.append('categoria_id', product.categoria);
-
-      if (product.imagem && product.imagem.startsWith('data:image')) {
-        const blob = await fetch(product.imagem).then(r => r.blob());
-        formData.append('imagem', blob, 'produto.jpg');
-      }
-
-      const response = await axios.post<RespostaApi<Brinquedo>>(`${API_URL}/produtos`, formData, {
-        headers: {
-          ...getAuthHeaders(),
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      if (response.data.sucesso && response.data.dados) {
-        setProducts([...products, response.data.dados]);
-        toast.success("Produto adicionado com sucesso!");
-        setDialogOpen(false);
-      } else {
-        toast.error(response.data.erro || "Erro ao adicionar produto");
-      }
-    } catch (error) {
-      console.error("Erro ao adicionar produto:", error);
-      toast.error("Erro ao adicionar produto. Tente novamente mais tarde.");
-    }
+  const handleCloseDialog = () => {
+    setSelectedProduct(null);
+    setDialogOpen(false);
   };
-
-  const handleDeleteProduct = async (id: string) => {
-    try {
-      const response = await axios.delete<RespostaApi<void>>(`${API_URL}/produtos/${id}`, {
-        headers: getAuthHeaders()
-      });
-
-      if (response.data.sucesso) {
-        setProducts(products.filter(p => p.id !== id));
-        toast.success("Produto removido com sucesso!");
-      } else {
-        toast.error(response.data.erro || "Erro ao remover produto");
-      }
-    } catch (error) {
-      console.error("Erro ao remover produto:", error);
-      toast.error("Erro ao remover produto. Tente novamente mais tarde.");
-    }
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Produtos</h2>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Adicionar Produto
-        </Button>
-      </div>
+      <ProductActions onAddProduct={() => setDialogOpen(true)} />
 
       {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
+        <LoadingSpinner />
       ) : (
-        <ProductList products={products} onDelete={handleDeleteProduct} />
+        <ProductList 
+          products={products} 
+          onDeleteProduct={handleDeleteProduct} 
+          onEditProduct={handleEditProduct}
+        />
       )}
 
       <AddProductDialog
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={handleCloseDialog}
         onSubmit={handleAddProduct}
+        product={selectedProduct}
       />
     </div>
   );

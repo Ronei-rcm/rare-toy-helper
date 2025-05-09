@@ -24,14 +24,16 @@ const initialSlides: CarouselSlide[] = [
     title: 'Promoção de Brinquedos',
     description: 'Confira nossos descontos especiais',
     imageUrl: 'https://images.unsplash.com/photo-1558507845-2638ecb28c7e',
-    link: '/promotions'
+    link: '/promotions',
+    active: true
   },
   {
     id: '2',
     title: 'Colecionáveis Raros',
     description: 'Novas aquisições para sua coleção',
     imageUrl: 'https://images.unsplash.com/photo-1561149877-84d268ba65b8',
-    link: '/new-arrivals'
+    link: '/new-arrivals',
+    active: false
   }
 ];
 

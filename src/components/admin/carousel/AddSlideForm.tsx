@@ -18,7 +18,8 @@ export const AddSlideForm = ({ onAddSlide, onCancel }: AddSlideFormProps) => {
     title: '',
     description: '',
     imageUrl: '',
-    link: ''
+    link: '',
+    active: false
   });
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 

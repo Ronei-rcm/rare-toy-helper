@@ -17,7 +17,7 @@ import { CarouselPreview } from './carousel/CarouselPreview';
 import { SlidesList } from './carousel/SlidesList';
 import { CarouselSlide } from '../../types/carousel';
 
-// Mock inicial de slides (deve ser substituído por dados do backend)
+// Mock inicial de slides
 const initialSlides: CarouselSlide[] = [
   {
     id: '1',
@@ -33,36 +33,64 @@ const initialSlides: CarouselSlide[] = [
     description: 'Novas aquisições para sua coleção',
     imageUrl: 'https://images.unsplash.com/photo-1561149877-84d268ba65b8',
     link: '/new-arrivals',
-    active: false
+    active: true
   }
 ];
 
 const CarouselManager = () => {
   const [slides, setSlides] = useState<CarouselSlide[]>(initialSlides);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   
-  // Simulação de carregamento de slides do backend
   useEffect(() => {
-    // Aqui seria implementada a chamada API para buscar slides
-    // Por enquanto, usamos os slides iniciais
     console.log('Carregando slides do carrossel');
   }, []);
 
-  // Funções para gerenciar slides
-  const handleAddSlide = (newSlideData: Omit<CarouselSlide, 'id'>) => {
-    const slide: CarouselSlide = {
-      ...newSlideData,
-      id: Date.now().toString()
-    };
+  const handleAddSlide = async (newSlideData: Omit<CarouselSlide, 'id'>) => {
+    try {
+      setLoading(true);
+      
+      const slide: CarouselSlide = {
+        ...newSlideData,
+        id: Date.now().toString()
+      };
 
-    setSlides([...slides, slide]);
-    setIsDialogOpen(false);
-    toast.success('Slide adicionado com sucesso!');
+      setSlides(prevSlides => [...prevSlides, slide]);
+      setIsDialogOpen(false);
+      toast.success('Slide adicionado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao adicionar slide:', error);
+      toast.error('Erro ao adicionar slide. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRemoveSlide = (id: string) => {
-    setSlides(slides.filter(slide => slide.id !== id));
-    toast.success('Slide removido com sucesso!');
+  const handleRemoveSlide = async (id: string) => {
+    try {
+      setLoading(true);
+      setSlides(prevSlides => prevSlides.filter(slide => slide.id !== id));
+      toast.success('Slide removido com sucesso!');
+    } catch (error) {
+      console.error('Erro ao remover slide:', error);
+      toast.error('Erro ao remover slide. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleToggleSlideStatus = async (id: string) => {
+    try {
+      setSlides(prevSlides => 
+        prevSlides.map(slide => 
+          slide.id === id ? { ...slide, active: !slide.active } : slide
+        )
+      );
+      toast.success('Status do slide atualizado!');
+    } catch (error) {
+      console.error('Erro ao atualizar status do slide:', error);
+      toast.error('Erro ao atualizar status. Tente novamente.');
+    }
   };
 
   return (
@@ -77,7 +105,7 @@ const CarouselManager = () => {
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button disabled={loading}>
               <Plus className="mr-2 h-4 w-4" />
               Adicionar Slide
             </Button>
@@ -92,7 +120,8 @@ const CarouselManager = () => {
             
             <AddSlideForm 
               onAddSlide={handleAddSlide} 
-              onCancel={() => setIsDialogOpen(false)} 
+              onCancel={() => setIsDialogOpen(false)}
+              loading={loading}
             />
           </DialogContent>
         </Dialog>
@@ -100,7 +129,7 @@ const CarouselManager = () => {
       
       {/* Prévia do carrossel */}
       <Card>
-        <CarouselPreview slides={slides} />
+        <CarouselPreview slides={slides.filter(slide => slide.active)} />
       </Card>
       
       {/* Lista de slides */}
@@ -115,6 +144,8 @@ const CarouselManager = () => {
           <SlidesList 
             slides={slides} 
             onRemoveSlide={handleRemoveSlide}
+            onToggleStatus={handleToggleSlideStatus}
+            loading={loading}
           />
         </CardContent>
       </Card>

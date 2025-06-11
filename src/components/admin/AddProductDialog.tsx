@@ -1,52 +1,19 @@
 
-import { useState, useEffect } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
-
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Textarea } from "../ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Checkbox } from "../ui/checkbox";
 import { Brinquedo } from "../../types";
-
-const categoryOptions = [
-  { value: "bonecas", label: "Bonecas" },
-  { value: "carrinhos", label: "Carrinhos" },
-  { value: "jogos", label: "Jogos" },
-  { value: "pelucias", label: "Pelúcias" },
-  { value: "outros", label: "Outros" },
-];
-
-const formSchema = z.object({
-  nome: z.string().min(2, {
-    message: "Nome deve ter pelo menos 2 caracteres.",
-  }),
-  descricao: z.string().optional(),
-  preco: z.number().min(0.01, {
-    message: "Preço deve ser maior que zero.",
-  }),
-  estoque: z.number().min(0, {
-    message: "Estoque não pode ser negativo.",
-  }),
-  categoria: z.string().min(1, {
-    message: "Categoria é obrigatória.",
-  }),
-  imagem: z.string().optional(),
-  condicao: z.string().default("novo"),
-  raro: z.boolean().default(false),
-});
-
-type FormValues = z.infer<typeof formSchema>;
 
 interface AddProductDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (product: Omit<Brinquedo, "id">) => void;
+  onSubmit: (product: Omit<Brinquedo, "id">, id?: string) => void;
   product?: Brinquedo | null;
 }
 
@@ -56,243 +23,205 @@ export default function AddProductDialog({
   onSubmit, 
   product 
 }: AddProductDialogProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formValues, setFormValues] = useState<FormValues>({
-    nome: '',
-    descricao: '',
-    preco: 0,
-    estoque: 0,
-    categoria: '',
-    imagem: '',
-    condicao: 'novo',
-    raro: false
+  const [formData, setFormData] = useState({
+    nome: product?.nome || "",
+    preco: product?.preco || 0,
+    imagem: product?.imagem || "",
+    categoria: product?.categoria || "",
+    descricao: product?.descricao || "",
+    estoque: product?.estoque || 0,
+    condicao: product?.condicao || "good" as const,
+    raro: product?.raro || false
   });
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: formValues,
-    mode: "onChange"
-  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!formData.nome.trim()) {
+      newErrors.nome = "Nome é obrigatório";
+    }
+    
+    if (formData.preco <= 0) {
+      newErrors.preco = "Preço deve ser maior que zero";
+    }
+    
+    if (!formData.imagem.trim()) {
+      newErrors.imagem = "URL da imagem é obrigatória";
+    }
+    
+    if (!formData.categoria.trim()) {
+      newErrors.categoria = "Categoria é obrigatória";
+    }
+
+    if (formData.estoque < 0) {
+      newErrors.estoque = "Estoque não pode ser negativo";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      toast.error("Por favor, corrija os erros no formulário");
+      return;
+    }
+
+    onSubmit(formData, product?.id);
+    onClose();
+    resetForm();
+  };
 
   const resetForm = () => {
-    setFormValues({
-      nome: '',
-      descricao: '',
+    setFormData({
+      nome: "",
       preco: 0,
+      imagem: "",
+      categoria: "",
+      descricao: "",
       estoque: 0,
-      categoria: '',
-      imagem: '',
-      condicao: 'novo',
+      condicao: "good",
       raro: false
     });
-    form.reset(formValues);
-  };
-  
-  // Atualiza o formulário quando um produto é passado para edição
-  useEffect(() => {
-    if (product) {
-      setFormValues({
-        nome: product.nome,
-        descricao: product.descricao || '',
-        preco: product.preco,
-        estoque: product.estoque,
-        categoria: product.categoria,
-        imagem: product.imagem || '',
-        condicao: product.condicao || 'novo',
-        raro: product.raro || false
-      });
-    } else {
-      resetForm();
-    }
-  }, [product]);
-
-  const handleSubmit = async () => {
-    try {
-      setIsSubmitting(true);
-      // Replace validate with handleSubmit and manual validation
-      const isValid = await form.trigger();
-      const values = form.getValues();
-
-      if (isValid) {
-        const newProduct: Omit<Brinquedo, "id"> = {
-          nome: values.nome,
-          descricao: values.descricao,
-          preco: values.preco,
-          estoque: values.estoque,
-          categoria: values.categoria,
-          imagem: values.imagem || '',
-          condicao: values.condicao,
-          raro: values.raro
-        };
-        
-        onSubmit(newProduct);
-        onClose();
-        resetForm();
-      } else {
-        toast.error("Por favor, corrija os erros no formulário.");
-      }
-    } catch (error) {
-      toast.error("Erro ao adicionar produto. Tente novamente.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    setErrors({});
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormValues({ ...formValues, imagem: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+  const handleInputChange = (field: keyof typeof formData, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => {
-      if (!isOpen) onClose();
-    }}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{product ? 'Editar Produto' : 'Adicionar Produto'}</DialogTitle>
-          <DialogDescription>
-            {product 
-              ? 'Edite os detalhes do produto abaixo' 
-              : 'Preencha os detalhes do novo produto abaixo'}
-          </DialogDescription>
+          <DialogTitle>
+            {product ? "Editar Produto" : "Adicionar Novo Produto"}
+          </DialogTitle>
         </DialogHeader>
         
-        <Form {...form}>
-          <div className="grid gap-4 py-4">
-            <FormField
-              control={form.control}
-              name="nome"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nome do produto" {...field} value={formValues.nome} onChange={(e) => setFormValues({ ...formValues, nome: e.target.value })} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-2">
+            <Label htmlFor="nome">Nome *</Label>
+            <Input
+              id="nome"
+              value={formData.nome}
+              onChange={(e) => handleInputChange("nome", e.target.value)}
+              placeholder="Nome do produto"
+              className={errors.nome ? "border-red-500" : ""}
             />
-            <FormField
-              control={form.control}
-              name="descricao"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Descrição do produto"
-                      className="resize-none"
-                      {...field}
-                      value={formValues.descricao}
-                      onChange={(e) => setFormValues({ ...formValues, descricao: e.target.value })}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="preco"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Preço</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
-                      {...field}
-                      value={formValues.preco?.toString()}
-                      onChange={(e) => setFormValues({ ...formValues, preco: parseFloat(e.target.value) })}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="estoque"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Estoque</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      {...field}
-                      value={formValues.estoque?.toString()}
-                      onChange={(e) => setFormValues({ ...formValues, estoque: parseInt(e.target.value) })}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="categoria"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categoria</FormLabel>
-                  <Select onValueChange={(value) => setFormValues({ ...formValues, categoria: value })} defaultValue={formValues.categoria}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione uma categoria" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categoryOptions.map((category) => (
-                        <SelectItem key={category.value} value={category.value}>
-                          {category.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div>
-              <Label htmlFor="image">Imagem</Label>
-              <Input
-                id="image"
-                type="file"
-                onChange={handleImageChange}
-                accept="image/*"
-              />
-              {formValues.imagem && (
-                <img
-                  src={formValues.imagem}
-                  alt="Preview"
-                  className="mt-2 rounded-md object-cover"
-                  style={{ maxWidth: '100px', maxHeight: '100px' }}
-                />
-              )}
-            </div>
+            {errors.nome && <span className="text-red-500 text-sm">{errors.nome}</span>}
           </div>
-        </Form>
-        
-        <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-          <Button type="button" variant="outline" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></span>
-                {product ? 'Salvando...' : 'Adicionando...'}
-              </>
-            ) : (
-              product ? 'Salvar Alterações' : 'Adicionar Produto'
-            )}
-          </Button>
-        </DialogFooter>
+
+          <div className="grid gap-2">
+            <Label htmlFor="preco">Preço *</Label>
+            <Input
+              id="preco"
+              type="number"
+              step="0.01"
+              min="0"
+              value={formData.preco}
+              onChange={(e) => handleInputChange("preco", parseFloat(e.target.value) || 0)}
+              placeholder="0.00"
+              className={errors.preco ? "border-red-500" : ""}
+            />
+            {errors.preco && <span className="text-red-500 text-sm">{errors.preco}</span>}
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="categoria">Categoria *</Label>
+            <Select value={formData.categoria} onValueChange={(value) => handleInputChange("categoria", value)}>
+              <SelectTrigger className={errors.categoria ? "border-red-500" : ""}>
+                <SelectValue placeholder="Selecione uma categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="action-figures">Action Figures</SelectItem>
+                <SelectItem value="bonecas">Bonecas</SelectItem>
+                <SelectItem value="carrinhos">Carrinhos</SelectItem>
+                <SelectItem value="lego">LEGO</SelectItem>
+                <SelectItem value="pelucia">Pelúcia</SelectItem>
+                <SelectItem value="jogos">Jogos</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.categoria && <span className="text-red-500 text-sm">{errors.categoria}</span>}
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="condicao">Condição</Label>
+            <Select value={formData.condicao} onValueChange={(value) => handleInputChange("condicao", value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mint">Mint</SelectItem>
+                <SelectItem value="excellent">Excelente</SelectItem>
+                <SelectItem value="good">Bom</SelectItem>
+                <SelectItem value="fair">Regular</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="estoque">Estoque</Label>
+            <Input
+              id="estoque"
+              type="number"
+              min="0"
+              value={formData.estoque}
+              onChange={(e) => handleInputChange("estoque", parseInt(e.target.value) || 0)}
+              placeholder="0"
+              className={errors.estoque ? "border-red-500" : ""}
+            />
+            {errors.estoque && <span className="text-red-500 text-sm">{errors.estoque}</span>}
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="imagem">URL da Imagem *</Label>
+            <Input
+              id="imagem"
+              value={formData.imagem}
+              onChange={(e) => handleInputChange("imagem", e.target.value)}
+              placeholder="https://exemplo.com/imagem.jpg"
+              className={errors.imagem ? "border-red-500" : ""}
+            />
+            {errors.imagem && <span className="text-red-500 text-sm">{errors.imagem}</span>}
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="descricao">Descrição</Label>
+            <Textarea
+              id="descricao"
+              value={formData.descricao}
+              onChange={(e) => handleInputChange("descricao", e.target.value)}
+              placeholder="Descrição do produto"
+              rows={3}
+            />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="raro"
+              checked={formData.raro}
+              onCheckedChange={(checked) => handleInputChange("raro", checked)}
+            />
+            <Label htmlFor="raro">Item raro</Label>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancelar
+            </Button>
+            <Button type="submit">
+              {product ? "Atualizar" : "Adicionar"} Produto
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

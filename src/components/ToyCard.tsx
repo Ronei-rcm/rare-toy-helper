@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -10,7 +11,7 @@ import {
   TooltipTrigger
 } from "../components/ui/tooltip";
 import { Badge } from "../components/ui/badge";
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 
 export interface ToyItem {
   id: string;

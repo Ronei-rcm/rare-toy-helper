@@ -53,6 +53,10 @@ export const router = createBrowserRouter([
     element: <Cart />,
   },
   {
+    path: "/carrinho",
+    element: <Navigate to="/cart" replace />,
+  },
+  {
     path: "*",
     element: <NotFound />,
   },

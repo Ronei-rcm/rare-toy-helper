@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -11,6 +10,7 @@ import {
   TooltipTrigger
 } from "../components/ui/tooltip";
 import { Badge } from "../components/ui/badge";
+import { toast } from 'react-toastify';
 
 export interface ToyItem {
   id: string;
@@ -34,6 +34,8 @@ interface ToyCardProps {
 const ToyCard = ({ toy, priority = false }: ToyCardProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isAddingToWishlist, setIsAddingToWishlist] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   // Intersection Observer to check if card is in viewport
@@ -65,6 +67,32 @@ const ToyCard = ({ toy, priority = false }: ToyCardProps) => {
     }
   };
 
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setIsAddingToCart(true);
+    
+    // Simular adição ao carrinho
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    setIsAddingToCart(false);
+    toast.success(`${toy.name} adicionado ao carrinho!`);
+  };
+
+  const handleAddToWishlist = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setIsAddingToWishlist(true);
+    
+    // Simular adição à lista de desejos
+    await new Promise(resolve => setTimeout(resolve, 600));
+    
+    setIsAddingToWishlist(false);
+    toast.success(`${toy.name} adicionado à lista de desejos!`);
+  };
+
   return (
     <motion.div
       ref={cardRef}
@@ -89,31 +117,51 @@ const ToyCard = ({ toy, priority = false }: ToyCardProps) => {
           
           {/* "Rare" badge if applicable */}
           {toy.isRare && (
-            <Badge variant="default" className="absolute top-2 left-2 z-20 bg-primary text-primary-foreground">
-              Rare
+            <Badge variant="default" className="absolute top-2 left-2 z-20 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+              ⭐ Raro
             </Badge>
           )}
           
           {/* Year badge if available */}
           {toy.year && (
-            <Badge variant="outline" className="absolute top-2 right-2 z-20 bg-white/70 backdrop-blur-sm">
+            <Badge variant="outline" className="absolute top-2 right-2 z-20 bg-white/90 backdrop-blur-sm">
               {toy.year}
             </Badge>
           )}
         </Link>
         
-        {/* Quick action buttons */}
-        <div className="absolute right-2 bottom-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        {/* Quick action buttons com melhorias */}
+        <motion.div 
+          className="absolute right-3 bottom-3 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300"
+          initial={{ scale: 0.8, y: 10 }}
+          animate={{ 
+            scale: 1, 
+            y: 0,
+            opacity: 0
+          }}
+          whileHover={{ scale: 1.05 }}
+        >
           <div className="flex flex-col gap-2">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="secondary" size="icon" className="h-8 w-8 bg-white/80 backdrop-blur-sm hover:bg-white">
-                    <Heart className="h-4 w-4 text-gray-700" />
-                  </Button>
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <Button 
+                      variant="secondary" 
+                      size="icon" 
+                      className="h-10 w-10 bg-white/95 backdrop-blur-sm hover:bg-white shadow-lg"
+                      onClick={handleAddToWishlist}
+                      disabled={isAddingToWishlist}
+                    >
+                      <Heart className={`h-4 w-4 ${isAddingToWishlist ? 'animate-pulse text-red-500' : 'text-gray-700'}`} />
+                    </Button>
+                  </motion.div>
                 </TooltipTrigger>
                 <TooltipContent side="left">
-                  <p>Add to wishlist</p>
+                  <p>Adicionar aos favoritos</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -121,12 +169,23 @@ const ToyCard = ({ toy, priority = false }: ToyCardProps) => {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="secondary" size="icon" className="h-8 w-8 bg-white/80 backdrop-blur-sm hover:bg-white">
-                    <ShoppingCart className="h-4 w-4 text-gray-700" />
-                  </Button>
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <Button 
+                      variant="secondary" 
+                      size="icon" 
+                      className="h-10 w-10 bg-primary text-white hover:bg-primary/90 shadow-lg"
+                      onClick={handleAddToCart}
+                      disabled={isAddingToCart}
+                    >
+                      <ShoppingCart className={`h-4 w-4 ${isAddingToCart ? 'animate-bounce' : ''}`} />
+                    </Button>
+                  </motion.div>
                 </TooltipTrigger>
                 <TooltipContent side="left">
-                  <p>Add to cart</p>
+                  <p>Adicionar ao carrinho</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -135,18 +194,23 @@ const ToyCard = ({ toy, priority = false }: ToyCardProps) => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Link to={`/toy/${toy.id}`}>
-                    <Button variant="secondary" size="icon" className="h-8 w-8 bg-white/80 backdrop-blur-sm hover:bg-white">
-                      <Eye className="h-4 w-4 text-gray-700" />
-                    </Button>
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <Button variant="secondary" size="icon" className="h-10 w-10 bg-white/95 backdrop-blur-sm hover:bg-white shadow-lg">
+                        <Eye className="h-4 w-4 text-gray-700" />
+                      </Button>
+                    </motion.div>
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent side="left">
-                  <p>Quick view</p>
+                  <p>Ver detalhes</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
-        </div>
+        </motion.div>
       </div>
       
       <div className="p-4">
@@ -165,18 +229,31 @@ const ToyCard = ({ toy, priority = false }: ToyCardProps) => {
           </Badge>
         </div>
         
-        <div className="mt-3 flex items-center justify-between">
-          <div className="flex items-baseline gap-1">
-            <span className="font-medium">${toy.price.toFixed(2)}</span>
+        <div className="mt-4 flex items-center justify-between">
+          <div className="flex items-baseline gap-2">
+            <span className="text-xl font-bold text-primary">${toy.price.toFixed(2)}</span>
             {toy.originalPrice && (
-              <span className="text-xs text-gray-500 line-through">${toy.originalPrice.toFixed(2)}</span>
+              <span className="text-sm text-gray-500 line-through">${toy.originalPrice.toFixed(2)}</span>
             )}
           </div>
           
-          <Button variant="ghost" size="sm" className="h-8 px-2">
-            <ShoppingCart className="h-4 w-4 mr-1" />
-            <span className="text-xs">Add</span>
-          </Button>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="h-9 px-4 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+              onClick={handleAddToCart}
+              disabled={isAddingToCart}
+            >
+              <ShoppingCart className="h-4 w-4" />
+              <span className="text-sm font-medium">
+                {isAddingToCart ? 'Adicionando...' : 'Comprar'}
+              </span>
+            </Button>
+          </motion.div>
         </div>
       </div>
     </motion.div>

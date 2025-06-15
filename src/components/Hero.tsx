@@ -1,8 +1,8 @@
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "./ui/button";
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const slides = [
@@ -10,29 +10,37 @@ const slides = [
     id: 1,
     title: "Brinquedos Sustentáveis",
     subtitle: "Ótimos para o planeta e suas crianças",
+    description: "Descubra nossa coleção de brinquedos eco-friendly que unem diversão e responsabilidade ambiental",
     image: "public/lovable-uploads/ef893baa-5a20-4b2d-8e1e-4ec8226bd668.png",
-    link: "/about"
+    link: "/about",
+    color: "from-green-600/80 to-emerald-800/80"
   },
   {
     id: 2,
     title: "Colecionáveis Hot Wheels",
     subtitle: "Carrinhos em miniatura para colecionadores",
+    description: "A maior coleção de Hot Wheels raros e edições limitadas do Brasil",
     image: "public/lovable-uploads/748d6bb0-e064-49e7-ad36-a6c2ae92aeb6.png",
-    link: "/categories/carros"
+    link: "/categories/carros",
+    color: "from-red-600/80 to-orange-800/80"
   },
   {
     id: 3,
-    title: "Economia",
+    title: "Economia Inteligente",
     subtitle: "Compre mais com menos",
+    description: "Ofertas imperdíveis em brinquedos de qualidade com até 70% de desconto",
     image: "public/lovable-uploads/5c56d1fe-9643-459e-8e80-e5e23b7afb89.png",
-    link: "/collection"
+    link: "/collection",
+    color: "from-blue-600/80 to-purple-800/80"
   },
   {
     id: 4,
-    title: "Star Wars",
-    subtitle: "Melhores colecionáveis",
+    title: "Star Wars Collection",
+    subtitle: "Melhores colecionáveis da galáxia",
+    description: "Action figures, naves e itens únicos do universo Star Wars",
     image: "public/lovable-uploads/a0458ab2-6365-4b6c-bfde-fe7108a451d5.png",
-    link: "/categories/action-figures"
+    link: "/categories/action-figures",
+    color: "from-gray-900/80 to-black/80"
   }
 ];
 
@@ -45,7 +53,7 @@ const Hero = () => {
     
     const interval = setInterval(() => {
       setCurrent((current) => (current === slides.length - 1 ? 0 : current + 1));
-    }, 5000);
+    }, 6000);
     
     return () => clearInterval(interval);
   }, [isHovering]);
@@ -60,91 +68,152 @@ const Hero = () => {
 
   return (
     <section 
-      className="relative h-[85vh] mt-16 overflow-hidden" // Adicionado mt-16 para mover para baixo
+      className="relative h-[90vh] mt-16 overflow-hidden rounded-b-3xl"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      <div className="absolute top-0 left-0 right-0 bg-primary/50 text-white py-2 z-30 text-center">
-        <p className="text-sm md:text-base px-4 font-medium">
+      {/* Top announcement bar */}
+      <motion.div 
+        className="absolute top-0 left-0 right-0 bg-gradient-to-r from-primary/90 to-primary text-white py-3 z-30 text-center"
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <p className="text-sm md:text-base px-4 font-medium flex items-center justify-center gap-2">
+          <Play className="h-4 w-4" />
           MUHL STORE - Brinquedos com histórias e emoções
         </p>
-      </div>
+      </motion.div>
       
-      {slides.map((slide, index) => (
-        index === current && (
-          <motion.div
-            key={slide.id}
-            className="absolute inset-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent z-10" />
-            <img 
-              src={slide.image} 
-              alt={slide.title} 
-              className="h-full w-full object-cover" // Removido object-bottom para centralizar
-            />
-            
-            <div className="absolute inset-0 z-20 flex items-end pb-12 md:items-center">
-              <div className="container mx-auto px-4">
-                <motion.div
-                  className="max-w-lg bg-black/40 p-6 rounded-lg"
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={slides[current].id}
+          className="absolute inset-0"
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
+        >
+          <div className={`absolute inset-0 bg-gradient-to-r ${slides[current].color} z-10`} />
+          <img 
+            src={slides[current].image} 
+            alt={slides[current].title} 
+            className="h-full w-full object-cover"
+          />
+          
+          <div className="absolute inset-0 z-20 flex items-center">
+            <div className="container mx-auto px-4">
+              <motion.div
+                className="max-w-2xl"
+                initial={{ opacity: 0, x: -100 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+              >
+                <motion.h1 
+                  className="text-4xl sm:text-6xl font-bold text-white mb-4 leading-tight"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                >
+                  {slides[current].title}
+                </motion.h1>
+                
+                <motion.p 
+                  className="text-xl sm:text-2xl text-white/90 mb-3 font-medium"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7 }}
+                  transition={{ duration: 0.6, delay: 0.5 }}
                 >
-                  <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    {slide.title}
-                  </h1>
-                  <p className="text-lg text-gray-200 mb-6">
-                    {slide.subtitle}
-                  </p>
-                  <Link to={slide.link}>
-                    <Button className="group">
-                      Ver mais
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  {slides[current].subtitle}
+                </motion.p>
+                
+                <motion.p 
+                  className="text-lg text-white/80 mb-8 leading-relaxed"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.6 }}
+                >
+                  {slides[current].description}
+                </motion.p>
+                
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.7 }}
+                  className="flex gap-4"
+                >
+                  <Link to={slides[current].link}>
+                    <Button size="lg" className="group bg-white text-black hover:bg-white/90 px-8 py-3 text-lg font-semibold rounded-full shadow-xl">
+                      Explorar Coleção
+                      <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                     </Button>
                   </Link>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    className="border-white/30 text-white hover:bg-white/10 px-8 py-3 text-lg rounded-full backdrop-blur-sm"
+                    asChild
+                  >
+                    <Link to="/about">Saiba Mais</Link>
+                  </Button>
                 </motion.div>
-              </div>
+              </motion.div>
             </div>
-          </motion.div>
-        )
-      ))}
+          </div>
+        </motion.div>
+      </AnimatePresence>
       
-      <div className="absolute bottom-10 left-0 right-0 z-30 flex justify-center space-x-2">
+      {/* Slide indicators */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex space-x-3">
         {slides.map((_, index) => (
-          <button
+          <motion.button
             key={index}
             onClick={() => setCurrent(index)}
-            className={`h-2 rounded-full transition-all ${
-              index === current ? 'w-8 bg-white' : 'w-2 bg-white/50'
+            className={`h-3 rounded-full transition-all duration-300 ${
+              index === current ? 'w-12 bg-white shadow-lg' : 'w-3 bg-white/50 hover:bg-white/70'
             }`}
-            aria-label={`Go to slide ${index + 1}`}
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.9 }}
+            aria-label={`Ir para slide ${index + 1}`}
           />
         ))}
       </div>
       
-      <div className="absolute bottom-10 right-10 z-30 flex space-x-2">
-        <Button
-          variant="outline" 
-          size="icon" 
-          onClick={prevSlide}
-          className="h-10 w-10 rounded-full bg-white/20 border-white/30 text-white hover:bg-white/30"
+      {/* Navigation arrows */}
+      <div className="absolute bottom-8 right-8 z-30 flex space-x-3">
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
         >
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-        <Button 
-          variant="outline" 
-          size="icon" 
-          onClick={nextSlide}
-          className="h-10 w-10 rounded-full bg-white/20 border-white/30 text-white hover:bg-white/30"
+          <Button
+            variant="outline" 
+            size="icon" 
+            onClick={prevSlide}
+            className="h-12 w-12 rounded-full bg-white/20 border-white/30 text-white hover:bg-white/30 backdrop-blur-sm shadow-lg"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+        </motion.div>
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
         >
-          <ChevronRight className="h-5 w-5" />
-        </Button>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={nextSlide}
+            className="h-12 w-12 rounded-full bg-white/20 border-white/30 text-white hover:bg-white/30 backdrop-blur-sm shadow-lg"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </Button>
+        </motion.div>
       </div>
+
+      {/* Floating elements for visual appeal */}
+      <div className="absolute top-20 right-10 w-20 h-20 bg-white/10 rounded-full backdrop-blur-sm animate-pulse" />
+      <div className="absolute top-40 right-32 w-12 h-12 bg-white/5 rounded-full backdrop-blur-sm animate-bounce" />
+      <div className="absolute bottom-40 left-10 w-16 h-16 bg-white/10 rounded-full backdrop-blur-sm animate-pulse" />
     </section>
   );
 };

@@ -54,6 +54,63 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+  }
+
+  /* Improved accessibility */
+  *:focus {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  *:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Skip link for screen readers */
+  .skip-link {
+    @apply absolute -top-10 left-6 bg-primary text-primary-foreground px-4 py-2 rounded-md z-50 transition-all;
+  }
+
+  .skip-link:focus {
+    @apply top-6;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    :root {
+      --background: 0 0% 100%;
+      --foreground: 0 0% 0%;
+      --border: 0 0% 0%;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Improved responsive typography */
+  html {
+    font-size: 14px;
+  }
+
+  @media (min-width: 640px) {
+    html {
+      font-size: 16px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      font-size: 18px;
+    }
   }
 
   .glass-card {
@@ -64,25 +121,32 @@
     @apply transition-transform duration-300 hover:scale-[1.02];
   }
 
+  /* Improved page transitions */
   .page-transition-enter {
-    @apply opacity-0;
+    @apply opacity-0 transform translate-y-4;
   }
   
   .page-transition-enter-active {
-    @apply opacity-100 transition-opacity duration-300;
+    @apply opacity-100 transform translate-y-0 transition-all duration-300 ease-out;
   }
   
   .page-transition-exit {
-    @apply opacity-100;
+    @apply opacity-100 transform translate-y-0;
   }
   
   .page-transition-exit-active {
-    @apply opacity-0 transition-opacity duration-300;
+    @apply opacity-0 transform translate-y-4 transition-all duration-300 ease-out;
   }
 
-  /* Custom scrollbar */
+  /* Responsive scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
+  }
+
+  @media (min-width: 768px) {
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
   }
   
   ::-webkit-scrollbar-track {
@@ -96,19 +160,53 @@
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-primary/20;
   }
+
+  /* Touch targets for mobile */
+  @media (max-width: 767px) {
+    button, 
+    a, 
+    [role="button"], 
+    [role="link"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
+  /* Line clamping utility */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
 }
 
-/* Image lazy loading styles */
+/* Enhanced image lazy loading styles */
 .blur-up {
   filter: blur(5px);
   transition: filter 0.3s ease-out;
+  will-change: filter;
 }
 
 .blur-up.lazyloaded {
   filter: blur(0);
 }
 
-/* Subtle shine effect for premium look */
+/* Optimized shine effect */
 .shine-effect {
   position: relative;
   overflow: hidden;
@@ -138,5 +236,44 @@
   }
   to {
     transform: translateX(100%) rotate(30deg);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+  }
+}
+
+/* Print styles */
+@media print {
+  * {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  .no-print {
+    display: none !important;
   }
 }

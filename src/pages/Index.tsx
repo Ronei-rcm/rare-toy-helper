@@ -25,12 +25,14 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <NavBar />
       
-      <main className="flex-grow">
+      <main className="flex-grow pt-8">
         {/* Main Carousel */}
         <MainCarousel />
         
         {/* Hero section */}
-        <Hero />
+        <div className="mt-8">
+          <Hero />
+        </div>
         
         {/* Nintendo Characters Banner */}
         <NintendoCharactersBanner />

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Checkbox } from "../ui/checkbox";
 import { Brinquedo } from "../../types";
+import { ImageUploader } from "./ImageUploader";
 
 interface AddProductDialogProps {
   open: boolean;
@@ -48,7 +49,7 @@ export default function AddProductDialog({
     }
     
     if (!formData.imagem.trim()) {
-      newErrors.imagem = "URL da imagem é obrigatória";
+      newErrors.imagem = "Imagem é obrigatória";
     }
     
     if (!formData.categoria.trim()) {
@@ -99,121 +100,131 @@ export default function AddProductDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {product ? "Editar Produto" : "Adicionar Novo Produto"}
           </DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-2">
-            <Label htmlFor="nome">Nome *</Label>
-            <Input
-              id="nome"
-              value={formData.nome}
-              onChange={(e) => handleInputChange("nome", e.target.value)}
-              placeholder="Nome do produto"
-              className={errors.nome ? "border-red-500" : ""}
-            />
-            {errors.nome && <span className="text-red-500 text-sm">{errors.nome}</span>}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="nome">Nome *</Label>
+              <Input
+                id="nome"
+                value={formData.nome}
+                onChange={(e) => handleInputChange("nome", e.target.value)}
+                placeholder="Nome do produto"
+                className={errors.nome ? "border-destructive" : ""}
+              />
+              {errors.nome && <span className="text-destructive text-sm">{errors.nome}</span>}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="preco">Preço *</Label>
+                <Input
+                  id="preco"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.preco}
+                  onChange={(e) => handleInputChange("preco", parseFloat(e.target.value) || 0)}
+                  placeholder="0.00"
+                  className={errors.preco ? "border-destructive" : ""}
+                />
+                {errors.preco && <span className="text-destructive text-sm">{errors.preco}</span>}
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="estoque">Estoque</Label>
+                <Input
+                  id="estoque"
+                  type="number"
+                  min="0"
+                  value={formData.estoque}
+                  onChange={(e) => handleInputChange("estoque", parseInt(e.target.value) || 0)}
+                  placeholder="0"
+                  className={errors.estoque ? "border-destructive" : ""}
+                />
+                {errors.estoque && <span className="text-destructive text-sm">{errors.estoque}</span>}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="categoria">Categoria *</Label>
+                <Select value={formData.categoria} onValueChange={(value) => handleInputChange("categoria", value)}>
+                  <SelectTrigger className={errors.categoria ? "border-destructive" : ""}>
+                    <SelectValue placeholder="Selecione uma categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="action-figures">Action Figures</SelectItem>
+                    <SelectItem value="bonecas">Bonecas</SelectItem>
+                    <SelectItem value="carrinhos">Carrinhos</SelectItem>
+                    <SelectItem value="lego">LEGO</SelectItem>
+                    <SelectItem value="pelucia">Pelúcia</SelectItem>
+                    <SelectItem value="jogos">Jogos</SelectItem>
+                    <SelectItem value="nintendo">Nintendo</SelectItem>
+                    <SelectItem value="pokemon">Pokémon</SelectItem>
+                    <SelectItem value="vintage">Vintage</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.categoria && <span className="text-destructive text-sm">{errors.categoria}</span>}
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="condicao">Condição</Label>
+                <Select value={formData.condicao} onValueChange={(value) => handleInputChange("condicao", value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mint">Mint (Perfeito)</SelectItem>
+                    <SelectItem value="excellent">Excelente</SelectItem>
+                    <SelectItem value="good">Bom</SelectItem>
+                    <SelectItem value="fair">Regular</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid gap-2">
+              <ImageUploader
+                selectedImage={formData.imagem}
+                onImageChange={(imageUrl) => handleInputChange("imagem", imageUrl)}
+                label="Imagem do Produto *"
+              />
+              {errors.imagem && <span className="text-destructive text-sm">{errors.imagem}</span>}
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="descricao">Descrição</Label>
+              <Textarea
+                id="descricao"
+                value={formData.descricao}
+                onChange={(e) => handleInputChange("descricao", e.target.value)}
+                placeholder="Descrição detalhada do produto, condição, história, etc."
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="raro"
+                checked={formData.raro}
+                onCheckedChange={(checked) => handleInputChange("raro", checked)}
+              />
+              <Label htmlFor="raro" className="flex items-center gap-2">
+                Item raro ou colecionável
+                <span className="text-xs text-muted-foreground">(Destaque especial na loja)</span>
+              </Label>
+            </div>
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="preco">Preço *</Label>
-            <Input
-              id="preco"
-              type="number"
-              step="0.01"
-              min="0"
-              value={formData.preco}
-              onChange={(e) => handleInputChange("preco", parseFloat(e.target.value) || 0)}
-              placeholder="0.00"
-              className={errors.preco ? "border-red-500" : ""}
-            />
-            {errors.preco && <span className="text-red-500 text-sm">{errors.preco}</span>}
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="categoria">Categoria *</Label>
-            <Select value={formData.categoria} onValueChange={(value) => handleInputChange("categoria", value)}>
-              <SelectTrigger className={errors.categoria ? "border-red-500" : ""}>
-                <SelectValue placeholder="Selecione uma categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="action-figures">Action Figures</SelectItem>
-                <SelectItem value="bonecas">Bonecas</SelectItem>
-                <SelectItem value="carrinhos">Carrinhos</SelectItem>
-                <SelectItem value="lego">LEGO</SelectItem>
-                <SelectItem value="pelucia">Pelúcia</SelectItem>
-                <SelectItem value="jogos">Jogos</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.categoria && <span className="text-red-500 text-sm">{errors.categoria}</span>}
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="condicao">Condição</Label>
-            <Select value={formData.condicao} onValueChange={(value) => handleInputChange("condicao", value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="mint">Mint</SelectItem>
-                <SelectItem value="excellent">Excelente</SelectItem>
-                <SelectItem value="good">Bom</SelectItem>
-                <SelectItem value="fair">Regular</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="estoque">Estoque</Label>
-            <Input
-              id="estoque"
-              type="number"
-              min="0"
-              value={formData.estoque}
-              onChange={(e) => handleInputChange("estoque", parseInt(e.target.value) || 0)}
-              placeholder="0"
-              className={errors.estoque ? "border-red-500" : ""}
-            />
-            {errors.estoque && <span className="text-red-500 text-sm">{errors.estoque}</span>}
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="imagem">URL da Imagem *</Label>
-            <Input
-              id="imagem"
-              value={formData.imagem}
-              onChange={(e) => handleInputChange("imagem", e.target.value)}
-              placeholder="https://exemplo.com/imagem.jpg"
-              className={errors.imagem ? "border-red-500" : ""}
-            />
-            {errors.imagem && <span className="text-red-500 text-sm">{errors.imagem}</span>}
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="descricao">Descrição</Label>
-            <Textarea
-              id="descricao"
-              value={formData.descricao}
-              onChange={(e) => handleInputChange("descricao", e.target.value)}
-              placeholder="Descrição do produto"
-              rows={3}
-            />
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="raro"
-              checked={formData.raro}
-              onCheckedChange={(checked) => handleInputChange("raro", checked)}
-            />
-            <Label htmlFor="raro">Item raro</Label>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-3 pt-4 border-t">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancelar
             </Button>

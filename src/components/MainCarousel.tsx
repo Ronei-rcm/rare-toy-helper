@@ -11,53 +11,13 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from './ui/carousel';
-
-interface CarouselSlide {
-  id: string;
-  title: string;
-  description?: string;
-  imageUrl: string;
-  link?: string;
-  badge?: string;
-}
-
-// Slides padrão para demonstração
-const defaultSlides: CarouselSlide[] = [
-  {
-    id: '1',
-    title: 'Brinquedos Exclusivos',
-    description: 'Encontre itens raros e únicos para sua coleção especial',
-    imageUrl: 'https://images.unsplash.com/photo-1558507845-2638ecb28c7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
-    link: '/collection',
-    badge: 'Novidade'
-  },
-  {
-    id: '2',
-    title: 'Nostalgia Garantida',
-    description: 'Reviva memórias da infância com brinquedos vintage autênticos',
-    imageUrl: 'https://images.unsplash.com/photo-1561149877-84d268ba65b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
-    link: '/collection/vintage',
-    badge: 'Vintage'
-  },
-  {
-    id: '3',
-    title: 'Colecionáveis Nintendo',
-    description: 'Os personagens que marcaram gerações em action figures únicos',
-    imageUrl: 'https://images.unsplash.com/photo-1558507845-2638ecb28c7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
-    link: '/categories/nintendo',
-    badge: 'Popular'
-  },
-];
+import { useCarousel } from '../contexts/CarouselContext';
 
 const MainCarousel = () => {
-  const [slides, setSlides] = useState<CarouselSlide[]>(defaultSlides);
+  const { getActiveSlides } = useCarousel();
+  const slides = getActiveSlides();
   const [activeSlide, setActiveSlide] = useState(0);
   const [autoPlay, setAutoPlay] = useState(true);
-  
-  // Simular carregamento de slides do backend
-  useEffect(() => {
-    console.log('Carregando slides do carrossel');
-  }, []);
 
   // Autoplay para o carrossel
   useEffect(() => {

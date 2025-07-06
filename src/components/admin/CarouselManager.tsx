@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -15,77 +15,37 @@ import {
 import { AddSlideForm } from './carousel/AddSlideForm';
 import { CarouselPreview } from './carousel/CarouselPreview';
 import { SlidesList } from './carousel/SlidesList';
+import { useCarousel } from '../../contexts/CarouselContext';
 import { CarouselSlide } from '../../types/carousel';
 
-// Mock inicial de slides
-const initialSlides: CarouselSlide[] = [
-  {
-    id: '1',
-    title: 'Promoção de Brinquedos',
-    description: 'Confira nossos descontos especiais',
-    imageUrl: 'https://images.unsplash.com/photo-1558507845-2638ecb28c7e',
-    link: '/promotions',
-    active: true
-  },
-  {
-    id: '2',
-    title: 'Colecionáveis Raros',
-    description: 'Novas aquisições para sua coleção',
-    imageUrl: 'https://images.unsplash.com/photo-1561149877-84d268ba65b8',
-    link: '/new-arrivals',
-    active: true
-  }
-];
-
 const CarouselManager = () => {
-  const [slides, setSlides] = useState<CarouselSlide[]>(initialSlides);
+  const { slides, addSlide, removeSlide, toggleSlideStatus, getActiveSlides, loading } = useCarousel();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  
-  useEffect(() => {
-    console.log('Carregando slides do carrossel');
-  }, []);
 
   const handleAddSlide = async (newSlideData: Omit<CarouselSlide, 'id'>) => {
     try {
-      setLoading(true);
-      
-      const slide: CarouselSlide = {
-        ...newSlideData,
-        id: Date.now().toString()
-      };
-
-      setSlides(prevSlides => [...prevSlides, slide]);
+      addSlide(newSlideData);
       setIsDialogOpen(false);
       toast.success('Slide adicionado com sucesso!');
     } catch (error) {
       console.error('Erro ao adicionar slide:', error);
       toast.error('Erro ao adicionar slide. Tente novamente.');
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleRemoveSlide = async (id: string) => {
     try {
-      setLoading(true);
-      setSlides(prevSlides => prevSlides.filter(slide => slide.id !== id));
+      removeSlide(id);
       toast.success('Slide removido com sucesso!');
     } catch (error) {
       console.error('Erro ao remover slide:', error);
       toast.error('Erro ao remover slide. Tente novamente.');
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleToggleSlideStatus = async (id: string) => {
     try {
-      setSlides(prevSlides => 
-        prevSlides.map(slide => 
-          slide.id === id ? { ...slide, active: !slide.active } : slide
-        )
-      );
+      toggleSlideStatus(id);
       toast.success('Status do slide atualizado!');
     } catch (error) {
       console.error('Erro ao atualizar status do slide:', error);
@@ -129,7 +89,7 @@ const CarouselManager = () => {
       
       {/* Prévia do carrossel */}
       <Card>
-        <CarouselPreview slides={slides.filter(slide => slide.active)} />
+        <CarouselPreview slides={getActiveSlides()} />
       </Card>
       
       {/* Lista de slides */}

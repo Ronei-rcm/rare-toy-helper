@@ -23,6 +23,7 @@ export const AddSlideForm = ({ onAddSlide, onCancel, loading = false }: AddSlide
     description: '',
     imageUrl: '',
     link: '',
+    badge: '',
     active: true
   });
 
@@ -40,6 +41,7 @@ export const AddSlideForm = ({ onAddSlide, onCancel, loading = false }: AddSlide
       description: '',
       imageUrl: '',
       link: '',
+      badge: '',
       active: true
     });
   };
@@ -88,6 +90,21 @@ export const AddSlideForm = ({ onAddSlide, onCancel, loading = false }: AddSlide
         />
         <p className="text-xs text-muted-foreground">
           Link interno para onde o usuário será direcionado ao clicar no slide
+        </p>
+      </div>
+      
+      <div className="grid gap-2">
+        <Label htmlFor="badge">Badge (Opcional)</Label>
+        <Input 
+          id="badge" 
+          name="badge"
+          value={newSlide.badge || ''} 
+          onChange={handleInputChange}
+          placeholder="Novidade, Popular, Promoção, etc."
+          disabled={loading}
+        />
+        <p className="text-xs text-muted-foreground">
+          Badge que aparecerá no canto do slide (ex: "Novidade", "Popular")
         </p>
       </div>
       

@@ -5,5 +5,6 @@ export interface CarouselSlide {
   description?: string;
   imageUrl: string;
   link?: string;
+  badge?: string;
   active: boolean;
 }

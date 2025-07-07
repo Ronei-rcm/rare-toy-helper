@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Separator } from "../../../components/ui/separator";
-import { ShoppingBag, CreditCard, Tag, Truck, Gift } from "lucide-react";
+import { ShoppingBag, CreditCard, Tag, Truck, Gift, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 
@@ -228,6 +228,31 @@ const CartSummary = ({ subtotal, onCheckout }: CartSummaryProps) => {
         </motion.div>
       </div>
       
+      {/* PIX Highlight */}
+      <motion.div 
+        className="bg-gradient-to-r from-teal-50 to-cyan-50 border border-teal-200 rounded-lg p-4 mb-4"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-8 h-8 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+            PIX
+          </div>
+          <span className="font-semibold text-teal-800">Pague com PIX</span>
+        </div>
+        <div className="text-sm text-teal-700 space-y-1">
+          <p className="flex items-center gap-1">
+            <Zap className="w-3 h-3" />
+            Aprovação instantânea
+          </p>
+          <p className="flex items-center gap-1">
+            <Gift className="w-3 h-3" />
+            Sem taxas adicionais
+          </p>
+        </div>
+      </motion.div>
+
       <motion.div
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}

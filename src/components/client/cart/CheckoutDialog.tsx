@@ -13,6 +13,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import PixPayment from "./PixPayment";
 
 interface CheckoutDialogProps {
   isOpen: boolean;
@@ -29,16 +30,28 @@ export default function CheckoutDialog({
 }: CheckoutDialogProps) {
   const [step, setStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("credit_card");
+  const [showPixPayment, setShowPixPayment] = useState(false);
+  const [orderId] = useState(`MUHL${Date.now()}`);
 
   const handleNext = () => {
     if (step < 3) {
       setStep(step + 1);
     } else {
-      toast.success("Pedido realizado com sucesso!");
-      onCheckoutComplete();
-      setStep(1); // Reset for next time
-      onOpenChange(false);
+      if (paymentMethod === "pix") {
+        setShowPixPayment(true);
+      } else {
+        toast.success("Pedido realizado com sucesso!");
+        onCheckoutComplete();
+        setStep(1);
+        onOpenChange(false);
+      }
     }
+  };
+
+  const handlePixPaymentComplete = () => {
+    onCheckoutComplete();
+    setStep(1);
+    onOpenChange(false);
   };
 
   const handleBack = () => {
@@ -113,9 +126,14 @@ export default function CheckoutDialog({
                   <RadioGroupItem value="credit_card" id="credit_card" />
                   <Label htmlFor="credit_card">Cartão de Crédito</Label>
                 </div>
-                <div className="flex items-center space-x-2 border p-3 rounded">
+                <div className="flex items-center space-x-2 border p-3 rounded hover:border-primary transition-colors">
                   <RadioGroupItem value="pix" id="pix" />
-                  <Label htmlFor="pix">PIX</Label>
+                  <Label htmlFor="pix" className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-gradient-to-r from-teal-500 to-cyan-500 rounded flex items-center justify-center text-white text-xs font-bold">
+                      PIX
+                    </div>
+                    PIX - Pagamento instantâneo
+                  </Label>
                 </div>
                 <div className="flex items-center space-x-2 border p-3 rounded">
                   <RadioGroupItem value="boleto" id="boleto" />
@@ -147,11 +165,25 @@ export default function CheckoutDialog({
               )}
               
               {paymentMethod === "pix" && (
-                <div className="border p-4 rounded mt-4">
+                <div className="border border-primary/20 bg-gradient-to-r from-teal-50 to-cyan-50 p-4 rounded-lg mt-4">
                   <div className="text-center mb-3">
-                    <p className="text-sm text-gray-500">
-                      Após confirmar seu pedido, você receberá um QR Code PIX para pagamento
+                    <div className="w-12 h-12 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">
+                      PIX
+                    </div>
+                    <h3 className="font-semibold text-gray-800 mb-2">Pagamento PIX</h3>
+                    <p className="text-sm text-gray-600 mb-2">
+                      Após confirmar seu pedido, você receberá:
                     </p>
+                    <ul className="text-sm text-gray-600 text-left space-y-1">
+                      <li>✓ QR Code para pagamento</li>
+                      <li>✓ Chave PIX para cópia</li>
+                      <li>✓ Confirmação instantânea</li>
+                    </ul>
+                    <div className="bg-white/70 p-2 rounded mt-3">
+                      <p className="text-xs text-gray-500">
+                        💰 Sem taxas adicionais • ⚡ Aprovação imediata
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -209,10 +241,18 @@ export default function CheckoutDialog({
             )}
           </div>
           <Button onClick={handleNext}>
-            {step < 3 ? "Continuar" : "Finalizar Compra"}
+            {step < 3 ? "Continuar" : (paymentMethod === "pix" ? "Pagar com PIX" : "Finalizar Compra")}
           </Button>
         </DialogFooter>
       </DialogContent>
+      
+      <PixPayment
+        isOpen={showPixPayment}
+        onOpenChange={setShowPixPayment}
+        amount={total}
+        orderId={orderId}
+        onPaymentComplete={handlePixPaymentComplete}
+      />
     </Dialog>
   );
 }

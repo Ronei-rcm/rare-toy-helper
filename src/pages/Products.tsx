@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ProductCard } from '@/components/products/ProductCard';
-import { CartDrawer } from '@/components/cart/CartDrawer';
-import { productService, Product, Category } from '@/services/productService';
-import { supabase } from '@/integrations/supabase/client';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { ProductCard } from '../components/products/ProductCard';
+import { CartDrawer } from '../components/cart/CartDrawer';
+import { productService, Product, Category } from '../services/productService';
+import { supabase } from '../integrations/supabase/client';
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);

@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckoutForm } from '@/components/checkout/CheckoutForm';
-import { cartService, CartItem } from '@/services/cartService';
-import { supabase } from '@/integrations/supabase/client';
+import { CheckoutForm } from '../components/checkout/CheckoutForm';
+import { cartService, CartItem } from '../services/cartService';
+import { supabase } from '../integrations/supabase/client';
 
 export default function Checkout() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);

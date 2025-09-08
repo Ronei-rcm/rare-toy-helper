@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { ShoppingCart, X, Plus, Minus, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Badge } from '@/components/ui/badge';
-import { toast } from '@/hooks/use-toast';
-import { cartService, CartItem } from '@/services/cartService';
-import { supabase } from '@/integrations/supabase/client';
+import { Button } from '../ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
+import { Badge } from '../ui/badge';
+import { toast } from '../../hooks/use-toast';
+import { cartService, CartItem } from '../../services/cartService';
+import { supabase } from '../../integrations/supabase/client';
 
 interface CartDrawerProps {
   userId?: string;

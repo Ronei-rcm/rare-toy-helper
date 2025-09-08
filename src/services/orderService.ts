@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../integrations/supabase/client';
 import { CartItem } from './cartService';
 
 export interface Order {
@@ -69,7 +69,7 @@ export const orderService = {
         notes: orderData.notes,
         status: 'pending',
         payment_status: 'pending'
-      })
+      } as any)
       .select()
       .single();
 

@@ -86,4 +86,4 @@ export function useToast(): ToastContextType {
   return { toasts, addToast, updateToast, dismissToast };
 }
 
-export default useToast;
+export { useToast as default };

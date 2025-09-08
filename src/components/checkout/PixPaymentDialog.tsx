@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Copy, CheckCircle, Clock, QrCode } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { toast } from '@/hooks/use-toast';
-import { PixPayment } from '@/services/pixService';
-import { Order, orderService } from '@/services/orderService';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Button } from '../ui/button';
+import { Card, CardContent } from '../ui/card';
+import { toast } from '../../hooks/use-toast';
+import { PixPayment } from '../../services/pixService';
+import { Order, orderService } from '../../services/orderService';
 
 interface PixPaymentDialogProps {
   isOpen: boolean;
@@ -44,7 +44,7 @@ export function PixPaymentDialog({
     const timer = setInterval(updateTimer, 1000);
 
     return () => clearInterval(timer);
-  }, [pixPayment.expires_at, toast]);
+  }, [pixPayment.expires_at]);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);

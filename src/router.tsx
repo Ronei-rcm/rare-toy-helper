@@ -9,6 +9,8 @@ import Collection from "./pages/Collection";
 import Categories from "./pages/Categories";
 import About from "./pages/About";
 import Cart from "./pages/Cart";
+import Products from "./pages/Products";
+import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 
 export const router = createBrowserRouter([
@@ -45,6 +47,10 @@ export const router = createBrowserRouter([
     element: <Categories />,
   },
   {
+    path: "/categorias",
+    element: <Navigate to="/categories" replace />,
+  },
+  {
     path: "/about",
     element: <About />,
   },
@@ -55,6 +61,22 @@ export const router = createBrowserRouter([
   {
     path: "/carrinho",
     element: <Navigate to="/cart" replace />,
+  },
+  {
+    path: "/products",
+    element: <Products />,
+  },
+  {
+    path: "/produtos",
+    element: <Navigate to="/products" replace />,
+  },
+  {
+    path: "/checkout",
+    element: <Checkout />,
+  },
+  {
+    path: "/finalizar-compra",
+    element: <Navigate to="/checkout" replace />,
   },
   {
     path: "*",

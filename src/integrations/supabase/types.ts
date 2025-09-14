@@ -293,6 +293,10 @@ export type Database = {
         Args: { _order_id: string }
         Returns: boolean
       }
+      has_order_item_access: {
+        Args: { _order_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

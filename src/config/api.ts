@@ -30,35 +30,5 @@ export const isAdmin = () => {
   }
 };
 
-// Função para criar usuário mock (para demonstração)
-export const mockLogin = (email: string, password: string) => {
-  // Admin mock
-  if (email === 'admin@example.com' && password === 'admin123') {
-    const adminUser = {
-      id: '1',
-      nome: 'Administrador',
-      email: 'admin@example.com',
-      tipo: 'admin'
-    };
-    localStorage.setItem('user', JSON.stringify(adminUser));
-    localStorage.setItem('token', 'mock-token-admin-12345');
-    localStorage.setItem('isLoggedIn', 'true');
-    return Promise.resolve({ usuario: adminUser, token: 'mock-token-admin-12345' });
-  }
-  
-  // Cliente mock
-  if (email === 'cliente@muhlstore.com' && password === 'cliente123') {
-    const clientUser = {
-      id: '2',
-      nome: 'Cliente Demo',
-      email: 'cliente@muhlstore.com',
-      tipo: 'usuario'
-    };
-    localStorage.setItem('user', JSON.stringify(clientUser));
-    localStorage.setItem('token', 'mock-token-client-12345');
-    localStorage.setItem('isLoggedIn', 'true');
-    return Promise.resolve({ usuario: clientUser, token: 'mock-token-client-12345' });
-  }
-  
-  return Promise.reject(new Error('Credenciais inválidas'));
-};
+// REMOVED: Mock login with hardcoded credentials for security
+// Authentication should use Supabase Auth only

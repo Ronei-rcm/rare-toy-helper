@@ -12,6 +12,8 @@ import Cart from "./pages/Cart";
 import Products from "./pages/Products";
 import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
+import { AuthGuard } from "./components/auth/AuthGuard";
+import { Unauthorized } from "./components/auth/Unauthorized";
 
 export const router = createBrowserRouter([
   {
@@ -26,13 +28,25 @@ export const router = createBrowserRouter([
     path: "/register",
     element: <Register />,
   },
-  {
-    path: "/admin",
-    element: <Admin />,
-  },
+    {
+      path: "/admin",
+      element: (
+        <AuthGuard requireAuth requireAdmin>
+          <Admin />
+        </AuthGuard>
+      ),
+    },
   {
     path: "/client-area",
-    element: <ClientArea />,
+    element: (
+      <AuthGuard requireAuth>
+        <ClientArea />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: "/unauthorized",
+    element: <Unauthorized />,
   },
   {
     path: "/cliente",

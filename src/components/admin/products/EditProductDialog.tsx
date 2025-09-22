@@ -1,12 +1,12 @@
 
-import { Brinquedo } from "../../../types";
+import { Product } from "../../../services/productService";
 import AddProductDialog from "../AddProductDialog";
 
 interface EditProductDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (product: Omit<Brinquedo, "id">, id: string) => void;
-  product: Brinquedo | null;
+  onSubmit: (product: any, id: string) => void;
+  product: Product | null;
 }
 
 export function EditProductDialog({ 
@@ -15,7 +15,7 @@ export function EditProductDialog({
   onSubmit, 
   product 
 }: EditProductDialogProps) {
-  const handleSubmit = (updatedProduct: Omit<Brinquedo, "id">) => {
+  const handleSubmit = (updatedProduct: any) => {
     if (product) {
       onSubmit(updatedProduct, product.id);
     }

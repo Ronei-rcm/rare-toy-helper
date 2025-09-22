@@ -8,14 +8,14 @@ import { Textarea } from "../ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Checkbox } from "../ui/checkbox";
-import { Brinquedo } from "../../types";
+import { Product } from "../../services/productService";
 import { ImageUploader } from "./ImageUploader";
 
 interface AddProductDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (product: Omit<Brinquedo, "id">, id?: string) => void;
-  product?: Brinquedo | null;
+  onSubmit: (product: any, id?: string) => void;
+  product?: Product | null;
 }
 
 export default function AddProductDialog({ 
@@ -25,14 +25,14 @@ export default function AddProductDialog({
   product 
 }: AddProductDialogProps) {
   const [formData, setFormData] = useState({
-    nome: product?.nome || "",
-    preco: product?.preco || 0,
-    imagem: product?.imagem || "",
-    categoria: product?.categoria || "",
-    descricao: product?.descricao || "",
-    estoque: product?.estoque || 0,
-    condicao: product?.condicao || "good" as const,
-    raro: product?.raro || false
+    nome: product?.name || "",
+    preco: Number(product?.price) || 0,
+    imagem: product?.image_url || "",
+    categoria: product?.category_id || "",
+    descricao: product?.description || "",
+    estoque: product?.stock_quantity || 0,
+    condicao: (product?.tags && product.tags[0]) || "good" as const,
+    raro: product?.featured || false
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});

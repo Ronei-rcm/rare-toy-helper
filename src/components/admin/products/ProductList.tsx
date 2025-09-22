@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
-import { Brinquedo } from "../../../types";
+import { Product } from "../../../services/productService";
 import { Button } from "../../ui/button";
 import {
   Table, 
@@ -13,9 +13,9 @@ import {
 } from "../../ui/table";
 
 interface ProductListProps {
-  products: Brinquedo[];
+  products: Product[];
   onDeleteProduct: (id: string) => void;
-  onEditProduct: (product: Brinquedo) => void;
+  onEditProduct: (product: Product) => void;
 }
 
 export function ProductList({ products, onDeleteProduct, onEditProduct }: ProductListProps) {
@@ -48,10 +48,10 @@ export function ProductList({ products, onDeleteProduct, onEditProduct }: Produc
           ) : (
             products.map((product) => (
               <TableRow key={product.id}>
-                <TableCell>{product.nome}</TableCell>
-                <TableCell>{product.categoria}</TableCell>
-                <TableCell>{formatCurrency(product.preco)}</TableCell>
-                <TableCell>{product.estoque}</TableCell>
+                <TableCell>{product.name}</TableCell>
+                <TableCell>{product.category?.name || 'N/A'}</TableCell>
+                <TableCell>{formatCurrency(Number(product.price))}</TableCell>
+                <TableCell>{product.stock_quantity}</TableCell>
                 <TableCell className="text-right space-x-2">
                   <Button
                     variant="ghost"

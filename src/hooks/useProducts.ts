@@ -1,25 +1,27 @@
 
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import { toast } from "sonner";
-import { Brinquedo, RespostaApi } from "../types";
-import { API_URL, getAuthHeaders } from "../config/api";
+import { supabase } from "../integrations/supabase/client";
+import { Product } from "../services/productService";
 
 export function useProducts() {
-  const [products, setProducts] = useState<Brinquedo[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchProducts = useCallback(async () => {
     try {
-      const response = await axios.get<RespostaApi<Brinquedo[]>>(`${API_URL}/produtos`, {
-        headers: getAuthHeaders()
-      });
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          *,
+          category:categories(id, name, slug)
+        `)
+        .eq('active', true)
+        .order('created_at', { ascending: false });
 
-      if (response.data.sucesso && response.data.dados) {
-        setProducts(response.data.dados);
-      } else {
-        toast.error(response.data.erro || "Erro ao carregar produtos");
-      }
+      if (error) throw error;
+      setProducts(data || []);
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
       toast.error("Erro ao carregar produtos. Tente novamente mais tarde.");
@@ -28,93 +30,84 @@ export function useProducts() {
     }
   }, []);
 
-  const handleAddProduct = useCallback(async (product: Omit<Brinquedo, "id">) => {
+  const handleAddProduct = useCallback(async (productData: any) => {
     try {
-      const formData = new FormData();
-      formData.append('nome', product.nome);
-      formData.append('descricao', product.descricao || '');
-      formData.append('preco', product.preco.toString());
-      formData.append('estoque', product.estoque.toString());
-      formData.append('categoria_id', product.categoria);
-      formData.append('condicao', product.condicao);
-      formData.append('raro', product.raro.toString());
+      const { data, error } = await supabase
+        .from('products')
+        .insert([{
+          name: productData.nome,
+          description: productData.descricao,
+          price: productData.preco,
+          stock_quantity: productData.estoque || 0,
+          category_id: productData.categoria,
+          image_url: productData.imagem,
+          active: true,
+          featured: productData.raro || false,
+          tags: productData.condicao ? [productData.condicao] : null
+        }])
+        .select(`
+          *,
+          category:categories(id, name, slug)
+        `)
+        .single();
 
-      if (product.imagem && product.imagem.startsWith('data:image')) {
-        const blob = await fetch(product.imagem).then(r => r.blob());
-        formData.append('imagem', blob, 'produto.jpg');
-      }
-
-      const response = await axios.post<RespostaApi<Brinquedo>>(`${API_URL}/produtos`, formData, {
-        headers: {
-          ...getAuthHeaders(),
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      if (response.data.sucesso && response.data.dados) {
-        setProducts([...products, response.data.dados]);
-        toast.success("Produto adicionado com sucesso!");
-      } else {
-        toast.error(response.data.erro || "Erro ao adicionar produto");
-      }
+      if (error) throw error;
+      
+      setProducts(prev => [data, ...prev]);
+      toast.success("Produto adicionado com sucesso!");
     } catch (error) {
       console.error("Erro ao adicionar produto:", error);
       toast.error("Erro ao adicionar produto. Tente novamente mais tarde.");
     }
-  }, [products]);
+  }, []);
 
   const handleDeleteProduct = useCallback(async (id: string) => {
     try {
-      const response = await axios.delete<RespostaApi<void>>(`${API_URL}/produtos/${id}`, {
-        headers: getAuthHeaders()
-      });
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
 
-      if (response.data.sucesso) {
-        setProducts(products.filter(p => p.id !== id));
-        toast.success("Produto removido com sucesso!");
-      } else {
-        toast.error(response.data.erro || "Erro ao remover produto");
-      }
+      if (error) throw error;
+      
+      setProducts(prev => prev.filter(p => p.id !== id));
+      toast.success("Produto removido com sucesso!");
     } catch (error) {
       console.error("Erro ao remover produto:", error);
       toast.error("Erro ao remover produto. Tente novamente mais tarde.");
     }
-  }, [products]);
+  }, []);
 
-  const handleEditProduct = useCallback(async (product: Omit<Brinquedo, "id">, id: string) => {
+  const handleEditProduct = useCallback(async (productData: any, id: string) => {
     try {
-      const formData = new FormData();
-      formData.append('nome', product.nome);
-      formData.append('descricao', product.descricao || '');
-      formData.append('preco', product.preco.toString());
-      formData.append('estoque', product.estoque.toString());
-      formData.append('categoria_id', product.categoria);
-      formData.append('condicao', product.condicao);
-      formData.append('raro', product.raro.toString());
+      const { data, error } = await supabase
+        .from('products')
+        .update({
+          name: productData.nome,
+          description: productData.descricao,
+          price: productData.preco,
+          stock_quantity: productData.estoque || 0,
+          category_id: productData.categoria,
+          image_url: productData.imagem,
+          featured: productData.raro || false,
+          tags: productData.condicao ? [productData.condicao] : null
+        })
+        .eq('id', id)
+        .select(`
+          *,
+          category:categories(id, name, slug)
+        `)
+        .single();
 
-      if (product.imagem && product.imagem.startsWith('data:image')) {
-        const blob = await fetch(product.imagem).then(r => r.blob());
-        formData.append('imagem', blob, 'produto.jpg');
-      }
-
-      const response = await axios.put<RespostaApi<Brinquedo>>(`${API_URL}/produtos/${id}`, formData, {
-        headers: {
-          ...getAuthHeaders(),
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      if (response.data.sucesso && response.data.dados) {
-        setProducts(products.map(p => p.id === id ? response.data.dados! : p));
-        toast.success("Produto atualizado com sucesso!");
-      } else {
-        toast.error(response.data.erro || "Erro ao atualizar produto");
-      }
+      if (error) throw error;
+      
+      setProducts(prev => prev.map(p => p.id === id ? data : p));
+      toast.success("Produto atualizado com sucesso!");
     } catch (error) {
       console.error("Erro ao editar produto:", error);
       toast.error("Erro ao editar produto. Tente novamente mais tarde.");
     }
-  }, [products]);
+  }, []);
 
   useEffect(() => {
     fetchProducts();

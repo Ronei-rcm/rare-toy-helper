@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useProducts } from "../../hooks/useProducts";
-import { Brinquedo } from "../../types";
+import { Product } from "../../services/productService";
 import { LoadingSpinner } from "./products/LoadingSpinner";
 import { ProductActions } from "./products/ProductActions";
 import { ProductList } from "./products/ProductList";
@@ -19,9 +19,9 @@ export function ProductsManager() {
   
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Brinquedo | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const handleOpenEditDialog = (product: Brinquedo) => {
+  const handleOpenEditDialog = (product: Product) => {
     setSelectedProduct(product);
     setEditDialogOpen(true);
   };

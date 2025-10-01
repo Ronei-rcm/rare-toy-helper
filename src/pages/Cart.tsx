@@ -18,7 +18,7 @@ export default function Cart() {
     setCartTotal(calculateTotal());
   }, [items]);
 
-  const handleQuantityChange = async (itemId: number, newQuantity: number) => {
+  const handleQuantityChange = async (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
     try {
       await updateQuantity(itemId, newQuantity);
@@ -27,7 +27,7 @@ export default function Cart() {
     }
   };
 
-  const handleRemoveItem = async (itemId: number) => {
+  const handleRemoveItem = async (itemId: string) => {
     try {
       await removeFromCart(itemId);
     } catch (error) {
@@ -70,8 +70,8 @@ export default function Cart() {
       
       <CartSection
         cartItems={cartItems}
-        onRemoveItem={(id) => handleRemoveItem(parseInt(id))}
-        onUpdateQuantity={(id, qty) => handleQuantityChange(parseInt(id), qty)}
+        onRemoveItem={(id) => handleRemoveItem(id)}
+        onUpdateQuantity={(id, qty) => handleQuantityChange(id, qty)}
         onCheckout={handleCheckout}
       />
       

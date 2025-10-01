@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -10,6 +11,35 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Checkbox } from "../ui/checkbox";
 import { Product } from "../../services/productService";
 import { ImageUploader } from "./ImageUploader";
+
+// Secure validation schema
+const productSchema = z.object({
+  nome: z.string()
+    .trim()
+    .min(1, "Nome é obrigatório")
+    .max(200, "Nome deve ter no máximo 200 caracteres"),
+  preco: z.number()
+    .positive("Preço deve ser maior que zero")
+    .max(1000000, "Preço inválido"),
+  imagem: z.string()
+    .trim()
+    .url("URL de imagem inválida")
+    .min(1, "Imagem é obrigatória"),
+  categoria: z.string()
+    .trim()
+    .min(1, "Categoria é obrigatória"),
+  descricao: z.string()
+    .trim()
+    .max(2000, "Descrição deve ter no máximo 2000 caracteres")
+    .optional()
+    .or(z.literal("")),
+  estoque: z.number()
+    .int("Estoque deve ser um número inteiro")
+    .min(0, "Estoque não pode ser negativo")
+    .max(999999, "Estoque inválido"),
+  condicao: z.enum(["mint", "excellent", "good", "fair"]),
+  raro: z.boolean()
+});
 
 interface AddProductDialogProps {
   open: boolean;
@@ -40,28 +70,20 @@ export default function AddProductDialog({
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
-    if (!formData.nome.trim()) {
-      newErrors.nome = "Nome é obrigatório";
+    try {
+      productSchema.parse(formData);
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            newErrors[err.path[0] as string] = err.message;
+          }
+        });
+      }
+      setErrors(newErrors);
+      return false;
     }
-    
-    if (formData.preco <= 0) {
-      newErrors.preco = "Preço deve ser maior que zero";
-    }
-    
-    if (!formData.imagem.trim()) {
-      newErrors.imagem = "Imagem é obrigatória";
-    }
-    
-    if (!formData.categoria.trim()) {
-      newErrors.categoria = "Categoria é obrigatória";
-    }
-
-    if (formData.estoque < 0) {
-      newErrors.estoque = "Estoque não pode ser negativo";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -114,9 +136,10 @@ export default function AddProductDialog({
               <Input
                 id="nome"
                 value={formData.nome}
-                onChange={(e) => handleInputChange("nome", e.target.value)}
-                placeholder="Nome do produto"
+                onChange={(e) => handleInputChange("nome", e.target.value.slice(0, 200))}
+                placeholder="Nome do produto (máximo 200 caracteres)"
                 className={errors.nome ? "border-destructive" : ""}
+                maxLength={200}
               />
               {errors.nome && <span className="text-destructive text-sm">{errors.nome}</span>}
             </div>
@@ -204,11 +227,16 @@ export default function AddProductDialog({
               <Textarea
                 id="descricao"
                 value={formData.descricao}
-                onChange={(e) => handleInputChange("descricao", e.target.value)}
-                placeholder="Descrição detalhada do produto, condição, história, etc."
+                onChange={(e) => handleInputChange("descricao", e.target.value.slice(0, 2000))}
+                placeholder="Descrição detalhada do produto, condição, história, etc. (máximo 2000 caracteres)"
                 rows={4}
                 className="resize-none"
+                maxLength={2000}
               />
+              <span className="text-xs text-muted-foreground">
+                {formData.descricao.length}/2000 caracteres
+              </span>
+              {errors.descricao && <span className="text-destructive text-sm">{errors.descricao}</span>}
             </div>
 
             <div className="flex items-center space-x-2">

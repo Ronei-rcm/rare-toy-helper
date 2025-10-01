@@ -123,12 +123,23 @@ class AuthService {
         return { user: null, error: error.message };
       }
 
-      const user = data.user ? {
+      if (!data.user) {
+        return { user: null, error: null };
+      }
+
+      // Fetch role from user_roles table (secure, server-validated)
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', data.user.id)
+        .single();
+
+      const user = {
         id: data.user.id,
         email: data.user.email!,
         name: data.user.user_metadata?.name,
-        role: data.user.user_metadata?.role || 'user'
-      } : null;
+        role: roleData?.role || 'user'
+      };
 
       return { user, error: null };
     } catch (error) {
@@ -137,26 +148,35 @@ class AuthService {
     }
   }
 
-  // Update user profile
+  // Update user profile (role cannot be updated via this method for security)
   async updateProfile(updates: {
     name?: string;
-    role?: string;
     [key: string]: any;
   }): Promise<{ user: AuthUser | null, error: string | null }> {
     try {
+      // Remove role from updates to prevent privilege escalation
+      const { role, ...safeUpdates } = updates as any;
+      
       const { data, error } = await supabase.auth.updateUser({
-        data: updates
+        data: safeUpdates
       });
 
       if (error) {
         return { user: null, error: error.message };
       }
 
+      // Fetch role from user_roles table
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', data.user?.id)
+        .single();
+
       const user = data.user ? {
         id: data.user.id,
         email: data.user.email!,
         name: data.user.user_metadata?.name,
-        role: data.user.user_metadata?.role || 'user'
+        role: roleData?.role || 'user'
       } : null;
 
       return { user, error: null };
@@ -174,14 +194,41 @@ class AuthService {
   // Set up auth state listener
   onAuthStateChange(callback: (session: Session | null, user: AuthUser | null) => void) {
     return supabase.auth.onAuthStateChange((event, session) => {
-      const user = session?.user ? {
-        id: session.user.id,
-        email: session.user.email!,
-        name: session.user.user_metadata?.name,
-        role: session.user.user_metadata?.role || 'user'
-      } : null;
+      if (!session?.user) {
+        callback(session, null);
+        return;
+      }
 
-      callback(session, user);
+      // Defer Supabase call to prevent deadlock
+      setTimeout(async () => {
+        try {
+          // Fetch role from user_roles table
+          const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', session.user.id)
+            .single();
+
+          const user: AuthUser = {
+            id: session.user.id,
+            email: session.user.email!,
+            name: session.user.user_metadata?.name,
+            role: roleData?.role || 'user'
+          };
+
+          callback(session, user);
+        } catch (error) {
+          console.error('Error fetching user role:', error);
+          // Fallback to basic user info
+          const user: AuthUser = {
+            id: session.user.id,
+            email: session.user.email!,
+            name: session.user.user_metadata?.name,
+            role: 'user'
+          };
+          callback(session, user);
+        }
+      }, 0);
     });
   }
 }

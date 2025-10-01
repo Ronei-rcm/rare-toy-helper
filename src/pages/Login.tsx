@@ -58,8 +58,14 @@ export default function Login() {
       if (data.user) {
         toast.success('Login realizado com sucesso!');
         
-        // Check user role and redirect
-        const isAdmin = data.user.user_metadata?.role === 'admin';
+        // Fetch role from user_roles table for proper authorization
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', data.user.id)
+          .single();
+        
+        const isAdmin = roleData?.role === 'admin';
         navigate(isAdmin ? '/admin' : '/client-area');
       }
     } catch (error: any) {
@@ -183,21 +189,7 @@ export default function Login() {
             </p>
           </div>
           
-          <div className="mt-8 border-t pt-6">
-            <p className="text-gray-500 text-xs text-center mb-4">Acesso para demonstração:</p>
-            <div className="grid grid-cols-2 gap-4 text-xs">
-              <div className="border rounded-md p-3">
-                <p className="font-semibold mb-2">Cliente</p>
-                <p><span className="text-gray-500">Email:</span> user@muhlstore.com</p>
-                <p><span className="text-gray-500">Senha:</span> user123</p>
-              </div>
-              <div className="border rounded-md p-3">
-                <p className="font-semibold mb-2">Administrador</p>
-                <p><span className="text-gray-500">Email:</span> admin@muhlstore.com</p>
-                <p><span className="text-gray-500">Senha:</span> admin123</p>
-              </div>
-            </div>
-          </div>
+          {/* Demo credentials removed for security */}
         </motion.div>
       </div>
     </div>

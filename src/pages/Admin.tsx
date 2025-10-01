@@ -16,7 +16,7 @@ import {
   Images
 } from "lucide-react";
 import { toast } from "sonner";
-import { isAdmin } from "../config/api";
+import { useAuth } from "../hooks/useAuth";
 import AdminDashboard from "../components/admin/AdminDashboard";
 import { ProductsManager } from "../components/admin/ProductsManager";
 import CategoriesManager from "../components/admin/CategoriesManager";
@@ -44,52 +44,31 @@ import {
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const navigate = useNavigate();
-  const [user, setUser] = useState<{ nome: string; email: string; tipo: string } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading, isAdmin, signOut } = useAuth();
   const [accessError, setAccessError] = useState("");
 
   // Verifica se o usuário está logado e se é admin
   useEffect(() => {
-    const checkAdminAccess = () => {
-      try {
-        setLoading(true);
-        const storedUser = localStorage.getItem("user");
-        const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (loading) return;
 
-        if (!isLoggedIn || !storedUser) {
-          setAccessError("Você precisa fazer login para acessar esta área!");
-          setTimeout(() => {
-            navigate("/login");
-          }, 2000);
-          return;
-        }
+    if (!user) {
+      setAccessError("Você precisa fazer login para acessar esta área!");
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+      return;
+    }
 
-        const parsedUser = JSON.parse(storedUser);
-        if (isAdmin()) {
-          setUser(parsedUser);
-          toast.success(`Bem-vindo(a), ${parsedUser.nome}!`);
-        } else {
-          // Se não for admin, redireciona para a tela de login
-          setAccessError("Acesso não autorizado! Você não possui privilégios de administrador.");
-          setTimeout(() => {
-            navigate("/login");
-          }, 2000);
-        }
-      } catch (error) {
-        console.error("Erro ao verificar acesso:", error);
-        setAccessError("Erro ao verificar acesso. Tente novamente mais tarde.");
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (!isAdmin) {
+      setAccessError("Acesso não autorizado! Você não possui privilégios de administrador.");
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
+    }
+  }, [user, loading, isAdmin, navigate]);
 
-    checkAdminAccess();
-  }, [navigate]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    localStorage.removeItem("isLoggedIn");
+  const handleLogout = async () => {
+    await signOut();
     toast.success("Logout realizado com sucesso!");
     navigate("/login");
   };
@@ -254,7 +233,7 @@ export default function Admin() {
                   }</h1>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">Olá, {user?.nome}</span>
+                  <span className="text-sm text-gray-500">Olá, {user?.name || user?.email}</span>
                 </div>
               </div>
 

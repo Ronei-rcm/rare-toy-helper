@@ -136,6 +136,8 @@ export type Database = {
           customer_email: string
           customer_name: string
           customer_phone: string | null
+          guest_access_token: string | null
+          guest_token_expires_at: string | null
           id: string
           notes: string | null
           order_number: string
@@ -152,6 +154,8 @@ export type Database = {
           customer_email: string
           customer_name: string
           customer_phone?: string | null
+          guest_access_token?: string | null
+          guest_token_expires_at?: string | null
           id?: string
           notes?: string | null
           order_number: string
@@ -168,6 +172,8 @@ export type Database = {
           customer_email?: string
           customer_name?: string
           customer_phone?: string | null
+          guest_access_token?: string | null
+          guest_token_expires_at?: string | null
           id?: string
           notes?: string | null
           order_number?: string

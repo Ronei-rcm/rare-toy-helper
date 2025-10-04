@@ -1,1 +1,7 @@
 project_id = "cexanvnemkltpvaxcnmx"
+
+[functions.create-guest-order]
+verify_jwt = false
+
+[functions.get-guest-order]
+verify_jwt = false

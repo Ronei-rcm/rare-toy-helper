@@ -14,22 +14,23 @@ import { CartItem } from '../../services/cartService';
 import { orderService } from '../../services/orderService';
 import { pixService } from '../../services/pixService';
 import { PixPaymentDialog } from './PixPaymentDialog';
+import { supabase } from '../../integrations/supabase/client';
 
 const checkoutSchema = z.object({
-  customer_name: z.string().min(1, 'Nome é obrigatório'),
-  customer_email: z.string().email('Email inválido'),
-  customer_phone: z.string().optional(),
+  customer_name: z.string().trim().min(1, 'Nome é obrigatório').max(100, 'Nome muito longo'),
+  customer_email: z.string().trim().email('Email inválido').max(255, 'Email muito longo'),
+  customer_phone: z.string().trim().max(20, 'Telefone muito longo').optional(),
   payment_method: z.enum(['pix', 'credit_card']),
   shipping_address: z.object({
-    street: z.string().min(1, 'Endereço é obrigatório'),
-    number: z.string().min(1, 'Número é obrigatório'),
-    complement: z.string().optional(),
-    neighborhood: z.string().min(1, 'Bairro é obrigatório'),
-    city: z.string().min(1, 'Cidade é obrigatória'),
-    state: z.string().min(2, 'Estado é obrigatório'),
-    zip_code: z.string().min(8, 'CEP é obrigatório')
+    street: z.string().trim().min(1, 'Endereço é obrigatório').max(200, 'Endereço muito longo'),
+    number: z.string().trim().min(1, 'Número é obrigatório').max(20, 'Número muito longo'),
+    complement: z.string().trim().max(100, 'Complemento muito longo').optional(),
+    neighborhood: z.string().trim().min(1, 'Bairro é obrigatório').max(100, 'Bairro muito longo'),
+    city: z.string().trim().min(1, 'Cidade é obrigatória').max(100, 'Cidade muito longa'),
+    state: z.string().trim().min(2, 'Estado é obrigatório').max(2, 'Estado deve ter 2 caracteres'),
+    zip_code: z.string().trim().min(8, 'CEP é obrigatório').max(9, 'CEP inválido')
   }),
-  notes: z.string().optional()
+  notes: z.string().trim().max(1000, 'Observações muito longas').optional()
 });
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
@@ -68,22 +69,61 @@ export function CheckoutForm({ cartItems, userId, onOrderComplete }: CheckoutFor
     try {
       setLoading(true);
 
-      // Criar pedido
-      const orderData = {
-        user_id: userId,
-        customer_name: data.customer_name,
-        customer_email: data.customer_email,
-        customer_phone: data.customer_phone,
-        shipping_address: data.shipping_address,
-        notes: data.notes,
-        items: cartItems.map(item => ({
-          product_id: item.product_id,
-          quantity: item.quantity,
-          unit_price: item.price
-        }))
-      };
+      let order;
 
-      const order = await orderService.createOrder(orderData);
+      // Check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        // Authenticated user - use regular order creation
+        const orderData = {
+          user_id: userId,
+          customer_name: data.customer_name,
+          customer_email: data.customer_email,
+          customer_phone: data.customer_phone,
+          shipping_address: data.shipping_address,
+          notes: data.notes,
+          items: cartItems.map(item => ({
+            product_id: item.product_id,
+            quantity: item.quantity,
+            unit_price: item.price
+          }))
+        };
+
+        order = await orderService.createOrder(orderData);
+      } else {
+        // Guest user - use secure Edge Function
+        const { data: guestOrderData, error } = await supabase.functions.invoke('create-guest-order', {
+          body: {
+            customer_name: data.customer_name,
+            customer_email: data.customer_email,
+            customer_phone: data.customer_phone,
+            shipping_address: data.shipping_address,
+            notes: data.notes,
+            payment_method: data.payment_method,
+            cart_items: cartItems.map(item => ({
+              product_id: item.product_id,
+              quantity: item.quantity,
+              price: item.price
+            }))
+          }
+        });
+
+        if (error) {
+          console.error('Guest order error:', error);
+          throw new Error(error.message || 'Failed to create order');
+        }
+
+        // Store guest access token in localStorage for order tracking
+        if (guestOrderData.guest_access_token) {
+          localStorage.setItem(`guest_order_${guestOrderData.order_id}`, guestOrderData.guest_access_token);
+        }
+
+        order = {
+          id: guestOrderData.order_id,
+          order_number: guestOrderData.order_number
+        };
+      }
 
       // Processar pagamento
       if (data.payment_method === 'pix') {
@@ -102,9 +142,9 @@ export function CheckoutForm({ cartItems, userId, onOrderComplete }: CheckoutFor
         
         onOrderComplete(order.id);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao processar pedido:', error);
-      toast.error("Erro", "Erro ao processar pedido");
+      toast.error("Erro", error.message || "Erro ao processar pedido");
     } finally {
       setLoading(false);
     }

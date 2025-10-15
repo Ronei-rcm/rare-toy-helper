@@ -5,6 +5,8 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { ImageUploader } from './ImageUploader';
+import { z } from 'zod';
+import { toast } from 'sonner';
 
 import {
   Dialog,
@@ -14,6 +16,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+
+const productSchema = z.object({
+  name: z.string().trim().min(1, "Nome é obrigatório").max(200, "Nome deve ter no máximo 200 caracteres"),
+  price: z.number().positive("Preço deve ser positivo").max(1000000, "Preço muito alto"),
+  originalPrice: z.number().positive().max(1000000).optional(),
+  category: z.string().trim().min(1, "Categoria é obrigatória").max(100, "Categoria deve ter no máximo 100 caracteres"),
+  description: z.string().trim().max(2000, "Descrição deve ter no máximo 2000 caracteres").optional(),
+  stock: z.number().int("Estoque deve ser um número inteiro").min(0, "Estoque não pode ser negativo").max(10000, "Estoque muito alto"),
+  year: z.string().max(4, "Ano inválido").optional(),
+});
 
 interface ProductFormProps {
   initialProduct?: ToyItem;
@@ -55,7 +67,26 @@ export const ProductForm = ({ initialProduct, onSave, buttonText = "Add Product"
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(product);
+    
+    try {
+      productSchema.parse({
+        name: product.name,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        category: product.category,
+        description: product.description,
+        stock: product.stock,
+        year: product.year,
+      });
+      
+      onSave(product);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        error.errors.forEach((err) => {
+          toast.error(err.message);
+        });
+      }
+    }
   };
 
   const setImage = (imageUrl: string) => {

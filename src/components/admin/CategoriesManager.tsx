@@ -17,6 +17,13 @@ import { Plus, Edit, Trash, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { ImageUploader } from "./ImageUploader";
 import { Badge } from "@/components/ui/badge";
+import { z } from "zod";
+
+const categorySchema = z.object({
+  name: z.string().trim().min(1, "Nome é obrigatório").max(100, "Nome deve ter no máximo 100 caracteres"),
+  description: z.string().trim().max(500, "Descrição deve ter no máximo 500 caracteres"),
+  imageUrl: z.string().url("URL da imagem inválida").optional().or(z.literal('')),
+});
 
 interface Category {
   id: string;
@@ -76,7 +83,9 @@ export default function CategoriesManager() {
   });
 
   const handleAddCategory = () => {
-    if (newCategory.name.trim()) {
+    try {
+      categorySchema.parse(newCategory);
+      
       const category: Category = {
         ...newCategory,
         id: String(Date.now()),
@@ -91,30 +100,42 @@ export default function CategoriesManager() {
       });
       setIsAddDialogOpen(false);
       toast.success("Categoria adicionada com sucesso!");
-    } else {
-      toast.error("O nome da categoria é obrigatório!");
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        error.errors.forEach((err) => {
+          toast.error(err.message);
+        });
+      }
     }
   };
 
   const handleEditCategory = () => {
-    if (selectedCategory && newCategory.name.trim()) {
-      const updatedCategories = categories.map(cat => 
-        cat.id === selectedCategory.id 
-          ? { ...cat, ...newCategory }
-          : cat
-      );
+    try {
+      categorySchema.parse(newCategory);
       
-      setCategories(updatedCategories);
-      setIsEditDialogOpen(false);
-      setSelectedCategory(null);
-      setNewCategory({
-        name: "",
-        description: "",
-        imageUrl: ""
-      });
-      toast.success("Categoria atualizada com sucesso!");
-    } else {
-      toast.error("O nome da categoria é obrigatório!");
+      if (selectedCategory) {
+        const updatedCategories = categories.map(cat => 
+          cat.id === selectedCategory.id 
+            ? { ...cat, ...newCategory }
+            : cat
+        );
+        
+        setCategories(updatedCategories);
+        setIsEditDialogOpen(false);
+        setSelectedCategory(null);
+        setNewCategory({
+          name: "",
+          description: "",
+          imageUrl: ""
+        });
+        toast.success("Categoria atualizada com sucesso!");
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        error.errors.forEach((err) => {
+          toast.error(err.message);
+        });
+      }
     }
   };
 

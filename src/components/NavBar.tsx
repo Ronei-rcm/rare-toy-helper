@@ -5,6 +5,7 @@ import { Search, ShoppingCart, Menu, X, User, LogIn } from 'lucide-react';
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useIsMobile } from '../hooks/use-mobile';
+import { useAuth } from '../hooks/useAuth';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -18,18 +19,10 @@ import { toast } from "sonner";
 const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-
-  // Verifica se o usuário está logado
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, [location.pathname]);
+  const { user, signOut, isAdmin } = useAuth();
 
   // Check if the navbar should be transparent or solid
   useEffect(() => {
@@ -54,19 +47,17 @@ const NavBar = () => {
     { name: "Sobre", path: "/about" },
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("isLoggedIn");
-    setUser(null);
+  const handleLogout = async () => {
+    await signOut();
     toast.success("Logout realizado com sucesso!");
     navigate("/");
   };
 
   const goToUserArea = () => {
-    if (user?.role === "admin") {
+    if (isAdmin) {
       navigate("/admin");
     } else {
-      navigate("/cliente");
+      navigate("/client-area");
     }
   };
 
@@ -138,7 +129,7 @@ const NavBar = () => {
                 <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={goToUserArea}>
-                  {user.role === "admin" ? "Painel de Administração" : "Minha Área"}
+                  {isAdmin ? "Painel de Administração" : "Minha Área"}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/carrinho")}>
                   Meu Carrinho

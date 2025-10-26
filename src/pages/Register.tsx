@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { User, Mail, Lock, ArrowRight } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
 
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -42,6 +43,7 @@ const formSchema = z.object({
 export default function Register() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { signUp } = useAuth();
 
   // Inicializa o formulário com o schema de validação
   const form = useForm<z.infer<typeof formSchema>>({
@@ -56,23 +58,18 @@ export default function Register() {
   });
 
   // Handler do envio de formulário
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     
-    // Simulando um registro (aqui você integraria com sua API)
-    setTimeout(() => {
-      // Armazenar usuário no localStorage para simulação
-      localStorage.setItem("user", JSON.stringify({
-        id: Date.now().toString(),
-        name: values.name,
-        email: values.email,
-        role: "client"
-      }));
-      
-      setIsSubmitting(false);
-      toast.success("Cadastro realizado com sucesso!");
+    try {
+      await signUp(values.email, values.password, { name: values.name });
+      toast.success("Cadastro realizado com sucesso! Verifique seu email.");
       navigate("/login");
-    }, 1500);
+    } catch (error) {
+      // Error is already handled by the useAuth hook with toast
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (

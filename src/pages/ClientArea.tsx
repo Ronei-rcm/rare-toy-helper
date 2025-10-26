@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
+import { useAuth } from "../hooks/useAuth";
 import ClientSidebar from "../components/client/ClientSidebar";
 import ClientContent from "../components/client/ClientContent";
 import ClientModals from "../components/client/ClientModals";
@@ -66,7 +67,7 @@ const mockCartItems: CartItem[] = [
 
 export default function ClientArea() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const { user: authUser, signOut } = useAuth();
   const [orders, setOrders] = useState<Order[]>(mockOrders);
   const [wishlist, setWishlist] = useState<WishlistItem[]>(mockWishlist);
   const [cartItems, setCartItems] = useState<CartItem[]>(mockCartItems);
@@ -86,49 +87,35 @@ export default function ClientArea() {
   });
 
   useEffect(() => {
-    // Verifica se o usuário está logado
-    const storedUser = localStorage.getItem("user");
-    if (!storedUser) {
-      toast.error("Você precisa estar logado para acessar esta página");
-      navigate("/login");
-      return;
+    // Preencher dados do perfil quando o usuário estiver disponível
+    if (authUser) {
+      setProfile({
+        name: authUser.name || "",
+        email: authUser.email || "",
+        phone: "(11) 98765-4321",
+        address: {
+          street: "Rua das Flores",
+          number: "123",
+          complement: "Apto 45",
+          neighborhood: "Jardim Primavera",
+          city: "São Paulo",
+          state: "SP",
+          zipcode: "01234-567"
+        }
+      });
     }
+  }, [authUser]);
 
-    const userData = JSON.parse(storedUser);
-    setUser(userData);
-    
-    // Preencher dados do perfil (simulação)
-    setProfile({
-      name: userData.name,
-      email: userData.email,
-      phone: "(11) 98765-4321",
-      address: {
-        street: "Rua das Flores",
-        number: "123",
-        complement: "Apto 45",
-        neighborhood: "Jardim Primavera",
-        city: "São Paulo",
-        state: "SP",
-        zipcode: "01234-567"
-      }
-    });
-  }, [navigate]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("isLoggedIn");
+  const handleLogout = async () => {
+    await signOut();
     toast.success("Logout realizado com sucesso");
     navigate("/");
   };
 
   const handleSaveProfile = (updatedProfile: UserProfile) => {
-    // Atualiza o localStorage com os novos dados do perfil
-    if (user) {
-      const updatedUser = { ...user, name: updatedProfile.name, email: updatedProfile.email };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      setUser(updatedUser);
-      setProfile(updatedProfile);
-    }
+    // Update profile state
+    setProfile(updatedProfile);
+    toast.success("Perfil atualizado com sucesso!");
   };
 
   // Prepare initial context data
@@ -139,8 +126,8 @@ export default function ClientArea() {
     profile
   };
 
-  if (!user) {
-    return null; // Será redirecionado no useEffect
+  if (!authUser) {
+    return null; // AuthGuard will handle redirect
   }
 
   return (
@@ -154,7 +141,7 @@ export default function ClientArea() {
               {/* Sidebar */}
               <div className="md:w-64 shrink-0">
                 <ClientSidebar 
-                  userName={user.name} 
+                  userName={authUser.name || authUser.email || "Usuário"} 
                   onLogout={handleLogout} 
                 />
               </div>

@@ -46,12 +46,12 @@ export default function EventsManager() {
   const fetchEvents = async () => {
     try {
       const { data, error } = await supabase
-        .from("events")
+        .from("events" as any)
         .select("*")
         .order("start_date", { ascending: false });
 
       if (error) throw error;
-      setEvents(data || []);
+      setEvents((data as any) || []);
     } catch (error) {
       console.error("Erro ao buscar eventos:", error);
       toast.error("Erro ao carregar eventos");
@@ -66,16 +66,16 @@ export default function EventsManager() {
     try {
       if (editingEvent) {
         const { error } = await supabase
-          .from("events")
-          .update(formData)
+          .from("events" as any)
+          .update(formData as any)
           .eq("id", editingEvent.id);
 
         if (error) throw error;
         toast.success("Evento atualizado com sucesso!");
       } else {
         const { error } = await supabase
-          .from("events")
-          .insert([formData]);
+          .from("events" as any)
+          .insert([formData as any]);
 
         if (error) throw error;
         toast.success("Evento criado com sucesso!");
@@ -95,7 +95,7 @@ export default function EventsManager() {
 
     try {
       const { error } = await supabase
-        .from("events")
+        .from("events" as any)
         .delete()
         .eq("id", id);
 
@@ -111,8 +111,8 @@ export default function EventsManager() {
   const handleToggleActive = async (event: Event) => {
     try {
       const { error } = await supabase
-        .from("events")
-        .update({ is_active: !event.is_active })
+        .from("events" as any)
+        .update({ is_active: !event.is_active } as any)
         .eq("id", event.id);
 
       if (error) throw error;

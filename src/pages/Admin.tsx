@@ -14,7 +14,8 @@ import {
   AlertCircle,
   Film,
   Images,
-  Wallet
+  Wallet,
+  Calendar
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../hooks/useAuth";
@@ -28,6 +29,7 @@ import RelatoriosManager from "../components/admin/RelatoriosManager";
 import VideosManager from "../components/admin/VideosManager";
 import CarouselManager from "../components/admin/CarouselManager";
 import FinancialManager from "../components/admin/FinancialManager";
+import EventsManager from "../components/admin/EventsManager";
 import { Button } from "../components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { 
@@ -195,6 +197,15 @@ export default function Admin() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton 
+                    onClick={() => setActiveTab("events")} 
+                    isActive={activeTab === "events"}
+                  >
+                    <Calendar />
+                    <span>Eventos</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
                     onClick={() => setActiveTab("relatorios")} 
                     isActive={activeTab === "relatorios"}
                   >
@@ -240,6 +251,7 @@ export default function Admin() {
                     activeTab === "customers" ? "Gerenciar Clientes" :
                     activeTab === "videos" ? "Gerenciar Vídeos" :
                     activeTab === "financial" ? "Gestão Financeira" :
+                    activeTab === "events" ? "Gerenciar Eventos" :
                     activeTab === "relatorios" ? "Relatórios" :
                     "Configurações"
                   }</h1>
@@ -258,6 +270,7 @@ export default function Admin() {
                 {activeTab === "customers" && <CustomersManager />}
                 {activeTab === "videos" && <VideosManager />}
                 {activeTab === "financial" && <FinancialManager />}
+                {activeTab === "events" && <EventsManager />}
                 {activeTab === "relatorios" && <RelatoriosManager />}
                 {activeTab === "settings" && <SettingsManager />}
               </div>
